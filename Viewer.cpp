@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
+#include <conio.h>
 
 #include "graph.h"
 #include "aco.h"
@@ -38,8 +39,8 @@ int main(int argc, char *argv[])
 
     // Parámetros y configuración por defecto
     string nombre_archivo = "Formato5x5.txt";
-    int iteraciones = 10000;
-    int hormigas = 10;
+    int iteraciones = 2000;
+    int hormigas = 15;
     bool carga_auto = true;
     bool leer_restricciones = false;
     bool debug = true;
@@ -127,16 +128,19 @@ int main(int argc, char *argv[])
     cout << endl;
 
     // Crea una instancia del algoritmo y la resuelve, el tercer parametro indica si se muestran mensajes de debug
-    ACO aco(&grafo, hormigas, debug_ACO);
+    ACO aco = ACO(&grafo, hormigas, debug_ACO);    
     aco.resolver(iteraciones);
 
     // Muestra la solución
-    aco.mostrar_solucion();
+    bool show_solucion = false;
+    aco.mostrar_solucion(show_solucion);
 
     cout << "Programa finalizado correctamente" << endl;
-    cout << "Presione cualquier tecla para continuar..." << endl;
     for (int i = 0; i < hormigas; i++)
         cout << "🐜 ";
     cout << endl;
+    cout << endl;
+    cout << "Presione cualquier tecla para continuar..." << endl;    
+    getch();
     return 0;
 }

@@ -101,7 +101,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones)
         g.nodos[destino].entrante.push_back(*arco);
 
         // Actualizar la información heurística
-        double costo = arco->costo_recorrido + arco->costo_recoleccion;
+        double costo = arco->costo_recorrido ;
         g.informacion_heuristica[origen][destino] = 1.0 / costo;
 
         IdArco++;

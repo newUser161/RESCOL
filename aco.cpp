@@ -32,14 +32,15 @@ ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
     {
         // Crea una nueva hormiga
         Hormiga hormiga;
-        hormiga.id = i;       
+        hormiga.id = i;
 
         // Establece la posición inicial de la hormiga de manera aleatorio entre la cantidad de nodos iniciales permitidos.
         int nodo_inicial = int(generar_numero_aleatorio(1, graph->metadatos.nodos_iniciales.size() - 1));
         hormiga.nodo_actual = &graph->metadatos.nodos_iniciales[nodo_inicial];
 
         // Inicializa un mapa para que la hormiga lleve la cuenta de las pasadas por los arcos.
-        for (auto &par : graph->arcos) hormiga.arcosVisitados[par.second] = 0;
+        for (auto &par : graph->arcos)
+            hormiga.arcosVisitados[par.second] = 0;
 
         // Añade la hormiga a la lista de hormigas
         hormigas.push_back(hormiga);
@@ -48,7 +49,7 @@ ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
     // Inicializa las feromonas.
     for (auto &par : graph->arcos)
     {
-        Arco *arco = par.second; 
+        Arco *arco = par.second;
         Feromona feromona_inicial = {arco->origen, arco->destino, tau};
         feromonas[arco] = feromona_inicial;
     }
@@ -59,20 +60,29 @@ ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
 
 /* Resuelve el problema
     Este método resuelve el problema simplemente iterando el algoritmo hasta que se cumpla el criterio de parada.
-    Algunas alternativas de mejora son:    
+    Algunas alternativas de mejora son:
     - Establecer un criterio de parada basado en la calidad de las soluciones, mientras menos mejor.
     - Establecer un criterio de parada basado en el tiempo de ejecución.
-    - Establecer un criterio de parada basado en la cantidad de iteraciones sin mejora, de manera local, global y/o por hormiga.    
+    - Establecer un criterio de parada basado en la cantidad de iteraciones sin mejora, de manera local, global y/o por hormiga.
     + Mas opciones en aco-book.
 
     Parámetros:
     - iteraciones_max: Número máximo de iteraciones que realizará el algoritmo
 */
 void ACO::resolver(int iteraciones_max)
-{    
+{
+    int promedio_movil = 0;
     while (iteraciones < iteraciones_max)
     {
         iterar();
+        mejor_solucion = guardar_mejor_solucion();
+
+        // Promedio movil
+        for (auto &hormiga : hormigas)
+            promedio_movil = (promedio_movil * iteraciones + hormiga.costo_camino) / (iteraciones + 1);
+        cout << "Iteracion: " << iteraciones << " Mejor costo: " << mejor_solucion.costo_camino << " Promedio movil: " << promedio_movil << endl;
+        
+        limpiar();
         iteraciones++;
     }
 }
@@ -84,10 +94,13 @@ void ACO::resolver(int iteraciones_max)
 void ACO::iterar()
 {
     // Mueve todas las hormigas.
-    for (auto &hormiga : hormigas) construirSolucion(hormiga);
-
+    for (auto &hormiga : hormigas) 
+        construirSolucion(hormiga);
     // evaporar feromonas
-    for (auto &par : feromonas) par.second.cantidad *= (1 - rho);
+    for (auto i = feromonas.begin(); i != feromonas.end(); i++)
+    {
+        i->second.cantidad *= (1 - rho);
+    }
 
     // Actualiza las feromonas.
     for (Hormiga &hormiga : hormigas)
@@ -96,7 +109,7 @@ void ACO::iterar()
         {
             Arco *a = par.first;
             int pasadas = par.second;            
-            feromonas[a].cantidad += (tau / ((hormiga.costo_camino + hormiga.longitud_camino) * pasadas));
+            feromonas.at(a).cantidad += (tau / ((hormiga.costo_camino + hormiga.longitud_camino) * pasadas));
         }
     }
 }
@@ -114,7 +127,8 @@ void ACO::construirSolucion(Hormiga &hormiga)
     while (!solucionCompleta(hormiga))
     {
         actual = hormiga.nodo_actual;
-        if (debug) cout << "Hormiga numero "<< hormiga.id << " en el nodo " << actual->id << endl;
+        if (debug)
+            cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
         Nodo *siguiente = eligeSiguiente(hormiga);
         visitar(hormiga, siguiente);
     }
@@ -136,6 +150,10 @@ void ACO::construirSolucion(Hormiga &hormiga)
 Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
 {
     double total = 0.0;
+    double r = generar_numero_aleatorio(0, 1.00);
+    double acumulado = 0.0;
+    double cantidad = 0.0;
+
     Nodo *nodo = nullptr;
     std::unordered_map<Arco *, double> probabilidad;
 
@@ -150,18 +168,19 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                 break;
             }
         }
-        double tau_eta = pow(feromonas.at(arco).cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+        cantidad = feromonas[arco].cantidad;
+        double tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);                
         probabilidad[arco] = tau_eta;
         total += tau_eta;
-        if (debug) cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
+        if (debug)
+            cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
     }
     for (auto &p : probabilidad)
     {
         p.second /= total;
-        if (debug) cout << "arco:" << p.first->origen->id << " " << p.first->destino->id << " probabilidad: " << p.second << endl;
+        if (debug)
+            cout << "arco:" << p.first->origen->id << " " << p.first->destino->id << " probabilidad: " << p.second << endl;
     }
-    double r = generar_numero_aleatorio(0, 1.00);
-    double acumulado = 0.0;
     for (auto &p : probabilidad)
     {
         acumulado += p.second;
@@ -171,8 +190,10 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
             break;
         }
     }
-    if (debug) cout << "r: " << r << endl;
-    if (debug)  cout << "nodo elegido: " << nodo->id << endl;
+    if (debug)
+        cout << "r: " << r << endl;
+    if (debug)
+        cout << "nodo elegido: " << nodo->id << endl;
 
     return nodo;
 }
@@ -186,7 +207,7 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
     - nodo: Puntero al nodo que se va a visitar
 */
 void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
-{    
+{
     Arco *arco = nullptr;
     for (auto &a : hormiga.arcosVisitados)
     {
@@ -196,11 +217,17 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
             break;
         }
     }
-
+    arco->veces_recorrida += 1;
     hormiga.arcosVisitados[arco] += 1;
     hormiga.camino.push_back(*arco);
     hormiga.nodo_actual = nodo;
-    hormiga.costo_camino += arco->costo_recoleccion + arco->costo_recorrido;
+    if (arco->veces_recorrida == 1)
+    {
+        hormiga.costo_camino += arco->costo_recorrido + arco->costo_recoleccion;
+    } else {
+        hormiga.costo_camino += arco->costo_recorrido;
+    }
+    
     hormiga.longitud_camino += 1;
     return;
 }
@@ -215,7 +242,7 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
     - bool: True si la solución es completa, False en caso contrario.
 */
 bool ACO::solucionCompleta(Hormiga &hormiga)
-{    
+{
     // Los arcos se han visitado al menos una vez
     bool completo = false;
     for (auto &par : hormiga.arcosVisitados)
@@ -225,14 +252,16 @@ bool ACO::solucionCompleta(Hormiga &hormiga)
             completo = false;
             break;
         }
-        else completo = true; 
+        else
+            completo = true;
     }
 
     // El nodo actual es uno de los nodos finales
     bool termino = false;
     for (auto &nodo_final : grafo->metadatos.nodos_termino)
     {
-        if (hormiga.nodo_actual->id == nodo_final.id) termino = true;
+        if (hormiga.nodo_actual->id == nodo_final.id)
+            termino = true;
     }
     return (completo && termino);
 }
@@ -241,46 +270,53 @@ bool ACO::solucionCompleta(Hormiga &hormiga)
     Muestra la solución
     Este método muestra la solución, mostrando el camino y el costo de cada hormiga.
 */
-void ACO::mostrar_solucion()
+void ACO::mostrar_solucion(bool show_solucion)
 {
-    int mejor_hormiga = -1;    
+    for (int i = 0; i < 161; i++)
+        cout << "-";
+    cout << endl;
+    cout << "✨🏆 Mejor resultado 🏆✨" << endl;
+    cout << endl;
+    cout << "Mejor hormiga: " << mejor_solucion.id << " 🐜🥇" << endl;
+    cout << "Mejor costo: " << mejor_solucion.costo_camino << " ⏩" << endl;
+    cout << "Mejor longitud: " << mejor_solucion.longitud_camino << " ⚡" << endl;
+    cout << "La solucion es: " << endl;
+    if (show_solucion){
+        for (auto &arco : mejor_solucion.camino)
+        {
+            cout << "(" << arco.origen->id << "," << arco.destino->id << ")";
+            cout << " -> ";
+        }
+        cout << " 🏁 ";
+        cout << endl;
+        for (int i = 0; i < 161; i++)
+            cout << "-";
+        cout << endl;
+        cout << endl;
+    }
+}
+
+/*
+    Este método guarda la mejor solución, es decir, la hormiga con el mejor(menor) costo y longitud de camino.
+
+    Retorna:
+    - Hormiga: La mejor hormiga
+*/
+Hormiga ACO::guardar_mejor_solucion()
+{
+    Hormiga mejor_hormiga;
     int mejor_costo = std::numeric_limits<int>::max();
     int mejor_longitud = std::numeric_limits<int>::max();
-    
-    
+
     for (auto &hormiga : hormigas)
     {
         if (hormiga.costo_camino < mejor_costo && hormiga.longitud_camino < mejor_longitud)
-        {
-            mejor_hormiga = hormiga.id;
-            mejor_costo = hormiga.costo_camino;
-            mejor_longitud = hormiga.longitud_camino;
-        }
-
-        cout << "Hormiga " << hormiga.id << endl;
-        if (debug){
-            cout << "Camino: ";
-            for (auto& arco : hormiga.camino) {
-                cout << "(" << arco.origen->id << "," << arco.destino->id << ") ";
-            }
-            cout << endl;
-        }
-
-        cout << "Costo: " << hormiga.costo_camino << endl;
-        cout << "Longitud: " << hormiga.longitud_camino << endl;
-        cout << endl;
+            mejor_hormiga = hormiga;
     }
-    for (int i = 0; i < 161; i++) cout << "-";
-    cout << endl;
-    cout << "✨🏆 Mejores resultados 🏆✨" << endl;
-    cout << endl;
-    cout << "Mejor hormiga: " << mejor_hormiga << " 🐜🥇" << endl;
-    cout << "Mejor costo: " << mejor_costo << " ⏩" <<endl;
-    cout << "Mejor longitud: " << mejor_longitud<< " ⚡" << endl;
-    for (int i = 0; i < 161; i++) cout << "-";
-    cout << endl;
-    cout << endl;
+    return mejor_hormiga;
+
 }
+
 
 /*
     Limpia la memoria y datos del algoritmo
@@ -291,9 +327,9 @@ void ACO::limpiar()
     for (auto &hormiga : hormigas)
     {
         hormiga.camino.clear();
-        hormiga.arcosVisitados.clear();
+        for (auto &par : grafo->arcos)
+            hormiga.arcosVisitados[par.second] = 0;
         hormiga.longitud_camino = 0;
         hormiga.costo_camino = 0;
     }
-    iteraciones = 0;
 }

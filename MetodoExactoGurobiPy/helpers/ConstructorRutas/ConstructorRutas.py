@@ -74,25 +74,55 @@ def construir_mapa_adyacencia(grafo, mapa_resultados):
                 mapa_adyacencia[nodo.id].append([arco.destino.id,cantidad])
     return mapa_adyacencia
     
+def elegirSiguiente(mapa_adyacencia, nodo_inicial):
+    mayor_recorrido = 0
+    indice_mayor_recorrido = -1  
+    for i, (adyacente, recorrido) in enumerate(mapa_adyacencia[nodo_inicial]):
+        if recorrido > mayor_recorrido:
+            mayor_recorrido = recorrido
+            indice_mayor_recorrido = i
+    return indice_mayor_recorrido
 
-def dfs(limite_paso_salida, mapa_adyacencia, nodo_inicial, nodo_final, camino=None): 
+def reparar_solucion(mejor_ruta, mejor_mapa_adyacencia, mapa_adyacencia_copia):
+    arcos_faltantes = {}
+
+    for nodo, adyacentes in mejor_mapa_adyacencia.items():
+        adyacentes_faltantes = [adyacente for adyacente in adyacentes if adyacente[1] == 1]
+        if adyacentes_faltantes:
+            arcos_faltantes[nodo] = adyacentes_faltantes
+    nodos_faltantes = list(arcos_faltantes.keys())
+    ruta = dfs(False, 1, mapa_adyacencia_copia, nodos_faltantes[0], nodos_faltantes[1])
+    print(ruta)
+
+
+
+    return mejor_ruta, mejor_mapa_adyacencia
+
+def dfs(metodo_random, limite_paso_salida, mapa_adyacencia, nodo_inicial, nodo_final, camino=None): 
     if camino is None:
         camino = [nodo_inicial]
 
     if (nodo_inicial == nodo_final and limite_paso_salida == 0):
         return camino
     contador = 0
-    max_iteraciones = 1000
+    if metodo_random:
+        max_iteraciones = 1000
+    else:        
+        max_iteraciones = 10
     while mapa_adyacencia[nodo_inicial] and contador < max_iteraciones:
-        contador += 1        
-        adyacente, recorrido = random.choice(mapa_adyacencia[nodo_inicial])
+        contador += 1       
+        if metodo_random:
+            adyacente, recorrido = random.choice(mapa_adyacencia[nodo_inicial])            
+        else:
+            indice_nodo_elegido = elegirSiguiente(mapa_adyacencia, nodo_inicial)
+            adyacente, recorrido = mapa_adyacencia[nodo_inicial][indice_nodo_elegido]
         if adyacente == nodo_final: 
             limite_paso_salida -= 1
         camino.append(adyacente)
         recorrido -= 1
         if recorrido == 0:
             mapa_adyacencia[nodo_inicial] = mapa_adyacencia[nodo_inicial][1:]
-        ruta_resultante = dfs(limite_paso_salida, mapa_adyacencia, adyacente ,nodo_final, camino)
+        ruta_resultante = dfs(metodo_random, limite_paso_salida, mapa_adyacencia, adyacente ,nodo_final, camino)
         if ruta_resultante:
             return ruta_resultante
     camino.pop()

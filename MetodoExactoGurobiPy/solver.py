@@ -3,7 +3,7 @@ from gurobipy import * # type: ignore
 from gurobipy import GRB # type: ignore
 from helpers.ParserInstancias.ParserInstancias import leer_archivo
 from helpers.TraductorInstancias.traductorDat import traducir_dat
-from helpers.ConstructorRutas.ConstructorRutas import construir_grafo, construir_mapa_adyacencia, dfs, parsear_resultados_gurobi
+from helpers.ConstructorRutas.ConstructorRutas import construir_grafo, construir_mapa_adyacencia, dfs, parsear_resultados_gurobi, reparar_solucion
 from helpers.Visualizador.Visualizador import visualizar_grafo
 from tqdm import tqdm
 import sys
@@ -22,7 +22,7 @@ class FormatoInstancia(ABC):
 class FormatoA(FormatoInstancia):
     def leer_instancia(self):
         if carga_auto:
-            nombre_archivo = "FormatoInstanciaRESCOL.txt"
+            nombre_archivo = "Formato5x5.txt"
         else:
             nombre_archivo = sys.argv[1]
         ruta_absoluta = os.path.abspath(nombre_archivo)           
@@ -195,39 +195,36 @@ limite_paso_salida = 0
 for (nodo1, nodo2), veces_recorrido in mapa_resultados.items():
     if nodo2 == nodo_terminal:
         limite_paso_salida += veces_recorrido
-# Supongamos que tu mapa de adyacencia original se llama mapa_adyacencia_original
 mapa_adyacencia_original = copy.deepcopy(mapa_adyacencia)
 
 contador = 0
-max_iteraciones = 25000
+max_iteraciones = 10000
 pbar = tqdm(total=max_iteraciones)
 mejor_ruta = None
 mejor_mapa_adyacencia = None
 mejor_cantidad_arcos = float('inf') # Inicializa con infinito
-total_arcos = sum(len(v) for v in mapa_adyacencia_original.values())
+# sumar las veces que se pasa por cada arco
+
+total_arcos = sum(cantidad for sublist in mapa_adyacencia_original.values() for _, cantidad in sublist)
 
 while contador < max_iteraciones:
-    ruta = dfs(limite_paso_salida, mapa_adyacencia, nodo_inicial, nodo_terminal ) 
-    cantidad_arcos_actual = sum(len(v) for v in mapa_adyacencia.values())
+    ruta = dfs(True, limite_paso_salida, mapa_adyacencia, nodo_inicial, nodo_terminal, ) 
+    cantidad_arcos_actual = sum(cantidad for sublist in mapa_adyacencia.values() for _, cantidad in sublist)
     if cantidad_arcos_actual < mejor_cantidad_arcos and ruta is not None:
         mejor_cantidad_arcos = cantidad_arcos_actual
         mejor_ruta = copy.deepcopy(ruta)
-        mejor_mapa_adyacencia = copy.deepcopy(mapa_adyacencia)
-        
+        mejor_mapa_adyacencia = copy.deepcopy(mapa_adyacencia)        
         arcos_recorridos = total_arcos - mejor_cantidad_arcos
         porcentaje_completado = (arcos_recorridos / total_arcos) * 100
-
-        print("Encontrada una mejor ruta en el intento {}. Completitud: {:.2f}%.".format(contador, porcentaje_completado))
-        
-    # Reinicia el mapa de adyacencia si no se encontró ninguna ruta válida
+        print("Encontrada una mejor ruta en el intento {}. Completitud: {:.2f}%.".format(contador, porcentaje_completado))        
     mapa_adyacencia = copy.deepcopy(mapa_adyacencia_original)
     contador += 1
-    pbar.update(1)  # actualiza la barra de progreso
-
+    pbar.update(1)  
+reparar_solucion(mejor_ruta, mejor_mapa_adyacencia, mapa_adyacencia_copia)
 print("La mejor ruta recorrió el {:.2f}% del total de arcos.".format(porcentaje_completado)) # type: ignore
 print("Arcos recorridos: ", arcos_recorridos) # type: ignore
 print("Arcos faltantes: ", mejor_cantidad_arcos)
-pbar.close()  # cierra la barra de progreso al finalizar
+pbar.close() 
 
 
 visualizar_grafo(mapa_adyacencia_copia, mejor_ruta) # type: ignore

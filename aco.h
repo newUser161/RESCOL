@@ -30,8 +30,9 @@ public:
     // Constructor, destructores y otros métodos.
     ACO(Graph *graph, int num_hormigas, bool debug); // Constructor
     void resolver(int iteraciones_max);  // Resuelve el problema
-    void mostrar_solucion();             // Muestra la solución
+    void mostrar_solucion(bool show_solucion);             // Muestra la solución
     void limpiar();                      // Limpia la memoria y datos del algoritmo
+    
 
 private:
     Graph *grafo = nullptr; // Grafo
@@ -42,15 +43,17 @@ private:
     float tau = 1.0;     // Parámetro tau, asociado a las feromonas iniciales
     int iteraciones = 0; // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
     bool debug = false;  // Flag que muestra o no informacion de debug como los caminos de las hormigas
-
-    std::vector<Hormiga> hormigas;                  // Hormigas
     std::unordered_map<Arco *, Feromona> feromonas; // Feromonas
+    std::vector<Hormiga> hormigas;                  // Hormigas
+    Hormiga mejor_solucion;                         // Mejor solución
+    
 
     Nodo *eligeSiguiente(Hormiga &hormiga);     // Elige el siguiente nodo
     void construirSolucion(Hormiga &hormiga);   // Construye la solución para una hormiga
     void visitar(Hormiga &hormiga, Nodo *nodo); // Visita el nodo siguiente
     bool solucionCompleta(Hormiga &hormiga);    // Verifica si la solución es completa
     void iterar();                              // Itera el algoritmo
+    Hormiga guardar_mejor_solucion();              // Guarda la mejor solución
 };
 
 #endif
