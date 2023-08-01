@@ -40,7 +40,7 @@ ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
 
         // Inicializa un mapa para que la hormiga lleve la cuenta de las pasadas por los arcos.
         for (auto &par : graph->arcos)
-            hormiga.arcosVisitados[par.second] = 0;
+            hormiga.arcosVisitados[par.second] = 0;            
 
         // Añade la hormiga a la lista de hormigas
         hormigas.push_back(hormiga);
@@ -52,6 +52,9 @@ ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
         Arco *arco = par.second;
         Feromona feromona_inicial = {arco->origen, arco->destino, tau};
         feromonas[arco] = feromona_inicial;
+        for (auto &hormiga : hormigas)
+            hormiga.feromonas_locales[arco] = feromona_inicial;
+
     }
 
     // Establece el grafo.
@@ -76,7 +79,7 @@ void ACO::resolver(int iteraciones_max)
     {
         iterar();
         mejor_solucion = guardar_mejor_solucion();
-
+        
         // Promedio movil
         for (auto &hormiga : hormigas)
             promedio_movil = (promedio_movil * iteraciones + hormiga.costo_camino) / (iteraciones + 1);
@@ -153,6 +156,7 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
     double r = generar_numero_aleatorio(0, 1.00);
     double acumulado = 0.0;
     double cantidad = 0.0;
+    double tau_eta = 0.0;
 
     Nodo *nodo = nullptr;
     std::unordered_map<Arco *, double> probabilidad;
@@ -168,8 +172,12 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                 break;
             }
         }
-        cantidad = feromonas[arco].cantidad;
-        double tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);                
+        cantidad = hormiga.feromonas_locales[arco].cantidad; 
+        if (arco->obligatoria == true){
+            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);                
+        }  else {
+            tau_eta = 1;
+        }
         probabilidad[arco] = tau_eta;
         total += tau_eta;
         if (debug)
@@ -220,6 +228,12 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
     arco->veces_recorrida += 1;
     hormiga.arcosVisitados[arco] += 1;
     hormiga.camino.push_back(*arco);
+    if (hormiga.feromonas_locales[arco].cantidad < umbral_inferior)
+    {
+        hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
+    } else {
+        hormiga.feromonas_locales[arco].cantidad *= (1-rho); 
+    }
     hormiga.nodo_actual = nodo;
     if (arco->veces_recorrida == 1)
     {
@@ -247,7 +261,7 @@ bool ACO::solucionCompleta(Hormiga &hormiga)
     bool completo = false;
     for (auto &par : hormiga.arcosVisitados)
     {
-        if (par.second == 0)
+        if (par.second == 0 && par.first->obligatoria == true) 
         {
             completo = false;
             break;
@@ -331,5 +345,6 @@ void ACO::limpiar()
             hormiga.arcosVisitados[par.second] = 0;
         hormiga.longitud_camino = 0;
         hormiga.costo_camino = 0;
+        hormiga.feromonas_locales = feromonas;
     }
 }
