@@ -4,6 +4,6 @@
 #include "graph.h" 
 #include <string>
 using namespace std;
-Graph leerInstancia(const std::string &filename, bool leer_restricciones = false);
+Graph leerInstancia(const std::string &filename, bool leer_restricciones, bool leer_coordenadas);
 
 #endif

@@ -17,7 +17,7 @@ using namespace std;
     - nombre_archivo: Nombre del archivo que contiene la instancia
     - leer_restricciones: Indica si se leerán las restricciones del archivo
 */
-Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones)
+Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, bool leer_coordenadas)
 {
     // Inicializar el grafo
     Graph g;
@@ -138,7 +138,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones)
             }
 
             // Crear el arco opcional
-            Arco *arco;
+            Arco *arco = new Arco;
             arco->id = IdArco;
             arco->obligatoria = false;
             arco->origen = &g.nodos[origen];
@@ -148,6 +148,9 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones)
             // Conectar el arco a sus nodos
             g.nodos[origen].saliente.push_back(*arco);
             g.nodos[destino].entrante.push_back(*arco);
+
+            // Actualizar la información heurística            
+            g.informacion_heuristica[origen][destino] = 0;
 
             IdArco++;
         }
@@ -159,24 +162,23 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones)
     // Leer coordenadas
     // TODO: Formato coordenadas
     // Datos dummy ⚠️
-    int idNodo = 1;
-    for (int i = 0; i < std::stoi(encabezado["VERTICES"]); i++)
-    {
-        std::getline(infile, lineaDato);
-        std::istringstream arcStream(lineaDato);
-        int id;
-        double x, y;
-        if (!(arcStream >> x >> y))
+    if (leer_coordenadas){
+        for (int i = 0; i < std::stoi(encabezado["VERTICES"]); i++)
         {
-            // Error de formato
-            std::cerr << "Error en el formato del archivo" << std::endl;
-            return Graph();
+            std::getline(infile, lineaDato);
+            std::istringstream arcStream(lineaDato);
+            int id;
+            double x, y;
+            if (!(arcStream >> x >> y))
+            {
+                // Error de formato
+                std::cerr << "Error en el formato del archivo" << std::endl;
+                return Graph();
+            }
         }
-        // Actualizar las coordenadas del nodo
-        g.nodos[idNodo].x = x;
-        g.nodos[idNodo].y = y;
-
-        idNodo++;
+    } else {
+        for (int i = 0; i < std::stoi(encabezado["VERTICES"]); i++)
+            std::getline(infile, lineaDato);
     }
 
     // Saltarse header Restricciones

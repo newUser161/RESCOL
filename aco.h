@@ -5,6 +5,16 @@
 #include <vector>
 #include <unordered_map>
 
+
+
+// Representación de las Feromonas
+struct Feromona
+{
+    Nodo *nodo_inicial = nullptr;  // Nodo inicial
+    Nodo *nodo_terminal = nullptr; // Nodo terminal
+    double cantidad = 0.0;         // Cantidad de feromonas
+};
+
 // Representación de una Hormiga
 struct Hormiga
 {
@@ -14,14 +24,8 @@ struct Hormiga
     double longitud_camino = 0.0;                   // Longitud del camino, cuantas aristas se ha recorrido
     double costo_camino = 0.0;                      // Costo del camino, costo asociado a la recolección y recorrido
     int id = 0;                                     // Identificador de la hormiga
-};
-
-// Representación de las Feromonas
-struct Feromona
-{
-    Nodo *nodo_inicial = nullptr;  // Nodo inicial
-    Nodo *nodo_terminal = nullptr; // Nodo terminal
-    double cantidad = 0.0;         // Cantidad de feromonas
+    std::unordered_map<Arco *, Feromona> feromonas_locales; // Feromonas locales de la hormiga
+    
 };
 
 class ACO
@@ -36,7 +40,7 @@ public:
 
 private:
     Graph *grafo = nullptr; // Grafo
-
+    double umbral_inferior = 1.7e-300; // Umbral inferior para las feromonas
     float alfa = 1.0;    // Parámetro alfa
     float beta = 2.0;    // Parámetro beta
     float rho = 0.5;     // Parámetro rho, asociado a la evaporacion de feromonas

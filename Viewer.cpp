@@ -39,10 +39,11 @@ int main(int argc, char *argv[])
 
     // Parámetros y configuración por defecto
     string nombre_archivo = "Formato5x5.txt";
-    int iteraciones = 2000;
-    int hormigas = 15;
+    int iteraciones = 5000;
+    int hormigas = 10;
     bool carga_auto = true;
     bool leer_restricciones = false;
+    bool leer_coordenadas = false;
     bool debug = true;
     bool debug_ACO = false;
 
@@ -50,7 +51,7 @@ int main(int argc, char *argv[])
 
     if (carga_auto)
     {
-        grafo = leerInstancia(nombre_archivo, leer_restricciones);
+        grafo = leerInstancia(nombre_archivo, leer_restricciones, leer_coordenadas);
     }
     else
     {
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
         hormigas = atoi(argv[3]);
         carga_auto = atoi(argv[4]);
         leer_restricciones = atoi(argv[5]);
+        leer_coordenadas = atoi(argv[5]);
 
         // Intenta abrir el archivo
         ifstream archivo(nombre_archivo);
@@ -74,7 +76,7 @@ int main(int argc, char *argv[])
             cout << "No se pudo abrir el archivo ❌" << nombre_archivo << endl;
             return 1;
         }
-        grafo = leerInstancia(nombre_archivo, leer_restricciones);
+        grafo = leerInstancia(nombre_archivo, leer_restricciones, leer_coordenadas);
     }
 
     (grafo.vector_arcos.empty()) ? cout << "Error al leer la instancia ❌" << endl : cout << "Instancia leída correctamente ✔️" << endl;
@@ -132,7 +134,7 @@ int main(int argc, char *argv[])
     aco.resolver(iteraciones);
 
     // Muestra la solución
-    bool show_solucion = false;
+    bool show_solucion = true;
     aco.mostrar_solucion(show_solucion);
 
     cout << "Programa finalizado correctamente" << endl;
