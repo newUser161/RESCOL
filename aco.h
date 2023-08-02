@@ -32,10 +32,11 @@ class ACO
 {
 public:
     // Constructor, destructores y otros métodos.
-    ACO(Graph *graph, int num_hormigas, bool debug); // Constructor
+    ACO(Graph *graph, int num_hormigas, float alfa, float beta, float rho, float tau, bool debug); // Constructor
     void resolver(int iteraciones_max);  // Resuelve el problema
     void mostrar_solucion(bool show_solucion);             // Muestra la solución
     void limpiar();                      // Limpia la memoria y datos del algoritmo
+    void set_parametros(float alfa, float beta, float rho, float tau); // Setea los parámetros del algoritmo
     
 
 private:
