@@ -24,10 +24,10 @@ using namespace std;
         - graph: Puntero al grafo que se utilizará para resolver el problema
         - num_hormigas: Número de hormigas que se utilizarán para resolver el problema
 */
-ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
+ACO::ACO(Graph *graph, int num_hormigas, float alfa, float beta, float rho, float tau, bool param_debug)
 {
     debug = param_debug;
-    
+    set_parametros(alfa, beta, rho, tau);
     // Inicializa las hormigas.
     for (int i = 0; i < num_hormigas; i++)
     {
@@ -234,7 +234,7 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
     {
         hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
     } else {
-        hormiga.feromonas_locales[arco].cantidad *= (1-rho); 
+        hormiga.feromonas_locales[arco].cantidad *= (1-rho_secundario); 
     }
     hormiga.nodo_actual = nodo;
     if (arco->veces_recorrida == 1)

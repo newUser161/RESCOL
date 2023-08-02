@@ -39,9 +39,13 @@ int main(int argc, char *argv[])
 
     // Parámetros y configuración por defecto
     string nombre_archivo = "Formato5x5.txt";
-    int iteraciones = 5000;
+    int iteraciones = 500;
     int hormigas = 10;
-   
+    float alfa = 1.0;  
+    float beta = 2.0;  
+    float rho = 0.5;   
+    float tau = 1.0;   
+    //float q0 = 0.5;
     
     bool carga_auto = true;
     bool leer_restricciones = false;
@@ -49,7 +53,7 @@ int main(int argc, char *argv[])
     bool debug = true;
     bool debug_ACO = false;
 
-    Graph grafo;
+    Graph grafo = Graph();
 
     if (carga_auto)
     {
@@ -67,7 +71,10 @@ int main(int argc, char *argv[])
         nombre_archivo = argv[1];
         iteraciones = atoi(argv[2]);
         hormigas = atoi(argv[3]);
-       
+        alfa = atof(argv[4]);
+        beta = atof(argv[5]);
+        rho = atof(argv[6]);
+        tau = atof(argv[7]);
         //q0 = atof(argv[8]);
         
         carga_auto = atoi(argv[8]);
@@ -135,7 +142,7 @@ int main(int argc, char *argv[])
     cout << endl;
 
     // Crea una instancia del algoritmo y la resuelve, el tercer parametro indica si se muestran mensajes de debug
-    ACO aco = ACO(&grafo, hormigas, debug_ACO);    
+    ACO aco = ACO(&grafo, hormigas, alfa, beta, rho, tau, debug_ACO);    
     aco.resolver(iteraciones);
 
     // Muestra la solución
