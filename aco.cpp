@@ -233,7 +233,7 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
     {
         hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
     } else {
-        hormiga.feromonas_locales[arco].cantidad *= (1-rho); 
+        hormiga.feromonas_locales[arco].cantidad *= (1-rho_secundario); 
     }
     hormiga.nodo_actual = nodo;
     if (arco->veces_recorrida == 1)

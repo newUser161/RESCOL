@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
     // Parámetros y configuración por defecto
     string nombre_archivo = "Formato5x5.txt";
-    int iteraciones = 5000;
+    int iteraciones = 500;
     int hormigas = 10;
     float alfa = 1.0;  
     float beta = 2.0;  
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     bool debug = true;
     bool debug_ACO = false;
 
-    Graph grafo;
+    Graph grafo = Graph();
 
     if (carga_auto)
     {

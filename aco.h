@@ -45,6 +45,7 @@ private:
     float alfa = 1.0;    // Parámetro alfa
     float beta = 2.0;    // Parámetro beta
     float rho = 0.5;     // Parámetro rho, asociado a la evaporacion de feromonas
+    float rho_secundario = 0.5;     // Parámetro rho, asociado a la evaporacion de feromonas
     float tau = 1.0;     // Parámetro tau, asociado a las feromonas iniciales
     int iteraciones = 0; // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
     bool debug = false;  // Flag que muestra o no informacion de debug como los caminos de las hormigas
