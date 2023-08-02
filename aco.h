@@ -36,6 +36,7 @@ public:
     void resolver(int iteraciones_max);  // Resuelve el problema
     void mostrar_solucion(bool show_solucion);             // Muestra la solución
     void limpiar();                      // Limpia la memoria y datos del algoritmo
+    void set_parametros(float alfa, float beta, float rho, float tau); // Setea los parámetros del algoritmo
     
 
 private:

@@ -27,6 +27,7 @@ using namespace std;
 ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
 {
     debug = param_debug;
+    
     // Inicializa las hormigas.
     for (int i = 0; i < num_hormigas; i++)
     {
@@ -59,6 +60,7 @@ ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
 
     // Establece el grafo.
     grafo = graph;
+
 }
 
 /* Resuelve el problema
@@ -347,4 +349,12 @@ void ACO::limpiar()
         hormiga.costo_camino = 0;
         hormiga.feromonas_locales = feromonas;
     }
+}
+
+void ACO::set_parametros(float alfa, float beta, float tau, float rho)
+{
+    this->alfa = alfa;
+    this->beta = beta;
+    this->tau = tau;
+    this->rho = rho;
 }

@@ -41,6 +41,8 @@ int main(int argc, char *argv[])
     string nombre_archivo = "Formato5x5.txt";
     int iteraciones = 5000;
     int hormigas = 10;
+   
+    
     bool carga_auto = true;
     bool leer_restricciones = false;
     bool leer_coordenadas = false;
@@ -55,9 +57,9 @@ int main(int argc, char *argv[])
     }
     else
     {
-        if (argc != 6)
+        if (argc != 11)
         {
-            cout << "Uso: " << argv[0] << " <nombre_Instancia> <#iteraciones> <#hormigas> <carga_auto> <leer_restricciones> <debug>" << endl;
+            cout << "Uso: " << argv[0] << " <nombre_Instancia> <#iteraciones> <#hormigas> <alfa> <beta> <rho> <tau> <carga_auto> <leer_restricciones> <debug>" << endl;
             return 1;
         }
 
@@ -65,9 +67,12 @@ int main(int argc, char *argv[])
         nombre_archivo = argv[1];
         iteraciones = atoi(argv[2]);
         hormigas = atoi(argv[3]);
-        carga_auto = atoi(argv[4]);
-        leer_restricciones = atoi(argv[5]);
-        leer_coordenadas = atoi(argv[5]);
+       
+        //q0 = atof(argv[8]);
+        
+        carga_auto = atoi(argv[8]);
+        leer_restricciones = atoi(argv[9]);
+        leer_coordenadas = atoi(argv[10]);
 
         // Intenta abrir el archivo
         ifstream archivo(nombre_archivo);
