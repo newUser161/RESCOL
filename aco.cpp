@@ -82,12 +82,9 @@ void ACO::resolver(int iteraciones_max)
     while (iteraciones < iteraciones_max)
     {
         iterar();
-        mejor_solucion = guardar_mejor_solucion();
+        mejor_solucion = guardar_mejor_solucion_iteracion();
 
-        // Promedio movil
-        for (auto &hormiga : hormigas)
-            promedio_movil = (promedio_movil * iteraciones + hormiga.costo_camino) / (iteraciones + 1);
-        cout << "Iteracion: " << iteraciones << " Mejor costo: " << mejor_solucion.costo_camino << " Promedio movil: " << promedio_movil << endl;
+        
 
         limpiar();
         iteraciones++;
@@ -328,16 +325,16 @@ void ACO::mostrar_solucion(bool show_solucion)
     Retorna:
     - Hormiga: La mejor hormiga
 */
-Hormiga ACO::guardar_mejor_solucion()
+Hormiga ACO::guardar_mejor_solucion_iteracion()
 {
-    Hormiga mejor_hormiga;
-    int mejor_costo = std::numeric_limits<int>::max();
-    int mejor_longitud = std::numeric_limits<int>::max();
-
     for (auto &hormiga : hormigas)
     {
-        if (hormiga.costo_camino < mejor_costo && hormiga.longitud_camino < mejor_longitud)
+        if (hormiga.costo_camino < mejor_costo && hormiga.longitud_camino < mejor_longitud){
+            mejor_costo = hormiga.costo_camino;
+            mejor_longitud = hormiga.longitud_camino;
             mejor_hormiga = hormiga;
+            cout << "Iteracion: " << iteraciones << " Mejor costo: " << mejor_solucion.costo_camino <<" Mejor longitud: " << mejor_solucion.longitud_camino << endl;
+        }
     }
     return mejor_hormiga;
 }

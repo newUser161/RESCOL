@@ -54,6 +54,9 @@ private:
     std::unordered_map<Arco *, Feromona> feromonas; // Feromonas
     std::vector<Hormiga> hormigas;                  // Hormigas
     Hormiga mejor_solucion;                         // Mejor solución
+    Hormiga mejor_hormiga;                         // Mejor solución de la iteracion actual
+    int mejor_costo = std::numeric_limits<int>::max();                                // Mejor costo de la iteracion actual
+    int mejor_longitud = std::numeric_limits<int>::max();                                // Mejor costo de la iteracion actual
     
 
     Nodo *eligeSiguiente(Hormiga &hormiga);     // Elige el siguiente nodo
@@ -61,7 +64,7 @@ private:
     void visitar(Hormiga &hormiga, Nodo *nodo); // Visita el nodo siguiente
     bool solucionCompleta(Hormiga &hormiga);    // Verifica si la solución es completa
     void iterar();                              // Itera el algoritmo
-    Hormiga guardar_mejor_solucion();              // Guarda la mejor solución
+    Hormiga guardar_mejor_solucion_iteracion();              // Guarda la mejor solución
     void inicializar_feromonas() ; // Inicializa las feromonas
     
 };

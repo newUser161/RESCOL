@@ -40,10 +40,10 @@ int main(int argc, char *argv[])
     // Parámetros y configuración por defecto
     string nombre_archivo = "Formato5x5.txt";
     int epocas = 3;
-    int iteraciones = 2000;
+    int iteraciones = 1000;
     int hormigas = 10;
     float alfa = 1.0;  
-    float beta = 2.0;  
+    float beta = 3.0;  
     float rho = 0.5;   
     float tau = 1.0;   
     //float q0 = 0.5;
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
     aco.set_parametros(alfa, beta, rho, tau);
     for (int i = 0; i < epocas; i++){
         cout <<"⌚"<<"Epoca " << i << endl;
-        aco.resolver(iteraciones);
+        aco.resolver(iteraciones);        
         aco.reset();
         aco.set_mejor_feromonas();
     }
