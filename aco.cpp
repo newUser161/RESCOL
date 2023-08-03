@@ -113,7 +113,7 @@ void ACO::iterar()
         {
             Arco *a = par.first;
             int pasadas = par.second;
-            feromonas.at(a).cantidad += (tau / ((hormiga.costo_camino + hormiga.longitud_camino) * pasadas));
+            feromonas.at(a).cantidad += (tau / (hormiga.longitud_camino * pasadas));
         }
     }
 }
