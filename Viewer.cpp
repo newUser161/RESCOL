@@ -39,7 +39,8 @@ int main(int argc, char *argv[])
 
     // Parámetros y configuración por defecto
     string nombre_archivo = "Formato5x5.txt";
-    int iteraciones = 500;
+    int epocas = 3;
+    int iteraciones = 2000;
     int hormigas = 10;
     float alfa = 1.0;  
     float beta = 2.0;  
@@ -61,7 +62,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        if (argc != 11)
+        if (argc != 12)
         {
             cout << "Uso: " << argv[0] << " <nombre_Instancia> <#iteraciones> <#hormigas> <alfa> <beta> <rho> <tau> <carga_auto> <leer_restricciones> <debug>" << endl;
             return 1;
@@ -69,17 +70,18 @@ int main(int argc, char *argv[])
 
         // Carga los parametros pasados por consola
         nombre_archivo = argv[1];
-        iteraciones = atoi(argv[2]);
-        hormigas = atoi(argv[3]);
-        alfa = atof(argv[4]);
-        beta = atof(argv[5]);
-        rho = atof(argv[6]);
-        tau = atof(argv[7]);
-        //q0 = atof(argv[8]);
+        epocas = atoi(argv[2]);
+        iteraciones = atoi(argv[3]);
+        hormigas = atoi(argv[4]);
+        alfa = atof(argv[5]);
+        beta = atof(argv[6]);
+        rho = atof(argv[8]);
+        tau = atof(argv[9]);
+        //q0 = atof(argv[]);
         
-        carga_auto = atoi(argv[8]);
-        leer_restricciones = atoi(argv[9]);
-        leer_coordenadas = atoi(argv[10]);
+        carga_auto = atoi(argv[10]);
+        leer_restricciones = atoi(argv[11]);
+        leer_coordenadas = atoi(argv[12]);
 
         // Intenta abrir el archivo
         ifstream archivo(nombre_archivo);
@@ -142,8 +144,14 @@ int main(int argc, char *argv[])
     cout << endl;
 
     // Crea una instancia del algoritmo y la resuelve, el tercer parametro indica si se muestran mensajes de debug
-    ACO aco = ACO(&grafo, hormigas, alfa, beta, rho, tau, debug_ACO);    
-    aco.resolver(iteraciones);
+    ACO aco = ACO(&grafo, hormigas, debug_ACO);    
+    aco.set_parametros(alfa, beta, rho, tau);
+    for (int i = 0; i < epocas; i++){
+        cout <<"⌚"<<"Epoca " << i << endl;
+        aco.resolver(iteraciones);
+        aco.reset();
+        aco.set_mejor_feromonas();
+    }
 
     // Muestra la solución
     bool show_solucion = true;

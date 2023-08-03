@@ -32,12 +32,14 @@ class ACO
 {
 public:
     // Constructor, destructores y otros métodos.
-    ACO(Graph *graph, int num_hormigas, float alfa, float beta, float rho, float tau, bool debug); // Constructor
+    ACO(Graph *graph, int num_hormigas, bool debug); // Constructor
     void resolver(int iteraciones_max);  // Resuelve el problema
     void mostrar_solucion(bool show_solucion);             // Muestra la solución
     void limpiar();                      // Limpia la memoria y datos del algoritmo
     void set_parametros(float alfa, float beta, float rho, float tau); // Setea los parámetros del algoritmo
-    
+    void set_mejor_feromonas();                 // Setea las feromonas segun #hormigas/longitud_mejor_camino
+    void reset();
+    Graph* get_grafo();
 
 private:
     Graph *grafo = nullptr; // Grafo
@@ -60,6 +62,8 @@ private:
     bool solucionCompleta(Hormiga &hormiga);    // Verifica si la solución es completa
     void iterar();                              // Itera el algoritmo
     Hormiga guardar_mejor_solucion();              // Guarda la mejor solución
+    void inicializar_feromonas() ; // Inicializa las feromonas
+    
 };
 
 #endif
