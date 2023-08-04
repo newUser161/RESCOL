@@ -2,9 +2,11 @@
 #define ACO_H
 
 #include "graph.h"
+#include <math.h>
 #include <vector>
 #include <unordered_map>
-
+#include "config.h"
+#include <fstream>
 
 
 // Representación de las Feromonas
@@ -18,55 +20,72 @@ struct Feromona
 // Representación de una Hormiga
 struct Hormiga
 {
-    Nodo *nodo_actual = nullptr;                    // Nodo actual
-    std::vector<Arco> camino;                       // Camino recorrido
-    std::unordered_map<Arco *, int> arcosVisitados; // Aristas visitadas
-    double longitud_camino = 0.0;                   // Longitud del camino, cuantas aristas se ha recorrido
-    double costo_camino = 0.0;                      // Costo del camino, costo asociado a la recolección y recorrido
-    int id = 0;                                     // Identificador de la hormiga
+    Nodo *nodo_actual = nullptr;                            // Nodo actual
+    std::vector<Arco> camino;                               // Camino recorrido
+    std::unordered_map<Arco *, int> arcosVisitados;         // Aristas visitadas
+    double longitud_camino = 0.0;                           // Longitud del camino, cuantas aristas se ha recorrido
+    double costo_camino = 0.0;                              // Costo del camino, costo asociado a la recolección y recorrido
+    int id = 0;                                             // Identificador de la hormiga
     std::unordered_map<Arco *, Feromona> feromonas_locales; // Feromonas locales de la hormiga
-    
 };
 
 class ACO
 {
-public:
-    // Constructor, destructores y otros métodos.
-    ACO(Graph *graph, int num_hormigas, bool debug); // Constructor
-    void resolver(int iteraciones_max);  // Resuelve el problema
-    void mostrar_solucion(bool show_solucion);             // Muestra la solución
-    void limpiar();                      // Limpia la memoria y datos del algoritmo
-    void set_parametros(float alfa, float beta, float rho, float tau); // Setea los parámetros del algoritmo
-    void set_mejor_feromonas();                 // Setea las feromonas segun #hormigas/longitud_mejor_camino
-    void reset();
-    Graph* get_grafo();
-
-private:
-    Graph *grafo = nullptr; // Grafo
-    double umbral_inferior = 1.7e-300; // Umbral inferior para las feromonas
-    float alfa = 1.0;    // Parámetro alfa
-    float beta = 2.0;    // Parámetro beta
-    float rho = 0.5;     // Parámetro rho, asociado a la evaporacion de feromonas
-    float rho_secundario = 0.5;     // Parámetro rho, asociado a la evaporacion de feromonas
-    float tau = 1.0;     // Parámetro tau, asociado a las feromonas iniciales
-    int iteraciones = 0; // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
-    bool debug = false;  // Flag que muestra o no informacion de debug como los caminos de las hormigas
+protected:
+    ParametrosACOBase parametros_base;
+    virtual void iterar();                          // Itera el algoritmo
+    virtual void inicializar_feromonas() = 0;       // Itera el algoritmo
+    Hormiga guardar_mejor_solucion_iteracion();     // Guarda la mejor solución
+    Hormiga mejor_solucion;                         // Mejor solución
+    void limpiar();                                 // Limpia la memoria y datos del algoritmo
     std::unordered_map<Arco *, Feromona> feromonas; // Feromonas
     std::vector<Hormiga> hormigas;                  // Hormigas
-    Hormiga mejor_solucion;                         // Mejor solución
-    Hormiga mejor_hormiga;                         // Mejor solución de la iteracion actual
-    int mejor_costo = std::numeric_limits<int>::max();                                // Mejor costo de la iteracion actual
-    int mejor_longitud = std::numeric_limits<int>::max();                                // Mejor costo de la iteracion actual
+    void construirSolucion(Hormiga &hormiga);       // Construye la solución para una hormiga
+    Graph *grafo = nullptr;                         // Grafo
+    char filename[100];
+    std::ofstream file;
+    std::string nombre_archivo_salida;
+
+
+
+
+public:
+    float &alfa = parametros_base.alfa;                        // Parámetro alfa
+    float &beta = parametros_base.beta;                        // Parámetro beta
+    float &rho = parametros_base.rho;                              // Parámetro rho, asociado a la evaporacion de feromonas
+    float &rho_secundario = parametros_base.rho_secundario;    // Parámetro rho, asociado a la evaporacion de feromonas
+    int &iteraciones = parametros_base.iteraciones;            // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
+    int &iteraciones_max = parametros_base.iteraciones_max;    // Cantidad de iteraciones maximas
+    bool &debug = parametros_base.debug;                       // Flag que muestra o no informacion de debug como los caminos de las hormigas
+    double &umbral_inferior = parametros_base.umbral_inferior; // Umbral inferior para las feromonas
+    int &num_hormigas = parametros_base.num_hormigas;          // Numero de hormigas
+    int &epocas = parametros_base.epocas;                        // Numero de epocas
+    int &epoca_actual = parametros_base.epoca_actual;            // Numero de epocas
     
 
+    // ACO(Graph *graph, int num_hormigas, bool debug); // Constructor
+    ACO(Graph *instancia, ParametrosACOBase parametros_base); // Constructor;
+    void reset();
+
+    virtual void resolver() = 0; // Resuelve el problema
+
+    void mostrar_solucion(bool show_solucion);                         // Muestra la solución
+    void set_mejor_feromonas();                                        // Setea las feromonas segun #hormigas/longitud_mejor_camino
+    void abrir_file();
+    void cerrar_file();
+    std::string get_filename();
+    void set_filename(std::string filename);
+
+private:
+
+    Hormiga mejor_hormiga;                                // Mejor solución de la iteracion actual
+    int mejor_costo = std::numeric_limits<int>::max();    // Mejor costo de la iteracion actual
+    int mejor_longitud = std::numeric_limits<int>::max(); // Mejor costo de la iteracion actual
+
+    
     Nodo *eligeSiguiente(Hormiga &hormiga);     // Elige el siguiente nodo
-    void construirSolucion(Hormiga &hormiga);   // Construye la solución para una hormiga
     void visitar(Hormiga &hormiga, Nodo *nodo); // Visita el nodo siguiente
     bool solucionCompleta(Hormiga &hormiga);    // Verifica si la solución es completa
-    void iterar();                              // Itera el algoritmo
-    Hormiga guardar_mejor_solucion_iteracion();              // Guarda la mejor solución
-    void inicializar_feromonas() ; // Inicializa las feromonas
-    
 };
 
 #endif

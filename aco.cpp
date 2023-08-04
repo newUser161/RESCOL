@@ -2,6 +2,10 @@
 #include <algorithm>
 #include <math.h>
 
+#include <fstream>
+#include <chrono>
+#include <ctime>
+
 #include "aco.h"
 #include "graph.h"
 #include "helpers.h"
@@ -24,9 +28,15 @@ using namespace std;
         - graph: Puntero al grafo que se utilizará para resolver el problema
         - num_hormigas: Número de hormigas que se utilizarán para resolver el problema
 */
-ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
-{
-    debug = param_debug;
+ACO::ACO(Graph *instancia, ParametrosACOBase parametros_base){
+
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    std::tm* now_tm = std::localtime(&now_c);
+    std::strftime(filename, 100, "SalidaACO-%Y%m%d%H%M%S.txt", now_tm);  // Formato: SalidaACO-AAAAMMDDHHMMSS.txt   
+    std::string nombre_archivo_salida(filename);  // Convierte char[] a std::string
+    set_filename(nombre_archivo_salida);
+
     // Inicializa las hormigas.
     for (int i = 0; i < num_hormigas; i++)
     {
@@ -35,11 +45,11 @@ ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
         hormiga.id = i;
 
         // Establece la posición inicial de la hormiga de manera aleatorio entre la cantidad de nodos iniciales permitidos.
-        int nodo_inicial = int(generar_numero_aleatorio(1, graph->metadatos.nodos_iniciales.size() - 1));
-        hormiga.nodo_actual = &graph->metadatos.nodos_iniciales[nodo_inicial];
+        int nodo_inicial = int(generar_numero_aleatorio(1, instancia->metadatos.nodos_iniciales.size() - 1));
+        hormiga.nodo_actual = &instancia->metadatos.nodos_iniciales[nodo_inicial];
 
         // Inicializa un mapa para que la hormiga lleve la cuenta de las pasadas por los arcos.
-        for (auto &par : graph->arcos)
+        for (auto &par : instancia->arcos)
             hormiga.arcosVisitados[par.second] = 0;
 
         // Añade la hormiga a la lista de hormigas
@@ -47,48 +57,7 @@ ACO::ACO(Graph *graph, int num_hormigas, bool param_debug)
     }
 
     // Establece el grafo.
-    grafo = graph;
-
-    // Inicializa las feromonas.
-    inicializar_feromonas();
-
-}
-
-void ACO::inicializar_feromonas(){
-    for (auto &par : grafo->arcos)
-    {
-        Arco *arco = par.second;
-        Feromona feromona_inicial = {arco->origen, arco->destino, tau};
-        feromonas[arco] = feromona_inicial;
-        for (auto &hormiga : hormigas)
-            hormiga.feromonas_locales[arco] = feromona_inicial;
-    }
-}
-
-/* Resuelve el problema
-    Este método resuelve el problema simplemente iterando el algoritmo hasta que se cumpla el criterio de parada.
-    Algunas alternativas de mejora son:
-    - Establecer un criterio de parada basado en la calidad de las soluciones, mientras menos mejor.
-    - Establecer un criterio de parada basado en el tiempo de ejecución.
-    - Establecer un criterio de parada basado en la cantidad de iteraciones sin mejora, de manera local, global y/o por hormiga.
-    + Mas opciones en aco-book.
-
-    Parámetros:
-    - iteraciones_max: Número máximo de iteraciones que realizará el algoritmo
-*/
-void ACO::resolver(int iteraciones_max)
-{
-    int promedio_movil = 0;
-    while (iteraciones < iteraciones_max)
-    {
-        iterar();
-        mejor_solucion = guardar_mejor_solucion_iteracion();
-
-        
-
-        limpiar();
-        iteraciones++;
-    }
+    grafo = instancia;   
 }
 
 /*
@@ -100,22 +69,7 @@ void ACO::iterar()
     // Mueve todas las hormigas.
     for (auto &hormiga : hormigas)
         construirSolucion(hormiga);
-    // evaporar feromonas
-    for (auto i = feromonas.begin(); i != feromonas.end(); i++)
-    {
-        i->second.cantidad *= (1 - rho);
-    }
-
-    // Actualiza las feromonas.
-    for (Hormiga &hormiga : hormigas)
-    {
-        for (auto &par : hormiga.arcosVisitados)
-        {
-            Arco *a = par.first;
-            int pasadas = par.second;
-            feromonas.at(a).cantidad += (tau / (hormiga.longitud_camino * pasadas));
-        }
-    }
+    
 }
 
 /*
@@ -327,14 +281,18 @@ void ACO::mostrar_solucion(bool show_solucion)
 */
 Hormiga ACO::guardar_mejor_solucion_iteracion()
 {
+    
     for (auto &hormiga : hormigas)
     {
         if (hormiga.costo_camino < mejor_costo && hormiga.longitud_camino < mejor_longitud){
             mejor_costo = hormiga.costo_camino;
             mejor_longitud = hormiga.longitud_camino;
             mejor_hormiga = hormiga;
-            cout << "Iteracion: " << iteraciones << " Mejor costo: " << mejor_solucion.costo_camino <<" Mejor longitud: " << mejor_solucion.longitud_camino << endl;
         }
+            //cout << "Iteracion: " << iteraciones << " Mejor costo: " << endl;
+            file << "Epoca: "<< epoca_actual <<", Iteracion: " << iteraciones << ", Mejor costo: "<< mejor_costo << endl;
+            
+            
     }
     return mejor_hormiga;
 }
@@ -364,25 +322,18 @@ void ACO::reset()
         arco.second->veces_recorrida = 0;        
 }
 
-void ACO::set_parametros(float alfa, float beta, float rho, float tau)
-{
-    this->alfa = alfa;
-    this->beta = beta;
-    this->tau = tau;
-    this->rho = rho;
+void ACO::abrir_file(){
+        file.open(filename); 
 }
 
-Graph *ACO::get_grafo()
-{
-    return grafo;
+void ACO::cerrar_file(){
+    file.close();
 }
 
-void ACO::set_mejor_feromonas(){
-    int cantidad_hormigas = hormigas.size();
-    int camino_mas_corto = mejor_solucion.longitud_camino;
-    float mejores_feromonas = static_cast<float>(cantidad_hormigas)/camino_mas_corto;
-    set_parametros(alfa, beta, rho, mejores_feromonas);
-    inicializar_feromonas();
+std::string ACO::get_filename(){
+    return nombre_archivo_salida;
+}
 
-
+void ACO::set_filename(std::string filename){
+    this->nombre_archivo_salida = filename;
 }
