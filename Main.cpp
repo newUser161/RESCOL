@@ -179,20 +179,16 @@ int main(int argc, char *argv[])
     bool show_solucion = true;
     aco->mostrar_solucion(show_solucion);
 
+    std::string archivo_salida = aco->get_filename();
+    std::stringstream ss;
+    ss << "python Grafico.py " << archivo_salida; 
+    std::string comando = ss.str();     
     cout << "Programa finalizado correctamente" << endl;
     for (int i = 0; i < hormigas; i++)
         cout << "🐜 ";
     cout << endl;
-    cout << endl;
-    
-    
-    
-    std::string archivo_salida = aco->get_filename();
-    std::stringstream ss;
-    ss << "python Grafico.py " << archivo_salida; 
-    std::string comando = ss.str(); 
-    std::system(comando.c_str()); 
+    cout << endl;    
     delete aco;
-    cout << "Presione cualquier tecla para continuar..." << endl;
+    std::system(comando.c_str()); 
     return 0;
 }

@@ -6,15 +6,14 @@ struct ParametrosACOBase
     float alfa = 1.0;                  // Parámetro alfa
     float beta = 2.0;                  // Parámetro beta
     float rho_secundario = 0.5;        // Parámetro rho, asociado a la evaporacion de feromonas
-    int iteraciones = 0;               // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
-    int iteraciones_max = 10;         // Cantidad de iteraciones maximas
+    int iteraciones = 0;               // Iteraciones actuales
+    int iteraciones_max = 1000;         // Cantidad de iteraciones maximas
     bool debug = false;                // Flag que muestra o no informacion de debug como los caminos de las hormigas
     double umbral_inferior = 1.7e-300; // Umbral inferior para las feromonas
     int num_hormigas = 10;             // Numero de hormigas
     float rho = 0.5;                   // Parámetro rho, asociado a la evaporacion de feromonas
-    int epocas = 1;
+    int epocas = 3;
     int epoca_actual = 0;
-
 };
 
 

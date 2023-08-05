@@ -256,7 +256,7 @@ void ACO::mostrar_solucion(bool show_solucion)
     cout << "Mejor hormiga: " << mejor_solucion.id << " 🐜🥇" << endl;
     cout << "Mejor costo: " << mejor_solucion.costo_camino << " ⏩" << endl;
     cout << "Mejor longitud: " << mejor_solucion.longitud_camino << " ⚡" << endl;
-    cout << "La solucion es: " << endl;
+    cout << "La solución es: " << endl;
     if (show_solucion)
     {
         for (auto &arco : mejor_solucion.camino)
@@ -290,7 +290,7 @@ Hormiga ACO::guardar_mejor_solucion_iteracion()
             mejor_hormiga = hormiga;
         }
             //cout << "Iteracion: " << iteraciones << " Mejor costo: " << endl;
-            file << "Epoca: "<< epoca_actual <<", Iteracion: " << iteraciones << ", Mejor costo: "<< mejor_costo << endl;
+            file << "Época: "<< epoca_actual <<", Iteracion: " << iteraciones << ", Mejor costo: "<< mejor_costo << endl;
             
             
     }

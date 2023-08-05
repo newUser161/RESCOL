@@ -1,49 +1,32 @@
-import re
 import matplotlib.pyplot as plt
-import sys
-import random
+import pandas as pd
+import seaborn as sns
+from sys import argv
 
-def rgb():
-    return (random.randint(0, 255) / 255, random.randint(0, 255) / 255, random.randint(0, 255) / 255)
+# Lee el archivo, asumiendo que el formato es exactamente 'Epoca: %d, Iteracion: %d, Mejor costo: %d'
+df = pd.read_csv(argv[1], sep=", ", engine='python', header=None, names=['Epoca', 'Iteracion', 'Mejor costo'])
 
-# Nombre del archivo desde la línea de comandos
-file_name = sys.argv[1]
+# Convierte las columnas al tipo de datos correcto y extrae los números de las cadenas
+df['Epoca'] = df['Epoca'].str.extract('(\d+)').astype(int)
+df['Iteracion'] = df['Iteracion'].str.extract('(\d+)').astype(int)
+df['Mejor costo'] = df['Mejor costo'].str.extract('(\d+)').astype(int)
 
-# Leer el archivo
-with open(file_name, 'r') as file:
-    lines = file.readlines()
+# Agrupa por 'Epoca' e 'Iteracion', tomando el mínimo 'Mejor costo' para cada grupo
+df_grouped = df.groupby(['Epoca', 'Iteracion']).min().reset_index()
 
-# Inicializar las listas
-epocas = []
-iteraciones = []
-costos = []
+# Crea un color distinto para cada época
+palette = sns.color_palette('hsv', df_grouped['Epoca'].nunique())
 
-# Extraer los números
-for line in lines:
-    numbers = re.findall(r'\d+', line)
-    epocas.append(int(numbers[0]))
-    iteraciones.append(int(numbers[1]))
-    costos.append(int(numbers[2]))
+# Crea un gráfico de lineas para cada época
+for epoca in df_grouped['Epoca'].unique():
+    data = df_grouped[df_grouped['Epoca'] == epoca]
+    
+    plt.plot(data['Iteracion'], data['Mejor costo'], label=f'Epoca {epoca}', color=palette[epoca])
+    
 
-# Crear un diccionario de colores
-color_dict = {}
-
-# Asignar un color aleatorio a cada época
-for epoca in set(epocas):
-    color_dict[epoca] = rgb()
-
-# Crear una lista de colores, uno para cada época
-colors = [color_dict[epoca] for epoca in epocas]
-
-# Crear un gráfico de líneas
-for i in range(1, len(iteraciones)):
-    if epocas[i] != epocas[i-1]:
-        plt.plot(iteraciones[i-1:i+1], costos[i-1:i+1], color=colors[i-1])
-
-# Título y etiquetas
-plt.title('Grafico de Convergencia')
 plt.xlabel('Iteraciones')
-plt.ylabel('Mejor solucion encontrada')
-
-# Mostrar el gráfico
+plt.ylabel('Mejor costo')
+plt.title('Gráfico de convergencia')
+plt.legend()
+plt.savefig(argv[1] + '-Grafico.png')
 plt.show()
