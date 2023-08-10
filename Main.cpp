@@ -8,6 +8,9 @@
 #include <sstream> 
 #include <conio.h>
 
+#include "magic_enum/include/magic_enum.hpp"
+#include "argparse/argparse.hpp"
+   
 #include "graph.h"
 #include "aco.h"
 #include "antsystem.h"
@@ -40,18 +43,6 @@ using namespace std;
 */
 int main(int argc, char *argv[])
 {
-
-    // Parámetros y configuración por defecto
-    string nombre_archivo = "Formato5x5.txt";
-    int epocas = 3;
-    int iteraciones = 1000;
-    int hormigas = 10;
-    float alfa = 1.0;
-    float beta = 3.0;
-    float rho = 0.5;
-    float tau = 1.0;
-    // float q0 = 0.5;
-
     bool carga_auto = true;
     bool leer_restricciones = false;
     bool leer_coordenadas = false;
@@ -61,47 +52,10 @@ int main(int argc, char *argv[])
     MetodoACO metodo = MIN_MAX;
     Graph grafo = Graph();
     ACO *aco;
+    ACOArgs parametros_base = argparse::parse<ACOArgs>(argc, argv);
 
-    if (carga_auto)
-    {
-        grafo = leerInstancia(nombre_archivo, leer_restricciones, leer_coordenadas);
-    }
-    else
-    {
-        if (argc != 13)
-        {
-            //TODO usar boost para poder ingresar los parametros como --algo --iteraciones ...
-            cout << "Uso: " << argv[0] << " <nombre_Instancia> <#epocas> <metodo> <#iteraciones> <#hormigas> <alfa> <beta> <rho> <tau> <carga_auto> <leer_restricciones> <debug>" << endl;
-            return 1;
-        }
-
-        // Carga los parametros pasados por consola
-        nombre_archivo = argv[1];
-        epocas = atoi(argv[2]);
-        metodo = (MetodoACO)atoi(argv[3]);
-        iteraciones = atoi(argv[4]);
-        hormigas = atoi(argv[5]);
-        alfa = atof(argv[6]);
-        beta = atof(argv[7]);
-        rho = atof(argv[8]);
-        tau = atof(argv[9]);
-        // q0 = atof(argv[]);
-
-        carga_auto = atoi(argv[10]);
-        leer_restricciones = atoi(argv[11]);
-        leer_coordenadas = atoi(argv[12]);
-
-        // Intenta abrir el archivo
-        ifstream archivo(nombre_archivo);
-        if (!archivo.is_open())
-        {
-            cout << "No se pudo abrir el archivo ❌" << nombre_archivo << endl;
-            return 1;
-        }
-        grafo = leerInstancia(nombre_archivo, leer_restricciones, leer_coordenadas);
-    }
-
-    (grafo.vector_arcos.empty()) ? cout << "Error al leer la instancia ❌" << endl : cout << "Instancia leída correctamente ✔️" << endl;
+    grafo = leerInstancia(parametros_base.nombre_instancia, leer_restricciones, leer_coordenadas);
+        
     if (debug)
     {
         cout << endl;
@@ -151,8 +105,9 @@ int main(int argc, char *argv[])
         cout << endl;
     }
     cout << endl;
-    ParametrosAS parametrosAS;
-    ParametrosMM parametrosMM;
+    
+    ASArgs parametrosAS = argparse::parse<ASArgs>(argc, argv);
+    MMArgs parametrosMM = argparse::parse<MMArgs>(argc, argv);
 
     switch (metodo)
     {
@@ -169,7 +124,7 @@ int main(int argc, char *argv[])
     }
     aco->abrir_file();
     for (aco->epoca_actual; aco->epoca_actual < aco->epocas; aco->epoca_actual++){
-        cout <<"⌚"<<"Epoca " << aco->epoca_actual << endl;
+        cout <<"⌚"<<"Época " << aco->epoca_actual << endl;
         aco->resolver(); // Llamada al método resolver
         aco->reset();
     }
@@ -184,7 +139,7 @@ int main(int argc, char *argv[])
     ss << "python Grafico.py " << archivo_salida; 
     std::string comando = ss.str();     
     cout << "Programa finalizado correctamente" << endl;
-    for (int i = 0; i < hormigas; i++)
+    for (int i = 0; i < parametros_base.num_hormigas; i++)
         cout << "🐜 ";
     cout << endl;
     cout << endl;    

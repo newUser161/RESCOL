@@ -1,7 +1,7 @@
 #include "antsystem.h"
 #include "aco.h"
 
-AntSystem::AntSystem(Graph* instancia, ParametrosAS parametros) : ACO(instancia, parametros) {
+AntSystem::AntSystem(Graph* instancia, ASArgs parametros) : ACO(instancia, parametros) {
     // Inicializa las feromonas.
     inicializar_feromonas(); 
 }

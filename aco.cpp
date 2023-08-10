@@ -28,8 +28,8 @@ using namespace std;
         - graph: Puntero al grafo que se utilizará para resolver el problema
         - num_hormigas: Número de hormigas que se utilizarán para resolver el problema
 */
-ACO::ACO(Graph *instancia, ParametrosACOBase parametros_base){
-
+ACO::ACO(Graph *instancia, ACOArgs parametros_base){
+    set_parametros(parametros_base);
     auto now = std::chrono::system_clock::now();
     std::time_t now_c = std::chrono::system_clock::to_time_t(now);
     std::tm* now_tm = std::localtime(&now_c);
@@ -289,8 +289,8 @@ Hormiga ACO::guardar_mejor_solucion_iteracion()
             mejor_longitud = hormiga.longitud_camino;
             mejor_hormiga = hormiga;
         }
-            //cout << "Iteracion: " << iteraciones << " Mejor costo: " << endl;
-            file << "Época: "<< epoca_actual <<", Iteracion: " << iteraciones << ", Mejor costo: "<< mejor_costo << endl;
+            cout << "Iteracion: " << iteraciones << " Mejor costo: " << mejor_costo << endl;
+            file << "Epoca: "<< epoca_actual <<", Iteracion: " << iteraciones << ", Mejor costo: "<< mejor_costo << endl;
             
             
     }
@@ -336,4 +336,21 @@ std::string ACO::get_filename(){
 
 void ACO::set_filename(std::string filename){
     this->nombre_archivo_salida = filename;
+}
+
+void ACO::set_parametros(const ACOArgs parametros_base){
+    nombre_instancia = parametros_base.nombre_instancia;
+    //metodo = parametros_base.metodo;
+    alfa = parametros_base.alfa;
+    beta = parametros_base.beta;
+    rho = parametros_base.rho;
+    rho_secundario =    parametros_base.rho_secundario;
+    iteraciones = parametros_base.iteraciones;
+    iteraciones_max = parametros_base.iteraciones_max;
+    debug =     parametros_base.debug;
+    umbral_inferior = parametros_base.umbral_inferior;
+    num_hormigas = parametros_base.num_hormigas;
+    epocas = parametros_base.epocas;
+    epoca_actual = 0;
+
 }

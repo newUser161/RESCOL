@@ -3,7 +3,7 @@
 #include <iostream>
 
 
-MinMax::MinMax(Graph* instancia, ParametrosMM parametros) : ACO(instancia, parametros) {
+MinMax::MinMax(Graph* instancia, MMArgs parametros) : ACO(instancia, parametros) {
     // Inicializa las feromonas.
     inicializar_feromonas();
 }

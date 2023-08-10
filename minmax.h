@@ -6,7 +6,7 @@
 class MinMax : public ACO
 {
 protected:
-    ParametrosMM parametros;
+    MMArgs parametros;
 
     float &rho = parametros.rho;                          // Parámetro rho, asociado a la evaporacion de feromonas
     double &umbral_superior = parametros.umbral_superior; // Umbral superior para las feromonas
@@ -17,7 +17,7 @@ protected:
 
 
 public:
-    MinMax(Graph *instancia, ParametrosMM parametros);
+    MinMax(Graph *instancia, MMArgs parametros);
     
     void resolver() override;
     void iterar() override;

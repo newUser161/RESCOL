@@ -208,7 +208,7 @@ mejor_cantidad_arcos = float('inf') # Inicializa con infinito
 total_arcos = sum(cantidad for sublist in mapa_adyacencia_original.values() for _, cantidad in sublist)
 
 while contador < max_iteraciones:
-    ruta = dfs(True, limite_paso_salida, mapa_adyacencia, nodo_inicial, nodo_terminal, ) 
+    ruta = dfs(False, limite_paso_salida, mapa_adyacencia, nodo_inicial, nodo_terminal, ) 
     cantidad_arcos_actual = sum(cantidad for sublist in mapa_adyacencia.values() for _, cantidad in sublist)
     if cantidad_arcos_actual < mejor_cantidad_arcos and ruta is not None:
         mejor_cantidad_arcos = cantidad_arcos_actual
@@ -220,7 +220,7 @@ while contador < max_iteraciones:
     mapa_adyacencia = copy.deepcopy(mapa_adyacencia_original)
     contador += 1
     pbar.update(1)  
-reparar_solucion(mejor_ruta, mejor_mapa_adyacencia, mapa_adyacencia_copia)
+#reparar_solucion(mejor_ruta, mejo r_mapa_adyacencia, mapa_adyacencia_copia)
 print("La mejor ruta recorrió el {:.2f}% del total de arcos.".format(porcentaje_completado)) # type: ignore
 print("Arcos recorridos: ", arcos_recorridos) # type: ignore
 print("Arcos faltantes: ", mejor_cantidad_arcos)

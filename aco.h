@@ -32,7 +32,6 @@ struct Hormiga
 class ACO
 {
 protected:
-    ParametrosACOBase parametros_base;
     virtual void iterar();                          // Itera el algoritmo
     virtual void inicializar_feromonas() = 0;       // Itera el algoritmo
     Hormiga guardar_mejor_solucion_iteracion();     // Guarda la mejor solución
@@ -50,21 +49,22 @@ protected:
 
 
 public:
-    float &alfa = parametros_base.alfa;                        // Parámetro alfa
-    float &beta = parametros_base.beta;                        // Parámetro beta
-    float &rho = parametros_base.rho;                              // Parámetro rho, asociado a la evaporacion de feromonas
-    float &rho_secundario = parametros_base.rho_secundario;    // Parámetro rho, asociado a la evaporacion de feromonas
-    int &iteraciones = parametros_base.iteraciones;            // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
-    int &iteraciones_max = parametros_base.iteraciones_max;    // Cantidad de iteraciones maximas
-    bool &debug = parametros_base.debug;                       // Flag que muestra o no informacion de debug como los caminos de las hormigas
-    double &umbral_inferior = parametros_base.umbral_inferior; // Umbral inferior para las feromonas
-    int &num_hormigas = parametros_base.num_hormigas;          // Numero de hormigas
-    int &epocas = parametros_base.epocas;                        // Numero de epocas
-    int &epoca_actual = parametros_base.epoca_actual;            // Numero de epocas
+    std::string nombre_instancia;   // Nombre de la instancia
+    //MetodoACO metodo;               // Metodo de ACO
+    float alfa;                        // Parámetro alfa
+    float beta;                       // Parámetro beta
+    float rho;                               // Parámetro rho, asociado a la evaporacion de feromonas
+    float rho_secundario;    // Parámetro rho, asociado a la evaporacion de feromonas
+    int iteraciones;            // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
+    int iteraciones_max;    // Cantidad de iteraciones maximas
+    bool debug;                       // Flag que muestra o no informacion de debug como los caminos de las hormigas
+    double umbral_inferior; // Umbral inferior para las feromonas
+    int num_hormigas;          // Numero de hormigas
+    int epocas;                        // Numero de epocas
+    int epoca_actual;            // Numero de epocas
     
 
-    // ACO(Graph *graph, int num_hormigas, bool debug); // Constructor
-    ACO(Graph *instancia, ParametrosACOBase parametros_base); // Constructor;
+    ACO(Graph *instancia, ACOArgs parametros_base); // Constructor;
     void reset();
 
     virtual void resolver() = 0; // Resuelve el problema
@@ -86,6 +86,7 @@ private:
     Nodo *eligeSiguiente(Hormiga &hormiga);     // Elige el siguiente nodo
     void visitar(Hormiga &hormiga, Nodo *nodo); // Visita el nodo siguiente
     bool solucionCompleta(Hormiga &hormiga);    // Verifica si la solución es completa
+    void set_parametros(const ACOArgs parametros_base);
 };
 
 #endif
