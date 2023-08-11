@@ -14,12 +14,12 @@ struct ACOArgs : public argparse::Args {
     float &beta            = kwarg("beta", "Parámetro beta").set_default(2.0f);
     float &rho_secundario  = kwarg("rho-sec", "Parámetro rho, asociado a la evaporación de feromonas").set_default(0.5f);
     int &iteraciones       = kwarg("iter", "Iteraciones actuales").set_default(0);
-    int &iteraciones_max   = kwarg("iter-max", "Cantidad de iteraciones máximas").set_default(50);
+    int &iteraciones_max   = kwarg("iter-max", "Cantidad de iteraciones máximas").set_default(1000);
     bool &debug            = flag("debug", "Flag que muestra o no información de debug como los caminos de las hormigas");
     double &umbral_inferior= kwarg("umbral-inf", "Umbral inferior para las feromonas").set_default(1.7e-100);
     int &num_hormigas      = kwarg("num-hormigas", "Número de hormigas").set_default(10);
     float &rho             = kwarg("rho", "Parámetro rho, asociado a la evaporación de feromonas").set_default(0.5f);
-    int &epocas            = kwarg("epocas", "Épocas").set_default(1);
+    int &epocas            = kwarg("epocas", "Épocas").set_default(3);
     int &epoca_actual      = kwarg("epoca-actual", "Época actual").set_default(0);
 };
 

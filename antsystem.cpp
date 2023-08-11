@@ -5,6 +5,10 @@ AntSystem::AntSystem(Graph* instancia, ASArgs parametros) : ACO(instancia, param
     // Inicializa las feromonas.
     inicializar_feromonas(); 
 }
+AntSystem::AntSystem(Graph* instancia, ParametrosAS parametros2) : ACO(instancia, parametros2) {
+    // Inicializa las feromonas.
+    inicializar_feromonas(); 
+}
 
 /* Resuelve el problema
     Este método resuelve el problema simplemente iterando el algoritmo hasta que se cumpla el criterio de parada.

@@ -60,6 +60,39 @@ ACO::ACO(Graph *instancia, ACOArgs parametros_base){
     grafo = instancia;   
 }
 
+ACO::ACO(Graph *instancia, ParametrosACOBase parametros_base){
+    set_parametros_param(parametros_base);
+
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    std::tm* now_tm = std::localtime(&now_c);
+    std::strftime(filename, 100, "SalidaACO-%Y%m%d%H%M%S.txt", now_tm);  // Formato: SalidaACO-AAAAMMDDHHMMSS.txt   
+    std::string nombre_archivo_salida(filename);  // Convierte char[] a std::string
+    set_filename(nombre_archivo_salida);
+
+    // Inicializa las hormigas.
+    for (int i = 0; i < num_hormigas; i++)
+    {
+        // Crea una nueva hormiga
+        Hormiga hormiga;
+        hormiga.id = i;
+
+        // Establece la posición inicial de la hormiga de manera aleatorio entre la cantidad de nodos iniciales permitidos.
+        int nodo_inicial = int(generar_numero_aleatorio(1, instancia->metadatos.nodos_iniciales.size() - 1));
+        hormiga.nodo_actual = &instancia->metadatos.nodos_iniciales[nodo_inicial];
+
+        // Inicializa un mapa para que la hormiga lleve la cuenta de las pasadas por los arcos.
+        for (auto &par : instancia->arcos)
+            hormiga.arcosVisitados[par.second] = 0;
+
+        // Añade la hormiga a la lista de hormigas
+        hormigas.push_back(hormiga);
+    }
+
+    // Establece el grafo.
+    grafo = instancia;   
+}
+
 /*
     Itera el algoritmo
     Este método itera el algoritmo, moviendo todas las hormigas, evaporando las feromonas y actualizando las feromonas.
@@ -340,6 +373,23 @@ void ACO::set_filename(std::string filename){
 
 void ACO::set_parametros(const ACOArgs parametros_base){
     nombre_instancia = parametros_base.nombre_instancia;
+    //metodo = parametros_base.metodo;
+    alfa = parametros_base.alfa;
+    beta = parametros_base.beta;
+    rho = parametros_base.rho;
+    rho_secundario =    parametros_base.rho_secundario;
+    iteraciones = parametros_base.iteraciones;
+    iteraciones_max = parametros_base.iteraciones_max;
+    debug =     parametros_base.debug;
+    umbral_inferior = parametros_base.umbral_inferior;
+    num_hormigas = parametros_base.num_hormigas;
+    epocas = parametros_base.epocas;
+    epoca_actual = 0;
+
+}
+
+void ACO::set_parametros_param(const ParametrosACOBase parametros_base){
+    //nombre_instancia = parametros_base.nombre_instancia;
     //metodo = parametros_base.metodo;
     alfa = parametros_base.alfa;
     beta = parametros_base.beta;

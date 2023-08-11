@@ -8,6 +8,10 @@ MinMax::MinMax(Graph* instancia, MMArgs parametros) : ACO(instancia, parametros)
     inicializar_feromonas();
 }
 
+MinMax::MinMax(Graph* instancia, ParametrosMM parametros2) : ACO(instancia, parametros2) {
+    // Inicializa las feromonas.
+    inicializar_feromonas();
+}
 /* Resuelve el problema
     Este método resuelve el problema simplemente iterando el algoritmo hasta que se cumpla el criterio de parada.
     Algunas alternativas de mejora son:

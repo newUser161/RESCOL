@@ -65,6 +65,7 @@ public:
     
 
     ACO(Graph *instancia, ACOArgs parametros_base); // Constructor;
+    ACO(Graph *instancia, ParametrosACOBase parametros_base); // Constructor;
     void reset();
 
     virtual void resolver() = 0; // Resuelve el problema
@@ -87,6 +88,7 @@ private:
     void visitar(Hormiga &hormiga, Nodo *nodo); // Visita el nodo siguiente
     bool solucionCompleta(Hormiga &hormiga);    // Verifica si la solución es completa
     void set_parametros(const ACOArgs parametros_base);
+    void set_parametros_param(const ParametrosACOBase parametros_base);
 };
 
 #endif
