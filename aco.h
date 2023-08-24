@@ -54,6 +54,7 @@ public:
     float alfa;                        // Parámetro alfa
     float beta;                       // Parámetro beta
     float rho;                               // Parámetro rho, asociado a la evaporacion de feromonas
+    float tau;                               // Parámetro rho, asociado a la evaporacion de feromonas
     float rho_secundario;    // Parámetro rho, asociado a la evaporacion de feromonas
     int iteraciones;            // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
     int iteraciones_max;    // Cantidad de iteraciones maximas
@@ -65,7 +66,7 @@ public:
     
 
     ACO(Graph *instancia, ACOArgs parametros_base); // Constructor;
-    ACO(Graph *instancia, ParametrosACOBase parametros_base); // Constructor;
+    //ACO(Graph *instancia, ParametrosACOBase parametros_base); // Constructor;
     void reset();
 
     virtual void resolver() = 0; // Resuelve el problema
@@ -76,6 +77,9 @@ public:
     void cerrar_file();
     std::string get_filename();
     void set_filename(std::string filename);
+    Hormiga get_mejor_solucion();
+    void exportar_solucion();
+    void exportar_mapa_resultados();
 
 private:
 
@@ -83,12 +87,12 @@ private:
     int mejor_costo = std::numeric_limits<int>::max();    // Mejor costo de la iteracion actual
     int mejor_longitud = std::numeric_limits<int>::max(); // Mejor costo de la iteracion actual
 
-    
+    int evaluaciones = 0; // Evaluaciones de la funcion objetivo
     Nodo *eligeSiguiente(Hormiga &hormiga);     // Elige el siguiente nodo
     void visitar(Hormiga &hormiga, Nodo *nodo); // Visita el nodo siguiente
     bool solucionCompleta(Hormiga &hormiga);    // Verifica si la solución es completa
-    void set_parametros(const ACOArgs parametros_base);
-    void set_parametros_param(const ParametrosACOBase parametros_base);
+    void set_parametros(ACOArgs parametros_base);
+    
 };
 
 #endif

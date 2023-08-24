@@ -31,8 +31,8 @@ struct Nodo
 struct Arco
 {
     int id = 0;                // Identificador de la arista
-    int costo_recorrido = 0;   // Costo de recorrer la arista
-    int costo_recoleccion = 0; // Costo de recolectar en la arista
+    double costo_recorrido = 0;   // Costo de recorrer la arista
+    double costo_recoleccion = 0; // Costo de recolectar en la arista
     int veces_recorrida = 0;   // Veces que se recorre la arista
     bool obligatoria = 0;      // Indica si la arista es obligatoria
     bool bidireccional = 0;    // Indica si la arista es bidireccional
@@ -46,7 +46,7 @@ struct Graph
     std::map<int, Nodo> nodos;                                                       // Mapa de nodos del grafo
     std::unordered_map<int, Arco *> arcos;                                           // Mapa de aristas del grafo
     std::vector<Arco *> vector_arcos;                                                // Vector de aristas del grafo
-    std::unordered_map<int, std::unordered_map<int, double>> informacion_heuristica; // Información heurística
+    std::unordered_map<int, std::unordered_map<Arco *, double>> informacion_heuristica; // Información heurística
     Metadatos metadatos;                                                             // Metadatos del grafo
 };
 

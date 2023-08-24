@@ -33,42 +33,12 @@ ACO::ACO(Graph *instancia, ACOArgs parametros_base){
     auto now = std::chrono::system_clock::now();
     std::time_t now_c = std::chrono::system_clock::to_time_t(now);
     std::tm* now_tm = std::localtime(&now_c);
+     // Construir la ruta al archivo en la carpeta "output"
     std::strftime(filename, 100, "SalidaACO-%Y%m%d%H%M%S.txt", now_tm);  // Formato: SalidaACO-AAAAMMDDHHMMSS.txt   
-    std::string nombre_archivo_salida(filename);  // Convierte char[] a std::string
+    std::string nombre_archivo_salida = "Output/" + std::string(filename); 
     set_filename(nombre_archivo_salida);
 
-    // Inicializa las hormigas.
-    for (int i = 0; i < num_hormigas; i++)
-    {
-        // Crea una nueva hormiga
-        Hormiga hormiga;
-        hormiga.id = i;
-
-        // Establece la posición inicial de la hormiga de manera aleatorio entre la cantidad de nodos iniciales permitidos.
-        int nodo_inicial = int(generar_numero_aleatorio(1, instancia->metadatos.nodos_iniciales.size() - 1));
-        hormiga.nodo_actual = &instancia->metadatos.nodos_iniciales[nodo_inicial];
-
-        // Inicializa un mapa para que la hormiga lleve la cuenta de las pasadas por los arcos.
-        for (auto &par : instancia->arcos)
-            hormiga.arcosVisitados[par.second] = 0;
-
-        // Añade la hormiga a la lista de hormigas
-        hormigas.push_back(hormiga);
-    }
-
-    // Establece el grafo.
-    grafo = instancia;   
-}
-
-ACO::ACO(Graph *instancia, ParametrosACOBase parametros_base){
-    set_parametros_param(parametros_base);
-
-    auto now = std::chrono::system_clock::now();
-    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
-    std::tm* now_tm = std::localtime(&now_c);
-    std::strftime(filename, 100, "SalidaACO-%Y%m%d%H%M%S.txt", now_tm);  // Formato: SalidaACO-AAAAMMDDHHMMSS.txt   
-    std::string nombre_archivo_salida(filename);  // Convierte char[] a std::string
-    set_filename(nombre_archivo_salida);
+    
 
     // Inicializa las hormigas.
     for (int i = 0; i < num_hormigas; i++)
@@ -121,8 +91,12 @@ void ACO::construirSolucion(Hormiga &hormiga)
         if (debug)
             cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
         Nodo *siguiente = eligeSiguiente(hormiga);
+        //cout<< siguiente->id << " ";
         visitar(hormiga, siguiente);
     }
+    file << "Epoca: "<< epoca_actual <<", Evaluacion: " << evaluaciones << ", Mejor costo: "<< mejor_costo << endl;
+    cout << "Epoca: "<< epoca_actual <<", Evaluacion: " << evaluaciones << ", Mejor costo: "<< mejor_costo << endl;
+    evaluaciones++;
 }
 
 /*
@@ -152,14 +126,7 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
     for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
     {
         Arco *arco = nullptr;
-        for (auto &a : hormiga.arcosVisitados)
-        {
-            if (a.first->origen->id == hormiga.nodo_actual->id && a.first->destino->id == i.first)
-            {
-                arco = a.first;
-                break;
-            }
-        }
+        arco = i.first;
         cantidad = hormiga.feromonas_locales[arco].cantidad;
         if (arco->obligatoria == true)
         {
@@ -176,15 +143,8 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
     }
     for (auto &p : probabilidad)
     {
-        p.second /= total;
-        if (debug)
-            cout << "arco:" << p.first->origen->id << " " << p.first->destino->id << " probabilidad: " << p.second << endl;
-    }
-    for (auto &p : probabilidad)
-    {
-        acumulado += p.second;
-        if (r <= acumulado)
-        {
+        acumulado += p.second / total;
+        if (r <= acumulado) {
             nodo = p.first->destino;
             break;
         }
@@ -219,25 +179,35 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
     arco->veces_recorrida += 1;
     hormiga.arcosVisitados[arco] += 1;
     hormiga.camino.push_back(*arco);
-    if (hormiga.feromonas_locales[arco].cantidad < umbral_inferior)
-    {
-        hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
-    }
-    else
-    {
-        hormiga.feromonas_locales[arco].cantidad *= (1 - rho);
-    }
     hormiga.nodo_actual = nodo;
+    hormiga.longitud_camino += 1;
+    
     if (arco->veces_recorrida == 1)
     {
+        if (hormiga.feromonas_locales[arco].cantidad < umbral_inferior)
+        {
+            hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
+        }
+        else
+        {
+            hormiga.feromonas_locales[arco].cantidad *= (1 - rho);
+        }
         hormiga.costo_camino += arco->costo_recorrido + arco->costo_recoleccion;
     }
     else
     {
+        if (hormiga.feromonas_locales[arco].cantidad < umbral_inferior)
+        {
+            hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
+        }
+        else
+        {
+            hormiga.feromonas_locales[arco].cantidad *= (1 - rho_secundario);
+        }
         hormiga.costo_camino += arco->costo_recorrido;
     }
 
-    hormiga.longitud_camino += 1;
+    
     return;
 }
 /*
@@ -306,6 +276,28 @@ void ACO::mostrar_solucion(bool show_solucion)
     }
 }
 
+void ACO::exportar_solucion()
+{
+    // Abre el archivo para escribir
+    std::ofstream archivo("Temp/camino.txt");
+    // Escribe cada arco y la cantidad de veces que se pasó por él
+    for (const auto& arco : mejor_solucion.camino) {        
+        archivo << arco.origen->id << endl;
+    }
+    archivo << mejor_solucion.camino.back().destino->id << endl;
+    archivo.close();
+}
+
+void ACO::exportar_mapa_resultados()
+{
+    // Abre el archivo para escribir
+    std::ofstream archivo("Temp/mapa_resultados.txt");
+    // Escribe cada arco y la cantidad de veces que se pasó por él
+    for (const auto& arco : mejor_solucion.arcosVisitados) {        
+        archivo <<"("<<arco.first->origen->id << ", " << arco.first->destino->id <<") "<< " : " << arco.second << endl;
+    }
+    archivo.close();
+}
 /*
     Este método guarda la mejor solución, es decir, la hormiga con el mejor(menor) costo y longitud de camino.
 
@@ -322,8 +314,7 @@ Hormiga ACO::guardar_mejor_solucion_iteracion()
             mejor_longitud = hormiga.longitud_camino;
             mejor_hormiga = hormiga;
         }
-            cout << "Iteracion: " << iteraciones << " Mejor costo: " << mejor_costo << endl;
-            file << "Epoca: "<< epoca_actual <<", Iteracion: " << iteraciones << ", Mejor costo: "<< mejor_costo << endl;
+                 
             
             
     }
@@ -356,7 +347,7 @@ void ACO::reset()
 }
 
 void ACO::abrir_file(){
-        file.open(filename); 
+        file.open(nombre_archivo_salida); 
 }
 
 void ACO::cerrar_file(){
@@ -378,6 +369,7 @@ void ACO::set_parametros(const ACOArgs parametros_base){
     beta = parametros_base.beta;
     rho = parametros_base.rho;
     rho_secundario =    parametros_base.rho_secundario;
+    tau = parametros_base.tau;
     iteraciones = parametros_base.iteraciones;
     iteraciones_max = parametros_base.iteraciones_max;
     debug =     parametros_base.debug;
@@ -388,19 +380,7 @@ void ACO::set_parametros(const ACOArgs parametros_base){
 
 }
 
-void ACO::set_parametros_param(const ParametrosACOBase parametros_base){
-    //nombre_instancia = parametros_base.nombre_instancia;
-    //metodo = parametros_base.metodo;
-    alfa = parametros_base.alfa;
-    beta = parametros_base.beta;
-    rho = parametros_base.rho;
-    rho_secundario =    parametros_base.rho_secundario;
-    iteraciones = parametros_base.iteraciones;
-    iteraciones_max = parametros_base.iteraciones_max;
-    debug =     parametros_base.debug;
-    umbral_inferior = parametros_base.umbral_inferior;
-    num_hormigas = parametros_base.num_hormigas;
-    epocas = parametros_base.epocas;
-    epoca_actual = 0;
-
+Hormiga ACO::get_mejor_solucion(){
+    return mejor_solucion;
 }
+

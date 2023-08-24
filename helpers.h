@@ -1,6 +1,7 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 #include <string>
+#include "aco.h"
 using namespace std;
 
 std::string eliminarEspacios(std::string str);

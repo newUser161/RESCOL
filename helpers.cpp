@@ -1,5 +1,6 @@
 #include <random>
 #include "graph.h"
+#include "aco.h"
 #include <algorithm>
 
 // Función para eliminar los espacios de una cadena
@@ -19,3 +20,4 @@ double generar_numero_aleatorio(double min, double max) {
     // Generar y devolver un número aleatorio
     return distribucion(generador);
 }
+

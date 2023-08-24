@@ -1,13 +1,21 @@
 #include "antsystem.h"
 #include "aco.h"
+#include <chrono> 
 
 AntSystem::AntSystem(Graph* instancia, ASArgs parametros) : ACO(instancia, parametros) {
     // Inicializa las feromonas.
+    
+    auto start = std::chrono::high_resolution_clock::now();
+
     inicializar_feromonas(); 
-}
-AntSystem::AntSystem(Graph* instancia, ParametrosAS parametros2) : ACO(instancia, parametros2) {
-    // Inicializa las feromonas.
-    inicializar_feromonas(); 
+
+    // Detiene la medición del tiempo
+    auto stop = std::chrono::high_resolution_clock::now();
+
+    // Calcula la duración
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+
+    std::cout << "Tiempo de inicializacion: " << duration.count() << " microsegundos" << std::endl;
 }
 
 /* Resuelve el problema

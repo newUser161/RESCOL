@@ -5,12 +5,13 @@
 #include <cstdlib>
 #include <ctime>
 #include <cmath>
-#include <sstream> 
+#include <sstream>
 #include <conio.h>
+#include <thread>
+#include <chrono>
 
-#include "magic_enum/include/magic_enum.hpp"
 #include "argparse/argparse.hpp"
-   
+
 #include "graph.h"
 #include "aco.h"
 #include "antsystem.h"
@@ -18,6 +19,7 @@
 #include "instance_reader.h"
 #include "helpers.h"
 #include "enums.h"
+#include "test.h"
 
 using namespace std;
 
@@ -38,25 +40,16 @@ using namespace std;
     - iteraciones: Número de iteraciones que realizará el algoritmo
     - hormigas: Número de hormigas que se utilizarán
     - leer_restricciones: Indica si se leerán las restricciones del archivo
-    - carga_auto: Indica si se cargará una instancia automática o manual
     - debug: Indica si se mostrarán mensajes de debug
 */
 int main(int argc, char *argv[])
 {
-    bool carga_auto = true;
-    bool leer_restricciones = false;
-    bool leer_coordenadas = false;
-    bool debug = true;
-    bool debug_ACO = false;
-
-    MetodoACO metodo = MIN_MAX;
+    ConfigPrograma config;
     Graph grafo = Graph();
     ACO *aco;
-    ACOArgs parametros_base = argparse::parse<ACOArgs>(argc, argv);    
-
-    grafo = leerInstancia(parametros_base.nombre_instancia, leer_restricciones, leer_coordenadas);
-        
-    if (debug)
+    ACOArgs parametros_base = argparse::parse<ACOArgs>(argc, argv);
+    grafo = leerInstancia(parametros_base.nombre_instancia, config.leer_restricciones, config.leer_coordenadas);
+    if (config.debug)
     {
         cout << endl;
         for (int i = 0; i < 161; i++)
@@ -105,67 +98,71 @@ int main(int argc, char *argv[])
         cout << endl;
     }
     cout << endl;
-    
     ASArgs parametrosAS = argparse::parse<ASArgs>(argc, argv);
     MMArgs parametrosMM = argparse::parse<MMArgs>(argc, argv);
-
-    ParametrosAS parametrosAS_param;
-    ParametrosMM parametrosMM_param;
-
-    bool argparse_activado = true;    
-
-    if (argparse_activado){
-        switch (metodo)
-        {
-        case ANT_SYSTEM:
-            aco = new AntSystem(&grafo, parametrosAS);        
-            break;
-        case MIN_MAX:
-            aco = new MinMax(&grafo, parametrosMM);
-            break;
-        case ELITIST:
-            break;
-        case ACS:
-            break;
-        }
-    } else 
+    switch (parametros_base.metodo)
     {
-        switch (metodo)
-        {
-        case ANT_SYSTEM:
-            aco = new AntSystem(&grafo, parametrosAS_param);        
-            break;
-        case MIN_MAX:
-            aco = new MinMax(&grafo, parametrosMM_param);
-            break;
-        case ELITIST:
-            break;
-        case ACS:
-            break;
-        }
+    case ANT_SYSTEM:
+        aco = new AntSystem(&grafo, parametrosAS);
+        break;
+    case MIN_MAX:
+        aco = new MinMax(&grafo, parametrosMM);
+        break;
+    case ELITIST:
+        break;
+    case ACS:
+        break;
+    case TEST:
+        bfs(grafo.metadatos.nodos_iniciales[0].id, grafo.informacion_heuristica);
     }
+    ///////////////////////
+    bfs(grafo.metadatos.nodos_iniciales[0].id, grafo.informacion_heuristica);
+    //bfs(32308, grafo.informacion_heuristica);
+    //////////////////TEST
+
     aco->abrir_file();
-    for (aco->epoca_actual; aco->epoca_actual < aco->epocas; aco->epoca_actual++){
-        cout <<"⌚"<<"Época " << aco->epoca_actual << endl;
-        aco->resolver(); // Llamada al método resolver
+    for (aco->epoca_actual; aco->epoca_actual < aco->epocas; aco->epoca_actual++)
+    {
+        cout << "⌚"<< "Época " << aco->epoca_actual << endl;
+        aco->resolver();
         aco->reset();
     }
     aco->cerrar_file();
 
-    // Muestra la solución
-    bool show_solucion = true;
-    aco->mostrar_solucion(show_solucion);
-
+    aco->mostrar_solucion(config.show_solucion);
+    aco->exportar_solucion();
+    aco->exportar_mapa_resultados();
     std::string archivo_salida = aco->get_filename();
     std::stringstream ss;
-    ss << "python Grafico.py " << archivo_salida; 
-    std::string comando = ss.str();     
+    ss << "python Grafico.py " << archivo_salida;
+    std::string comando = ss.str();
+
+    std::stringstream ss2;
+    ss2 << "python Visualizador.py " << parametros_base.nombre_instancia;
+    std::string comando2 = ss2.str();
+
+
+    /*
+    if (isConnected(adjList)) {
+        std::cout << "El grafo está conectado.\n";
+    } else {
+        std::cout << "El grafo no está conectado.\n";
+    }
+
+*/
+
+
     cout << "Programa finalizado correctamente" << endl;
     for (int i = 0; i < parametros_base.num_hormigas; i++)
         cout << "🐜 ";
     cout << endl;
-    cout << endl;    
+    cout << endl;
     delete aco;
-    std::system(comando.c_str()); 
+
+    std::system(comando.c_str());    
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::system(comando2.c_str());
+   
     return 0;
 }
+

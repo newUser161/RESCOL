@@ -26,7 +26,8 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     int IdArco = 0;
 
     // Intentar abrir el archivo
-    std::ifstream infile(nombre_archivo);
+    std::string ruta_archivo = "Instancias/" + nombre_archivo;
+    std::ifstream infile(ruta_archivo);
     if (!infile)
     {
         std::cerr << "No se pudo abrir el archivo: " << nombre_archivo << std::endl;
@@ -63,7 +64,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
         std::getline(infile, lineaDato);
         std::istringstream arcStream(lineaDato);
         std::string bi_or_uni;
-        int id, origen, destino, costo_recorrido, costo_recoleccion;
+        double id, origen, destino, costo_recorrido, costo_recoleccion;
         if (!(arcStream >> bi_or_uni >> origen >> destino >> costo_recorrido >> costo_recoleccion))
         {
             // Error de formato
@@ -102,7 +103,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
 
         // Actualizar la información heurística
         double costo = arco->costo_recorrido ;
-        g.informacion_heuristica[origen][destino] = 1.0 / costo;
+        g.informacion_heuristica[origen][arco] = 1.0 / costo;
 
         IdArco++;
     }
@@ -150,7 +151,9 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             g.nodos[destino].entrante.push_back(*arco);
 
             // Actualizar la información heurística            
-            g.informacion_heuristica[origen][destino] = 0;
+            //g.informacion_heuristica[origen][destino] = 0;
+            g.informacion_heuristica[origen][arco] = 0;
+
 
             IdArco++;
         }

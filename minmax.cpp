@@ -4,14 +4,10 @@
 
 
 MinMax::MinMax(Graph* instancia, MMArgs parametros) : ACO(instancia, parametros) {
-    // Inicializa las feromonas.
+    set_parametros(parametros);
     inicializar_feromonas();
 }
 
-MinMax::MinMax(Graph* instancia, ParametrosMM parametros2) : ACO(instancia, parametros2) {
-    // Inicializa las feromonas.
-    inicializar_feromonas();
-}
 /* Resuelve el problema
     Este método resuelve el problema simplemente iterando el algoritmo hasta que se cumpla el criterio de parada.
     Algunas alternativas de mejora son:
@@ -28,7 +24,8 @@ void MinMax::resolver()
         {
             iterar();
             Hormiga mejor_solucion_anterior = mejor_solucion;
-            mejor_solucion = guardar_mejor_solucion_iteracion();
+            mejor_solucion = guardar_mejor_solucion_iteracion();            
+            
             if (mejor_solucion_anterior.costo_camino == mejor_solucion.costo_camino && mejor_solucion_anterior.longitud_camino == mejor_solucion.longitud_camino) {                
                 iteraciones_sin_mejora++;
                 if (iteraciones_sin_mejora == umbral_sin_mejora_limite) {                    
@@ -79,4 +76,10 @@ void MinMax::inicializar_feromonas(){
             for (auto &hormiga : hormigas)
                 hormiga.feromonas_locales[arco] = feromona_inicial;
         }
+}
+
+void MinMax::set_parametros(MMArgs parametros){
+    umbral_superior = parametros.umbral_superior;
+    umbral_sin_mejora_limite = parametros.umbral_sin_mejora_limite;
+    a = parametros.a;
 }
