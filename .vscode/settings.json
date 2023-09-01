@@ -75,6 +75,14 @@
         "xlocbuf": "cpp",
         "xlocmes": "cpp",
         "xlocmon": "cpp",
-        "xloctime": "cpp"
+        "xloctime": "cpp",
+        "deque": "cpp",
+        "future": "cpp",
+        "numeric": "cpp",
+        "set": "cpp",
+        "stack": "cpp",
+        "coroutine": "cpp",
+        "resumable": "cpp",
+        "queue": "cpp"
     }
 }

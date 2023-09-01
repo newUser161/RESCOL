@@ -50,8 +50,8 @@ protected:
 
 public:
     std::string nombre_instancia;   // Nombre de la instancia
-    //MetodoACO metodo;               // Metodo de ACO
     float alfa;                        // Parámetro alfa
+    int metodo;                        // Método (0: antsystem, 1: minmax)
     float beta;                       // Parámetro beta
     float rho;                               // Parámetro rho, asociado a la evaporacion de feromonas
     float tau;                               // Parámetro rho, asociado a la evaporacion de feromonas

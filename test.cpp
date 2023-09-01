@@ -13,8 +13,6 @@ void bfs(int nodoInicial, std::unordered_map<int, std::unordered_map<Arco *, dou
     for (auto &par : adyacencia) {
         visitado[par.first] = false;
     }
-    cout<< "Cantidad de nodos: "<< adyacencia.size() << endl;
-    
 
     // Marcar el nodo inicial como visitado y encolarlo
     visitado[nodoInicial] = true;

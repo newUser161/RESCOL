@@ -31,5 +31,6 @@ plt.xlabel('Evaluaciones')
 plt.ylabel('Mejor costo')
 plt.title('Gráfico de convergencia')
 plt.legend()
-plt.savefig(argv[1] + '-Grafico.png')
+nombre_archivo = argv[1][:-4]
+plt.savefig(nombre_archivo + '-GraficoConvergencia.png')
 plt.show()

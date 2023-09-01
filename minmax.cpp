@@ -56,7 +56,7 @@ void MinMax::iterar(){
     {
         Arco *a = par.first;
         int pasadas = par.second;        
-        feromonas.at(a).cantidad += (tau / (rho * mejor_solucion.longitud_camino * pasadas));
+        feromonas.at(a).cantidad += (tau / (rho * pow(mejor_solucion.longitud_camino,1) * pasadas)); 
         if (feromonas.at(a).cantidad > umbral_superior)
             feromonas.at(a).cantidad = umbral_superior;
     }

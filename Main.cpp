@@ -6,7 +6,7 @@
 #include <ctime>
 #include <cmath>
 #include <sstream>
-#include <conio.h>
+
 #include <thread>
 #include <chrono>
 
@@ -138,18 +138,8 @@ int main(int argc, char *argv[])
     std::string comando = ss.str();
 
     std::stringstream ss2;
-    ss2 << "python Visualizador.py " << parametros_base.nombre_instancia;
+    ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida;
     std::string comando2 = ss2.str();
-
-
-    /*
-    if (isConnected(adjList)) {
-        std::cout << "El grafo está conectado.\n";
-    } else {
-        std::cout << "El grafo no está conectado.\n";
-    }
-
-*/
 
 
     cout << "Programa finalizado correctamente" << endl;
@@ -160,7 +150,6 @@ int main(int argc, char *argv[])
     delete aco;
 
     std::system(comando.c_str());    
-    std::this_thread::sleep_for(std::chrono::seconds(5));
     std::system(comando2.c_str());
    
     return 0;

@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <string>
+#include <set>
 
 #include "instance_reader.h"
 #include "graph.h"
@@ -64,6 +65,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
         std::getline(infile, lineaDato);
         std::istringstream arcStream(lineaDato);
         std::string bi_or_uni;
+        std::set<std::pair<int, int>> arcosCreados;
         double id, origen, destino, costo_recorrido, costo_recoleccion;
         if (!(arcStream >> bi_or_uni >> origen >> destino >> costo_recorrido >> costo_recoleccion))
         {
@@ -87,25 +89,79 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
         }
 
         // Crear el arco
-        Arco *arco = new Arco;
-        arco->id = IdArco;
-        arco->costo_recorrido = costo_recorrido;
-        arco->costo_recoleccion = costo_recoleccion;
-        arco->obligatoria = true;
-        arco->origen = &g.nodos[origen];
-        arco->destino = &g.nodos[destino];
-        arco->bidireccional = (bi_or_uni == "bi");
-        g.arcos[IdArco] = arco;
+        if (bi_or_uni == "uni"){
+            Arco *arco = new Arco;
+            arco->id = IdArco;
+            arco->costo_recorrido = costo_recorrido;
+            arco->costo_recoleccion = costo_recoleccion;
+            arco->obligatoria = true;
+            arco->origen = &g.nodos[origen];
+            arco->destino = &g.nodos[destino];
+            arco->bidireccional = (bi_or_uni == "bi");
+            g.arcos[IdArco] = arco;
 
-        // Conectar el arco a sus nodos
-        g.nodos[origen].saliente.push_back(*arco);
-        g.nodos[destino].entrante.push_back(*arco);
+            // Conectar el arco a sus nodos
+            g.nodos[origen].saliente.push_back(*arco);
+            g.nodos[destino].entrante.push_back(*arco);
 
-        // Actualizar la información heurística
-        double costo = arco->costo_recorrido ;
-        g.informacion_heuristica[origen][arco] = 1.0 / costo;
+            // Actualizar la información heurística
+            double costo = arco->costo_recorrido ;
+            g.informacion_heuristica[origen][arco] = 1.0 / costo;
 
-        IdArco++;
+            IdArco++;
+            arcosCreados.insert(std::make_pair(origen, destino));
+        } else 
+        {
+            if (arcosCreados.find(std::make_pair(origen, destino)) == arcosCreados.end() &&
+            arcosCreados.find(std::make_pair(destino, origen)) == arcosCreados.end()) {
+
+                Arco *arcoIda = new Arco;
+                Arco *arcoVuelta = new Arco;
+
+                arcoIda->id = IdArco;
+                g.arcos[IdArco] = arcoIda;
+                IdArco++;
+
+                arcoVuelta->id = IdArco;
+                g.arcos[IdArco] = arcoVuelta;
+                IdArco++;
+
+                arcoIda->costo_recorrido = costo_recorrido;
+                arcoIda->costo_recoleccion = costo_recoleccion;
+
+                arcoVuelta->costo_recorrido = costo_recorrido;
+                arcoVuelta->costo_recoleccion = costo_recoleccion;
+
+                arcoIda->obligatoria = true;
+                arcoVuelta->obligatoria = true;
+
+                arcoIda->origen = &g.nodos[origen];
+                arcoIda->destino = &g.nodos[destino];
+
+                arcoVuelta->origen = &g.nodos[destino];
+                arcoVuelta->destino = &g.nodos[origen];
+                
+                arcoIda->bidireccional = true;
+                arcoVuelta->bidireccional = true;
+
+                // Conectar el arco a sus nodos
+                g.nodos[origen].saliente.push_back(*arcoIda);
+                g.nodos[destino].entrante.push_back(*arcoIda);
+
+                g.nodos[origen].entrante.push_back(*arcoVuelta);
+                g.nodos[destino].saliente.push_back(*arcoVuelta);
+
+                // Actualizar la información heurística
+                double costo = arcoIda->costo_recorrido ;
+                g.informacion_heuristica[origen][arcoIda] = 1.0 / costo;
+
+                costo = arcoVuelta->costo_recorrido ;
+                g.informacion_heuristica[destino][arcoVuelta] = 1.0 / costo;
+
+                arcosCreados.insert(std::make_pair(origen, destino));
+                arcosCreados.insert(std::make_pair(destino, origen));
+            }
+        }
     }
     // Saltarse header aristas opcionales
     std::getline(infile, lineaDato);

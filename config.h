@@ -6,8 +6,8 @@
 
 struct ACOArgs : public argparse::Args
 {
-    std::string &nombre_instancia = arg("Nombre de la instancia").set_default("CasoRealChiquito FIX.txt");
-    int &metodo = kwarg("metodo", "Metodo de resolucion").set_default(1);
+    std::string &nombre_instancia = arg("Nombre de la instancia").set_default("Formato5x5.txt");
+    int &metodo = kwarg("metodo", "Metodo de resolucion").set_default(0);
     float &alfa = kwarg("alfa", "Parámetro alfa").set_default(1.0f);
     float &beta = kwarg("beta", "Parámetro beta").set_default(2.0f);
     float &rho = kwarg("rho", "Parámetro rho, asociado a la evaporación de feromonas").set_default(0.5f);
@@ -16,8 +16,8 @@ struct ACOArgs : public argparse::Args
     int &iteraciones = kwarg("iter", "Iteraciones actuales").set_default(0);
     int &iteraciones_max = kwarg("iter-max", "Cantidad de iteraciones máximas").set_default(100);
     double &umbral_inferior = kwarg("umbral-inf", "Umbral inferior para las feromonas").set_default(1.7e-100);
-    int &num_hormigas = kwarg("num-hormigas", "Número de hormigas").set_default(3);
-    int &epocas = kwarg("epocas", "Épocas").set_default(1);
+    int &num_hormigas = kwarg("num-hormigas", "Número de hormigas").set_default(10);
+    int &epocas = kwarg("epocas", "Épocas").set_default(3);
     int &epoca_actual = kwarg("epoca-actual", "Época actual").set_default(0);
     bool &debug = flag("debug", "Flag que muestra o no información de debug como los caminos de las hormigas").set_default(false);
 };

@@ -51,7 +51,7 @@ void AntSystem::iterar(){
         {
             Arco *a = par.first;
             int pasadas = par.second;
-            feromonas.at(a).cantidad += (tau / (rho * hormiga.longitud_camino * pasadas));
+            feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino,2) * pasadas));
         }
     }
 }
