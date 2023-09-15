@@ -44,6 +44,7 @@ protected:
     char filename[100];
     std::ofstream file;
     std::string nombre_archivo_salida;
+    std::filesystem::path directorio_salida;
 
 
 
@@ -78,7 +79,7 @@ public:
     std::string get_filename();
     void set_filename(std::string filename);
     Hormiga get_mejor_solucion();
-    void exportar_solucion();
+    void exportar_solucion(std::chrono::microseconds duration);
     void exportar_mapa_resultados();
 
 private:

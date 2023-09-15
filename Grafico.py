@@ -33,4 +33,7 @@ plt.title('Gráfico de convergencia')
 plt.legend()
 nombre_archivo = argv[1][:-4]
 plt.savefig(nombre_archivo + '-GraficoConvergencia.png')
-plt.show()
+
+show_grafico = argv[2]
+if (show_grafico == "True"):
+    plt.show()

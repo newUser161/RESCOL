@@ -121,24 +121,30 @@ int main(int argc, char *argv[])
     //////////////////TEST
 
     aco->abrir_file();
+    auto start = std::chrono::high_resolution_clock::now();
     for (aco->epoca_actual; aco->epoca_actual < aco->epocas; aco->epoca_actual++)
     {
         cout << "⌚"<< "Época " << aco->epoca_actual << endl;
         aco->resolver();
         aco->reset();
     }
+    auto stop = std::chrono::high_resolution_clock::now(); 
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     aco->cerrar_file();
 
     aco->mostrar_solucion(config.show_solucion);
-    aco->exportar_solucion();
+    aco->exportar_solucion(duration);
     aco->exportar_mapa_resultados();
     std::string archivo_salida = aco->get_filename();
     std::stringstream ss;
-    ss << "python Grafico.py " << archivo_salida;
+
+    std::string mostrar_grafico = "False";
+    
+    ss << "python Grafico.py " << archivo_salida << " " << mostrar_grafico;
     std::string comando = ss.str();
 
     std::stringstream ss2;
-    ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida;
+    ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida << " " << mostrar_grafico;
     std::string comando2 = ss2.str();
 
 
@@ -147,11 +153,11 @@ int main(int argc, char *argv[])
         cout << "🐜 ";
     cout << endl;
     cout << endl;
-    delete aco;
+    
 
     std::system(comando.c_str());    
-    std::system(comando2.c_str());
-   
+    std::system(comando2.c_str());     
+    delete aco;
     return 0;
 }
 

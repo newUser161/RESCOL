@@ -26,7 +26,7 @@ class Grafo:
         self.nodos = {}
         self.arcos = {}
 
-def visualizar_grafo(mapa_adyacencia, camino, nombre_archivo):
+def visualizar_grafo(mapa_adyacencia, camino, nombre_archivo, show_grafico):
     G = nx.DiGraph()  # Crear un grafo dirigido
     
     # Añadir arcos al grafo
@@ -71,7 +71,9 @@ def visualizar_grafo(mapa_adyacencia, camino, nombre_archivo):
             plt.text(label_pos[0], label_pos[1], label, color='black')
 
     plt.savefig(nombre_archivo + '-GraficoMapa.png')
-    plt.show()  # Mostrar la visualización
+    
+    if (show_grafico == "True"):
+        plt.show()  # Mostrar la visualización
 
 def construir_grafo(arcos):
     grafo = Grafo()
@@ -150,12 +152,13 @@ def construir_mapa_adyacencia(grafo, mapa_resultados):
     return mapa_adyacencia
 
 ARISTAS_REQ = leer_aristas_req(argv[1])
-#ARISTAS_REQ = leer_aristas_req("FormatoInstanciaRESCOL.txt")
+#ARISTAS_REQ = leer_aristas_req("Formato5x5.txt")
 camino = leer_ruta()
 grafo = construir_grafo(ARISTAS_REQ)
 mapa_resultados = leer_resultados()
 mapa_adyacencia = construir_mapa_adyacencia(grafo, mapa_resultados)
 
 nombre_archivo = argv[2][:-4]
-visualizar_grafo(mapa_adyacencia, camino, nombre_archivo) # type: ignore
+show_grafico = argv[3]
+visualizar_grafo(mapa_adyacencia, camino, nombre_archivo, show_grafico) # type: ignore
 

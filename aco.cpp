@@ -5,6 +5,10 @@
 #include <fstream>
 #include <chrono>
 #include <ctime>
+#include <functional>
+#include <numeric>
+#include <string>
+#include <vector>
 
 #include "aco.h"
 #include "graph.h"
@@ -40,7 +44,7 @@ ACO::ACO(Graph *instancia, ACOArgs parametros_base)
     // Construir la ruta al archivo en la carpeta "output"
     std::strftime(filename, 100, "%Y%m%d%H%M%S", now_tm); // Formato: -AAAAMMDDHHMMSS
 
-    std::filesystem::path directorio_salida("Output/" + prefijo +std::string(filename));
+    directorio_salida = ("Output/" + prefijo +std::string(filename));
     std::filesystem::create_directories(directorio_salida);
     std::string nombre_archivo_salida = directorio_salida.string()+"/" + std::string(filename) + ".txt";
     set_filename(nombre_archivo_salida);
@@ -94,12 +98,11 @@ void ACO::construirSolucion(Hormiga &hormiga)
         actual = hormiga.nodo_actual;
         if (debug)
             cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
-        Nodo *siguiente = eligeSiguiente(hormiga);
-        // cout<< siguiente->id << " ";
+        Nodo *siguiente = eligeSiguiente(hormiga);                  
         visitar(hormiga, siguiente);
     }
     file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
-    cout << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
+    //cout << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
     evaluaciones++;
 }
 
@@ -271,8 +274,8 @@ void ACO::mostrar_solucion(bool show_solucion)
         {
             cout << arco.origen->id << " -> ";
         }
-        cout << mejor_solucion.camino.back().destino->id << endl;
-        cout << " 🏁 ";
+        cout << mejor_solucion.camino.back().destino->id;
+        cout << " -> 🏁 ";
         cout << endl;
         for (int i = 0; i < 161; i++)
             cout << "-";
@@ -281,8 +284,49 @@ void ACO::mostrar_solucion(bool show_solucion)
     }
 }
 
-void ACO::exportar_solucion()
+void ACO::exportar_solucion(std::chrono::microseconds duration)
 {
+    //suma de costos de recoleccion de los arcos
+    int suma_recoleccion = 0;
+    int suma_recorrer = 0;
+    int costo_pesos_pasada = 0;
+    for (auto &arco : grafo->arcos)
+    {
+        suma_recoleccion += arco.second->costo_recoleccion;
+    }
+    for (auto &arco : mejor_solucion.camino)
+    {
+        suma_recorrer += arco.costo_recorrido;
+    }
+    costo_pesos_pasada = suma_recorrer - suma_recoleccion;
+
+    std::string resultados = "resultados.txt";
+    std::string ruta_archivo_salida = directorio_salida.string()+"/" + resultados;
+    std::ofstream archivo_salida(ruta_archivo_salida);
+    archivo_salida << "Mejor hormiga: " << mejor_solucion.id << endl;
+    archivo_salida << "Mejor longitud: " << mejor_solucion.longitud_camino << endl;
+    archivo_salida << "Cantidad arcos: " << grafo->arcos.size() << endl;
+    
+    archivo_salida << "Costo recoleccion: " << suma_recoleccion << endl;
+    archivo_salida << "Costo recorrer: " << suma_recorrer << endl;
+    archivo_salida << "Costo pesos pasada: " << costo_pesos_pasada << endl;
+    archivo_salida << "Mejor costo: " << mejor_solucion.costo_camino << endl;
+    archivo_salida << "Nodo inicio: " << mejor_solucion.camino.front().origen->id << endl;
+    archivo_salida << "Nodo fin: " << mejor_solucion.camino.back().destino->id << endl;
+    archivo_salida << "Tiempo de resolucion: " << duration.count() << " microsegundos" << endl;
+    archivo_salida << "Tiempo de modelo: " << "N/A" << endl;
+    archivo_salida << "Tiempo de backtrack: " << "N/A" << endl;
+
+    archivo_salida << "La solución es:" << endl;
+    for (auto &arco : mejor_solucion.camino)
+    {
+        archivo_salida << arco.origen->id << endl;
+    }
+    archivo_salida << mejor_solucion.camino.back().destino->id << endl;
+    archivo_salida.close();
+    
+
+    cout << "La solución es: " << endl;
     // Abre el archivo para escribir
     std::ofstream archivo("Temp/camino.txt");
     // Escribe cada arco y la cantidad de veces que se pasó por él
@@ -342,6 +386,9 @@ void ACO::limpiar()
         hormiga.costo_camino = 0;
         hormiga.feromonas_locales = feromonas;
         hormiga.nodo_actual = &grafo->metadatos.nodos_iniciales[int((generar_numero_aleatorio(0, grafo->metadatos.nodos_iniciales.size() - 1)))];
+        for (auto &arco : hormiga.camino)
+            arco.veces_recorrida = 0;
+        
     }
 }
 
