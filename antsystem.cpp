@@ -51,8 +51,13 @@ void AntSystem::iterar(){
         {
             Arco *a = par.first;
             int pasadas = par.second;
-            feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino,2) * pasadas));
+            if (!usarMatrizSalida){
+                feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino,2) * pasadas));
+            } else {
+                feromonas_salida.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino,2) * pasadas));
+            }
         }
+        
     }
 }
 
@@ -66,6 +71,7 @@ void AntSystem::inicializar_feromonas(){
             Arco *arco = par.second;
             Feromona feromona_inicial = {arco->origen, arco->destino, tau};
             feromonas[arco] = feromona_inicial;
+            feromonas_salida[arco] = feromona_inicial;
             for (auto &hormiga : hormigas)
                 hormiga.feromonas_locales[arco] = feromona_inicial;
         }

@@ -56,9 +56,14 @@ void MinMax::iterar(){
     {
         Arco *a = par.first;
         int pasadas = par.second;        
-        feromonas.at(a).cantidad += (tau / (rho * pow(mejor_solucion.longitud_camino,1) * pasadas)); 
-        if (feromonas.at(a).cantidad > umbral_superior)
-            feromonas.at(a).cantidad = umbral_superior;
+        if (!usarMatrizSalida){
+                feromonas.at(a).cantidad += (tau / (rho * pow(mejor_solucion.longitud_camino,1) * pasadas)); 
+                if (feromonas.at(a).cantidad > umbral_superior)
+                    feromonas.at(a).cantidad = umbral_superior;
+            } else {
+                feromonas_salida.at(a).cantidad += (tau / (rho * pow(mejor_solucion.longitud_camino,2) * pasadas));                
+            }
+        
     }
 }
 
@@ -73,6 +78,7 @@ void MinMax::inicializar_feromonas(){
             Arco *arco = par.second;
             Feromona feromona_inicial = {arco->origen, arco->destino, umbral_superior};
             feromonas[arco] = feromona_inicial;
+            feromonas_salida[arco] = feromona_inicial;
             for (auto &hormiga : hormigas)
                 hormiga.feromonas_locales[arco] = feromona_inicial;
         }

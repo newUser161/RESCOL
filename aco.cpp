@@ -39,14 +39,16 @@ ACO::ACO(Graph *instancia, ACOArgs parametros_base)
     std::time_t now_c = std::chrono::system_clock::to_time_t(now);
     std::tm *now_tm = std::localtime(&now_c);
 
-    instancia->metadatos.encabezado["METODO"] = metodo == 0 ? "AntSystem" : "MinMax";
-    std::string prefijo = instancia->metadatos.encabezado["NOMBRE"] + "-" + instancia->metadatos.encabezado["METODO"]+"-";
+    instancia->metadatos.encabezado["METODO"] = metodo == 0 ? "AntSystem" : metodo == 1 ? "MaxMin"
+                                                                                        : "ACS";
+
+    std::string prefijo = instancia->metadatos.encabezado["NOMBRE"] + "-" + instancia->metadatos.encabezado["METODO"] + "-";
     // Construir la ruta al archivo en la carpeta "output"
     std::strftime(filename, 100, "%Y%m%d%H%M%S", now_tm); // Formato: -AAAAMMDDHHMMSS
 
-    directorio_salida = ("Output/" + prefijo +std::string(filename));
+    directorio_salida = ("Output/" + prefijo + std::string(filename));
     std::filesystem::create_directories(directorio_salida);
-    std::string nombre_archivo_salida = directorio_salida.string()+"/" + std::string(filename) + ".txt";
+    std::string nombre_archivo_salida = directorio_salida.string() + "/" + std::string(filename) + ".txt";
     set_filename(nombre_archivo_salida);
 
     // Inicializa las hormigas.
@@ -93,16 +95,24 @@ void ACO::iterar()
 void ACO::construirSolucion(Hormiga &hormiga)
 {
     Nodo *actual = nullptr;
+    Nodo *siguiente = nullptr;
     while (!solucionCompleta(hormiga))
     {
         actual = hormiga.nodo_actual;
         if (debug)
             cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
-        Nodo *siguiente = eligeSiguiente(hormiga);                  
+        siguiente = eligeSiguiente(hormiga);
         visitar(hormiga, siguiente);
     }
+    hormiga.saltosTour = hormiga.longitud_camino;
+    if (usarMatrizSecundaria){
+        usarMatrizSalida = true;
+        buscarSalida(hormiga);
+
+    }
+    hormiga.saltosSalida = hormiga.longitud_camino - hormiga.saltosTour;
     file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
-    //cout << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
+    // cout << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
     evaluaciones++;
 }
 
@@ -218,6 +228,77 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
 
     return;
 }
+
+void ACO::buscarSalida(Hormiga &hormiga)
+{
+    int saltos = 0; // para contar la cantidad total de saltos hacia la salida con esta hormiga, deberia decrecer con las interaciones
+
+    while (!enNodoTerminal(hormiga)) //
+    {
+        Nodo *nodo = nullptr;
+        std::unordered_map<Arco *, double> probabilidad;
+        double total = 0.0;
+        double r = generar_numero_aleatorio(0, 1.00);
+        double acumulado = 0.0;
+        double cantidad = 0.0;
+        double tau_eta = 0.0;
+
+        
+
+        for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
+        {
+            Arco *arco = nullptr;
+            arco = i.first;
+            cantidad = feromonas_salida[arco].cantidad; // cambiar a feromonas de salida
+            if (arco->obligatoria == true)
+            {
+                tau_eta = pow(cantidad, alfa*3) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+            }
+            else
+            {
+                tau_eta = 1;
+            }
+            probabilidad[arco] = tau_eta;
+            total += tau_eta;
+            if (debug)
+                cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
+        }
+        for (auto &p : probabilidad)
+        {
+            acumulado += p.second / total;
+            if (r <= acumulado)
+            {
+                nodo = p.first->destino;
+                break;
+            }
+        }
+
+        Arco *arco = nullptr;
+
+        for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
+        {
+            if (i.first->destino->id == nodo->id)
+            {
+                arco = i.first;
+                break;
+            }
+        }
+        //cout << "arco:" << arco->origen->id << " " << arco->destino->id << endl; //lista los saltos hacia la salida
+        
+        arco->veces_recorrida += 1;
+        hormiga.arcosVisitados[arco] += 1;
+        hormiga.camino.push_back(*arco);
+        hormiga.nodo_actual = nodo;
+        hormiga.longitud_camino += 1;        
+        hormiga.costo_camino += arco->costo_recorrido;
+
+        saltos += 1;
+
+    }
+    cout << "saltos salida: " << saltos << endl;
+    return;
+}
+
 /*
     Verifica si la solución es completa
     Este método verifica si la solución es completa, es decir, si se han visitado todos los arcos al menos una vez y si el nodo actual es uno de los nodos finales.
@@ -234,23 +315,45 @@ bool ACO::solucionCompleta(Hormiga &hormiga)
     bool completo = false;
     for (auto &par : hormiga.arcosVisitados)
     {
-        if (par.second == 0 && par.first->obligatoria == true)
+        if (par.second == 0 && par.first->obligatoria == true )
         {
             completo = false;
             break;
         }
-        else
+        else{
             completo = true;
+        }
+    }    
+    if (!usarMatrizSecundaria){
+        bool terminado = enNodoTerminal(hormiga);
+        return (completo && terminado);
     }
 
+    return completo;
+}
+
+/*
+    Verifica si la hormiga esta en un nodo final
+
+    Parámetros:
+    - hormiga: Referencia a la hormiga que se está moviendo
+
+    Retorna:
+    - bool: True si la hormiga esta en un nodo final
+*/
+bool ACO::enNodoTerminal(Hormiga &hormiga)
+{
     // El nodo actual es uno de los nodos finales
     bool termino = false;
     for (auto &nodo_final : grafo->metadatos.nodos_termino)
     {
-        if (hormiga.nodo_actual->id == nodo_final.id)
+        if (hormiga.nodo_actual->id == nodo_final.id){
             termino = true;
+            break;
+        }
     }
-    return (completo && termino);
+
+    return termino;
 }
 
 /*
@@ -286,7 +389,7 @@ void ACO::mostrar_solucion(bool show_solucion)
 
 void ACO::exportar_solucion(std::chrono::microseconds duration)
 {
-    //suma de costos de recoleccion de los arcos
+    // suma de costos de recoleccion de los arcos
     int suma_recoleccion = 0;
     int suma_recorrer = 0;
     int costo_pesos_pasada = 0;
@@ -301,12 +404,14 @@ void ACO::exportar_solucion(std::chrono::microseconds duration)
     costo_pesos_pasada = suma_recorrer - suma_recoleccion;
 
     std::string resultados = "resultados.txt";
-    std::string ruta_archivo_salida = directorio_salida.string()+"/" + resultados;
+    std::string ruta_archivo_salida = directorio_salida.string() + "/" + resultados;
     std::ofstream archivo_salida(ruta_archivo_salida);
     archivo_salida << "Mejor hormiga: " << mejor_solucion.id << endl;
     archivo_salida << "Mejor longitud: " << mejor_solucion.longitud_camino << endl;
+    archivo_salida << "Longitud tour: " << mejor_solucion.saltosTour << endl; //
+    archivo_salida << "Longitud salida: " << mejor_solucion.saltosSalida << endl; //
     archivo_salida << "Cantidad arcos: " << grafo->arcos.size() << endl;
-    
+
     archivo_salida << "Costo recoleccion: " << suma_recoleccion << endl;
     archivo_salida << "Costo recorrer: " << suma_recorrer << endl;
     archivo_salida << "Costo pesos pasada: " << costo_pesos_pasada << endl;
@@ -314,8 +419,10 @@ void ACO::exportar_solucion(std::chrono::microseconds duration)
     archivo_salida << "Nodo inicio: " << mejor_solucion.camino.front().origen->id << endl;
     archivo_salida << "Nodo fin: " << mejor_solucion.camino.back().destino->id << endl;
     archivo_salida << "Tiempo de resolucion: " << duration.count() << " microsegundos" << endl;
-    archivo_salida << "Tiempo de modelo: " << "N/A" << endl;
-    archivo_salida << "Tiempo de backtrack: " << "N/A" << endl;
+    archivo_salida << "Tiempo de modelo: "
+                   << "N/A" << endl;
+    archivo_salida << "Tiempo de backtrack: "
+                   << "N/A" << endl;
 
     archivo_salida << "La solución es:" << endl;
     for (auto &arco : mejor_solucion.camino)
@@ -324,7 +431,6 @@ void ACO::exportar_solucion(std::chrono::microseconds duration)
     }
     archivo_salida << mejor_solucion.camino.back().destino->id << endl;
     archivo_salida.close();
-    
 
     cout << "La solución es: " << endl;
     // Abre el archivo para escribir
@@ -380,15 +486,17 @@ void ACO::limpiar()
     for (auto &hormiga : hormigas)
     {
         hormiga.camino.clear();
+        usarMatrizSalida = false;
         for (auto &par : grafo->arcos)
             hormiga.arcosVisitados[par.second] = 0;
         hormiga.longitud_camino = 0;
+        hormiga.saltosSalida = 0;
+        hormiga.saltosTour = 0;
         hormiga.costo_camino = 0;
         hormiga.feromonas_locales = feromonas;
         hormiga.nodo_actual = &grafo->metadatos.nodos_iniciales[int((generar_numero_aleatorio(0, grafo->metadatos.nodos_iniciales.size() - 1)))];
         for (auto &arco : hormiga.camino)
             arco.veces_recorrida = 0;
-        
     }
 }
 
@@ -428,6 +536,7 @@ void ACO::set_parametros(const ACOArgs parametros_base)
     beta = parametros_base.beta;
     rho = parametros_base.rho;
     rho_secundario = parametros_base.rho_secundario;
+    rho_salida = parametros_base.rho_salida;
     tau = parametros_base.tau;
     iteraciones = parametros_base.iteraciones;
     iteraciones_max = parametros_base.iteraciones_max;
@@ -435,7 +544,9 @@ void ACO::set_parametros(const ACOArgs parametros_base)
     umbral_inferior = parametros_base.umbral_inferior;
     num_hormigas = parametros_base.num_hormigas;
     epocas = parametros_base.epocas;
+    usarMatrizSecundaria = parametros_base.usaMatrizSecundaria;
     epoca_actual = 0;
+    
 }
 
 Hormiga ACO::get_mejor_solucion()

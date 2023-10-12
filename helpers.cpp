@@ -12,7 +12,8 @@ std::string eliminarEspacios(std::string str) {
 // Esta función genera un número aleatorio entre min y max (ambos incluidos).
 double generar_numero_aleatorio(double min, double max) {
     // El generador de números aleatorios
-    static std::mt19937 generador(std::random_device{}());
+    //static std::mt19937 generador(std::random_device{}()); full aleatorio
+    static std::mt19937 generador(161);
 
     // La distribución que define el rango
     std::uniform_real_distribution<> distribucion(min, max);

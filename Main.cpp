@@ -16,6 +16,7 @@
 #include "aco.h"
 #include "antsystem.h"
 #include "minmax.h"
+#include "AntColonySystem.h"
 #include "instance_reader.h"
 #include "helpers.h"
 #include "enums.h"
@@ -100,6 +101,7 @@ int main(int argc, char *argv[])
     cout << endl;
     ASArgs parametrosAS = argparse::parse<ASArgs>(argc, argv);
     MMArgs parametrosMM = argparse::parse<MMArgs>(argc, argv);
+    ACSArgs parametrosACS = argparse::parse<ACSArgs>(argc, argv);
     switch (parametros_base.metodo)
     {
     case ANT_SYSTEM:
@@ -111,6 +113,7 @@ int main(int argc, char *argv[])
     case ELITIST:
         break;
     case ACS:
+        aco = new AntColonySystem(&grafo, parametrosACS);
         break;
     case TEST:
         bfs(grafo.metadatos.nodos_iniciales[0].id, grafo.informacion_heuristica);
