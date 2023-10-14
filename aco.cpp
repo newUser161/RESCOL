@@ -87,7 +87,7 @@ void ACO::iterar()
     for (auto &hormiga : hormigas){
         construirSolucion(hormiga);
         limpiar_rastro();
-        saltos_salida_iteracion += hormiga.saltos_hormigactm;
+        saltos_salida_iteracion += hormiga.saltos_hormiga;
     }
 
     //borrar despues, solo debug
@@ -303,7 +303,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
         hormiga.costo_camino += arco->costo_recorrido;
 
         //borrar despues, solo debug
-        hormiga.saltos_hormigactm += 1;
+        hormiga.saltos_hormiga += 1;
 
 
     }
@@ -531,7 +531,7 @@ void ACO::limpiar()
         hormiga.nodo_actual = &grafo->metadatos.nodos_iniciales[int((generar_numero_aleatorio(0, grafo->metadatos.nodos_iniciales.size() - 1)))];
 
         //borrar despues, solo debug
-        hormiga.saltos_hormigactm = 0;
+        hormiga.saltos_hormiga = 0;
         
         
         

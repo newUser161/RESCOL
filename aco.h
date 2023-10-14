@@ -36,7 +36,7 @@ struct Hormiga
     std::unordered_map<Arco *, Feromona> feromonas_locales; // Feromonas locales de la hormiga
 
     // borrar despues, solo debug
-    int saltos_hormigactm = 0;
+    int saltos_hormiga = 0;
 };
 
 class ACO
