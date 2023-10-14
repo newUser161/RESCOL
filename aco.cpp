@@ -63,8 +63,10 @@ ACO::ACO(Graph *instancia, ACOArgs parametros_base)
         hormiga.nodo_actual = &instancia->metadatos.nodos_iniciales[nodo_inicial];
 
         // Inicializa un mapa para que la hormiga lleve la cuenta de las pasadas por los arcos.
-        for (auto &par : instancia->arcos)
-            hormiga.arcosVisitados[par.second] = 0;
+        for (auto &par : instancia->arcos){
+            hormiga.arcos_visitados_tour[par.second] = 0;
+            hormiga.arcos_visitados_salida[par.second] = 0;
+        }
 
         // Añade la hormiga a la lista de hormigas
         hormigas.push_back(hormiga);
@@ -81,8 +83,17 @@ ACO::ACO(Graph *instancia, ACOArgs parametros_base)
 void ACO::iterar()
 {
     // Mueve todas las hormigas.
-    for (auto &hormiga : hormigas)
+    saltos_salida_iteracion = 0;
+    for (auto &hormiga : hormigas){
         construirSolucion(hormiga);
+        limpiar_rastro();
+        saltos_salida_iteracion += hormiga.saltos_hormigactm;
+    }
+
+    //borrar despues, solo debug
+    cout << "iteracion" << iteraciones << endl;
+    cout << "saltos salida iteracion: " << saltos_salida_iteracion << endl; 
+        
 }
 
 /*
@@ -104,13 +115,12 @@ void ACO::construirSolucion(Hormiga &hormiga)
         siguiente = eligeSiguiente(hormiga);
         visitar(hormiga, siguiente);
     }
-    hormiga.saltosTour = hormiga.longitud_camino;
+    hormiga.saltosTour = hormiga.longitud_camino_tour;
     if (usarMatrizSecundaria){
-        usarMatrizSalida = true;
         buscarSalida(hormiga);
 
     }
-    hormiga.saltosSalida = hormiga.longitud_camino - hormiga.saltosTour;
+    hormiga.saltosSalida = hormiga.longitud_camino_tour - hormiga.saltosTour;
     file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
     // cout << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
     evaluaciones++;
@@ -196,10 +206,10 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
         }
     }
     arco->veces_recorrida += 1;
-    hormiga.arcosVisitados[arco] += 1;
-    hormiga.camino.push_back(*arco);
+    hormiga.arcos_visitados_tour[arco] += 1;
+    hormiga.camino_tour.push_back(*arco);
     hormiga.nodo_actual = nodo;
-    hormiga.longitud_camino += 1;
+    hormiga.longitud_camino_tour += 1;
 
     if (arco->veces_recorrida == 1)
     {
@@ -231,7 +241,7 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
 
 void ACO::buscarSalida(Hormiga &hormiga)
 {
-    int saltos = 0; // para contar la cantidad total de saltos hacia la salida con esta hormiga, deberia decrecer con las interaciones
+    
 
     while (!enNodoTerminal(hormiga)) //
     {
@@ -249,7 +259,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
         {
             Arco *arco = nullptr;
             arco = i.first;
-            cantidad = feromonas_salida[arco].cantidad; // cambiar a feromonas de salida
+            cantidad = feromonas_salida[arco].cantidad; 
             if (arco->obligatoria == true)
             {
                 tau_eta = pow(cantidad, alfa*3) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
@@ -286,16 +296,18 @@ void ACO::buscarSalida(Hormiga &hormiga)
         //cout << "arco:" << arco->origen->id << " " << arco->destino->id << endl; //lista los saltos hacia la salida
         
         arco->veces_recorrida += 1;
-        hormiga.arcosVisitados[arco] += 1;
-        hormiga.camino.push_back(*arco);
+        hormiga.arcos_visitados_salida[arco] += 1;
+        hormiga.camino_salida.push_back(*arco);
         hormiga.nodo_actual = nodo;
-        hormiga.longitud_camino += 1;        
+        hormiga.longitud_camino_salida += 1;        
         hormiga.costo_camino += arco->costo_recorrido;
 
-        saltos += 1;
+        //borrar despues, solo debug
+        hormiga.saltos_hormigactm += 1;
+
 
     }
-    cout << "saltos salida: " << saltos << endl;
+
     return;
 }
 
@@ -313,12 +325,14 @@ bool ACO::solucionCompleta(Hormiga &hormiga)
 {
     // Los arcos se han visitado al menos una vez
     bool completo = false;
-    for (auto &par : hormiga.arcosVisitados)
+    for (auto &par : hormiga.arcos_visitados_tour)
     {
         if (par.second == 0 && par.first->obligatoria == true )
         {
             completo = false;
             break;
+        }else if (par.first->obligatoria == false) {
+            continue;
         }
         else{
             completo = true;
@@ -362,6 +376,9 @@ bool ACO::enNodoTerminal(Hormiga &hormiga)
 */
 void ACO::mostrar_solucion(bool show_solucion)
 {
+    mejor_solucion.camino_final.insert(mejor_solucion.camino_final.end(), mejor_solucion.camino_tour.begin(), mejor_solucion.camino_tour.end());
+    mejor_solucion.camino_final.insert(mejor_solucion.camino_final.end(), mejor_solucion.camino_salida.begin(), mejor_solucion.camino_salida.end());
+    mejor_solucion.longitud_camino_final = mejor_solucion.longitud_camino_tour + mejor_solucion.longitud_camino_salida;
     for (int i = 0; i < 161; i++)
         cout << "-";
     cout << endl;
@@ -369,15 +386,16 @@ void ACO::mostrar_solucion(bool show_solucion)
     cout << endl;
     cout << "Mejor hormiga: " << mejor_solucion.id << " 🐜🥇" << endl;
     cout << "Mejor costo: " << mejor_solucion.costo_camino << " ⏩" << endl;
-    cout << "Mejor longitud: " << mejor_solucion.longitud_camino << " ⚡" << endl;
+    cout << "Mejor longitud: " << mejor_solucion.longitud_camino_final << " ⚡" << endl;
     cout << "La solución es: " << endl;
+    
     if (show_solucion)
-    {
-        for (auto &arco : mejor_solucion.camino)
+    {        
+        for (auto &arco : mejor_solucion.camino_final)
         {
             cout << arco.origen->id << " -> ";
         }
-        cout << mejor_solucion.camino.back().destino->id;
+        cout << mejor_solucion.camino_final.back().destino->id;
         cout << " -> 🏁 ";
         cout << endl;
         for (int i = 0; i < 161; i++)
@@ -397,7 +415,7 @@ void ACO::exportar_solucion(std::chrono::microseconds duration)
     {
         suma_recoleccion += arco.second->costo_recoleccion;
     }
-    for (auto &arco : mejor_solucion.camino)
+    for (auto &arco : mejor_solucion.camino_final)
     {
         suma_recorrer += arco.costo_recorrido;
     }
@@ -407,17 +425,16 @@ void ACO::exportar_solucion(std::chrono::microseconds duration)
     std::string ruta_archivo_salida = directorio_salida.string() + "/" + resultados;
     std::ofstream archivo_salida(ruta_archivo_salida);
     archivo_salida << "Mejor hormiga: " << mejor_solucion.id << endl;
-    archivo_salida << "Mejor longitud: " << mejor_solucion.longitud_camino << endl;
+    archivo_salida << "Mejor longitud: " << mejor_solucion.longitud_camino_final << endl;
     archivo_salida << "Longitud tour: " << mejor_solucion.saltosTour << endl; //
     archivo_salida << "Longitud salida: " << mejor_solucion.saltosSalida << endl; //
     archivo_salida << "Cantidad arcos: " << grafo->arcos.size() << endl;
-
     archivo_salida << "Costo recoleccion: " << suma_recoleccion << endl;
     archivo_salida << "Costo recorrer: " << suma_recorrer << endl;
     archivo_salida << "Costo pesos pasada: " << costo_pesos_pasada << endl;
     archivo_salida << "Mejor costo: " << mejor_solucion.costo_camino << endl;
-    archivo_salida << "Nodo inicio: " << mejor_solucion.camino.front().origen->id << endl;
-    archivo_salida << "Nodo fin: " << mejor_solucion.camino.back().destino->id << endl;
+    archivo_salida << "Nodo inicio: " << mejor_solucion.camino_tour.front().origen->id << endl;
+    archivo_salida << "Nodo fin: " << mejor_solucion.camino_salida.back().destino->id << endl;
     archivo_salida << "Tiempo de resolucion: " << duration.count() << " microsegundos" << endl;
     archivo_salida << "Tiempo de modelo: "
                    << "N/A" << endl;
@@ -425,22 +442,22 @@ void ACO::exportar_solucion(std::chrono::microseconds duration)
                    << "N/A" << endl;
 
     archivo_salida << "La solución es:" << endl;
-    for (auto &arco : mejor_solucion.camino)
+    for (auto &arco : mejor_solucion.camino_final)
     {
         archivo_salida << arco.origen->id << endl;
     }
-    archivo_salida << mejor_solucion.camino.back().destino->id << endl;
+    archivo_salida << mejor_solucion.camino_final.back().destino->id << endl;
     archivo_salida.close();
 
     cout << "La solución es: " << endl;
     // Abre el archivo para escribir
     std::ofstream archivo("Temp/camino.txt");
     // Escribe cada arco y la cantidad de veces que se pasó por él
-    for (const auto &arco : mejor_solucion.camino)
+    for (const auto &arco : mejor_solucion.camino_final)
     {
         archivo << arco.origen->id << endl;
     }
-    archivo << mejor_solucion.camino.back().destino->id << endl;
+    archivo << mejor_solucion.camino_final.back().destino->id << endl;
     archivo.close();
 }
 
@@ -449,11 +466,18 @@ void ACO::exportar_mapa_resultados()
     // Abre el archivo para escribir
     std::ofstream archivo("Temp/mapa_resultados.txt");
     // Escribe cada arco y la cantidad de veces que se pasó por él
-    for (const auto &arco : mejor_solucion.arcosVisitados)
-    {
+    // sumar arcos visitados de salida
+    for (const auto &arco : mejor_solucion.arcos_visitados_tour)
+{
+    auto it = mejor_solucion.arcos_visitados_salida.find(arco.first);
+    if (it != mejor_solucion.arcos_visitados_salida.end()) {
         archivo << "(" << arco.first->origen->id << ", " << arco.first->destino->id << ") "
-                << " : " << arco.second << endl;
+                << " : " << (arco.second + it->second) << endl;
+    } else {
+        // Manejar el caso en el que el arco no está en el segundo mapa, si es necesario
     }
+}
+
     archivo.close();
 }
 /*
@@ -467,10 +491,10 @@ Hormiga ACO::guardar_mejor_solucion_iteracion()
 
     for (auto &hormiga : hormigas)
     {
-        if (hormiga.costo_camino < mejor_costo && hormiga.longitud_camino < mejor_longitud)
+        if (hormiga.costo_camino < mejor_costo && (hormiga.longitud_camino_tour + hormiga.longitud_camino_salida ) < mejor_longitud)
         {
             mejor_costo = hormiga.costo_camino;
-            mejor_longitud = hormiga.longitud_camino;
+            mejor_longitud = (hormiga.longitud_camino_tour + hormiga.longitud_camino_salida);
             mejor_hormiga = hormiga;
         }
     }
@@ -485,19 +509,38 @@ void ACO::limpiar()
 {
     for (auto &hormiga : hormigas)
     {
-        hormiga.camino.clear();
+        for (auto &arco : hormiga.camino_tour)
+            arco.veces_recorrida = 0;
+        for (auto &arco : hormiga.camino_salida)
+            arco.veces_recorrida = 0;
+
+        hormiga.camino_tour.clear();
+        hormiga.camino_salida.clear();
         usarMatrizSalida = false;
-        for (auto &par : grafo->arcos)
-            hormiga.arcosVisitados[par.second] = 0;
-        hormiga.longitud_camino = 0;
+        for (auto &par : grafo->arcos){
+            hormiga.arcos_visitados_tour[par.second] = 0;
+            hormiga.arcos_visitados_salida[par.second] = 0;
+
+        }
+        hormiga.longitud_camino_tour = 0;
+        hormiga.longitud_camino_salida = 0;
         hormiga.saltosSalida = 0;
         hormiga.saltosTour = 0;
         hormiga.costo_camino = 0;
         hormiga.feromonas_locales = feromonas;
         hormiga.nodo_actual = &grafo->metadatos.nodos_iniciales[int((generar_numero_aleatorio(0, grafo->metadatos.nodos_iniciales.size() - 1)))];
-        for (auto &arco : hormiga.camino)
-            arco.veces_recorrida = 0;
+
+        //borrar despues, solo debug
+        hormiga.saltos_hormigactm = 0;
+        
+        
+        
     }
+}
+void ACO::limpiar_rastro()
+{    
+    for (auto &arco : grafo->arcos)
+        arco.second->veces_recorrida = 0;
 }
 
 void ACO::reset()

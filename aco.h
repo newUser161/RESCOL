@@ -21,14 +21,22 @@ struct Feromona
 struct Hormiga
 {
     Nodo *nodo_actual = nullptr;                            // Nodo actual
-    std::vector<Arco> camino;                               // Camino recorrido
-    std::unordered_map<Arco *, int> arcosVisitados;         // Aristas visitadas
-    double longitud_camino = 0.0;    
+    std::vector<Arco> camino_tour;                               // Camino recorrido
+    std::vector<Arco> camino_salida;                               // Camino recorrido
+    std::vector<Arco> camino_final;                               // Camino recorrido
+    std::unordered_map<Arco *, int> arcos_visitados_tour;         // Aristas visitadas
+    std::unordered_map<Arco *, int> arcos_visitados_salida;         // Aristas visitadas
+    double longitud_camino_tour = 0.0;    
+    double longitud_camino_salida = 0.0;    
+    double longitud_camino_final = 0.0;    
     int saltosTour = 0;                             // Cantidad de saltos que toma terminar un tour completamente
     int saltosSalida = 0;                           // Cantidad de saltos desde el termino del tour hasta la salida                       // Longitud del camino, cuantas aristas se ha recorrido
     double costo_camino = 0.0;                              // Costo del camino, costo asociado a la recolección y recorrido
     int id = 0;                                             // Identificador de la hormiga
     std::unordered_map<Arco *, Feromona> feromonas_locales; // Feromonas locales de la hormiga
+
+    // borrar despues, solo debug
+    int saltos_hormigactm = 0;
 };
 
 class ACO
@@ -41,6 +49,7 @@ protected:
     bool enNodoTerminal(Hormiga &hormiga);    // Verifica si la hormiga esta en un nodo final
     Hormiga mejor_solucion;                         // Mejor solución
     void limpiar();                                 // Limpia la memoria y datos del algoritmo
+    void limpiar_rastro();                                 // Limpia la memoria y datos del algoritmo
     std::unordered_map<Arco *, Feromona> feromonas; // Feromonas
     std::unordered_map<Arco *, Feromona> feromonas_salida; // Feromonas
     std::vector<Hormiga> hormigas;                  // Hormigas
@@ -58,7 +67,7 @@ protected:
     void set_parametros(ACOArgs parametros_base);
     
     bool usarMatrizSalida = false;                  // Flag que indica si se usa la matriz de salida, es una estructura de control
-    bool usarMatrizSecundaria = false;                  // Flag que controla el uso general de la matriz de salida, se pasa por parametros
+    
 
 
 
@@ -78,6 +87,10 @@ public:
     int num_hormigas;          // Numero de hormigas
     int epocas;                        // Numero de epocas
     int epoca_actual;            // Numero de epocas
+    bool usarMatrizSecundaria;                  // Flag que controla el uso general de la matriz de salida, se pasa por parametros
+
+    //borrar despues, solo debug
+    int saltos_salida_iteracion = 0;
     
 
     ACO(Graph *instancia, ACOArgs parametros_base); // Constructor;
