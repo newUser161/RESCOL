@@ -13,6 +13,7 @@
 #include "argparse/argparse.hpp"
 
 #include "graph.h"
+#include "generador_numeros_aleatorios.h"
 #include "aco.h"
 #include "antsystem.h"
 #include "minmax.h"
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
     Graph grafo = Graph();
     ACO *aco;
     ACOArgs parametros_base = argparse::parse<ACOArgs>(argc, argv);
+    inicializar_generador(parametros_base.semilla);  
     grafo = leerInstancia(parametros_base.nombre_instancia, config.leer_restricciones, config.leer_coordenadas, config.irace);
     if (config.debug)
     {
