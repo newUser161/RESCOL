@@ -1,4 +1,5 @@
-
+import matplotlib
+matplotlib.user('Agg')
 from sys import argv
 import networkx as nx
 import matplotlib.pyplot as plt
