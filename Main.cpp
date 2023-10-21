@@ -136,20 +136,17 @@ int main(int argc, char *argv[])
     aco->cerrar_file();
 
     aco->mostrar_solucion(config.show_solucion);
-    bool silence = false;
-    if (!silence){
+    if (!config.silence){
         aco->exportar_solucion(duration);
         aco->exportar_mapa_resultados();
         std::string archivo_salida = aco->get_filename();
         std::stringstream ss;
 
-        std::string mostrar_grafico = "True";
-        
-        ss << "python Grafico.py " << archivo_salida << " " << mostrar_grafico;
+        ss << "python Grafico.py " << archivo_salida << " " << config.show_grafico;
         std::string comando = ss.str();
 
         std::stringstream ss2;
-        ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida << " " << mostrar_grafico;
+        ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida << " " << config.show_grafico;
         std::string comando2 = ss2.str();
         cout << "Programa finalizado correctamente" << endl;
         for (int i = 0; i < parametros_base.num_hormigas; i++)
@@ -166,4 +163,3 @@ int main(int argc, char *argv[])
     delete aco;
     return 0;
 }
-

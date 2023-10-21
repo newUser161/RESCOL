@@ -52,6 +52,8 @@ struct ConfigPrograma
     bool debug_ACO = false;
     bool show_solucion = false;
     bool irace = true;
+    bool silence = true;
+    std::string show_grafico = "False";
     
 };
 
