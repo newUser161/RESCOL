@@ -49,7 +49,7 @@ void AntColonySystem::iterar()
     mejor_solucion = guardar_mejor_solucion_iteracion();
 
     // Actualiza las feromonas.
-    for (auto &par : mejor_solucion.arcosVisitados)
+    for (auto &par : mejor_solucion.arcos_visitados_tour)
     {
 
         feromonas.at(par.first).cantidad += (((1 - rho) * feromonas.at(par.first).cantidad) + (rho * (par.first->veces_recorrida / mejor_solucion.costo_camino)));
@@ -180,10 +180,10 @@ void AntColonySystem::visitar(Hormiga &hormiga, Nodo *nodo)
         }
     }
     arco->veces_recorrida += 1;
-    hormiga.arcosVisitados[arco] += 1;
-    hormiga.camino.push_back(*arco);
+    hormiga.arcos_visitados_tour[arco] += 1;
+    hormiga.camino_tour.push_back(*arco);
     hormiga.nodo_actual = nodo;
-    hormiga.longitud_camino += 1;
+    hormiga.longitud_camino_tour += 1;
 
     if (arco->veces_recorrida == 1)
     {

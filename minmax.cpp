@@ -26,14 +26,14 @@ void MinMax::resolver()
             Hormiga mejor_solucion_anterior = mejor_solucion;
             mejor_solucion = guardar_mejor_solucion_iteracion();            
             
-            if (mejor_solucion_anterior.costo_camino == mejor_solucion.costo_camino && mejor_solucion_anterior.longitud_camino == mejor_solucion.longitud_camino) {                
+            if (mejor_solucion_anterior.costo_camino == mejor_solucion.costo_camino && mejor_solucion_anterior.longitud_camino_tour == mejor_solucion.longitud_camino_tour) {                
                 iteraciones_sin_mejora++;
                 if (iteraciones_sin_mejora == umbral_sin_mejora_limite) {                    
                     inicializar_feromonas();
                     iteraciones_sin_mejora = 0;
                 }
             } else {
-                umbral_superior = tau/(rho * mejor_solucion.longitud_camino);
+                umbral_superior = tau/(rho * mejor_solucion.longitud_camino_tour);
                 umbral_inferior = umbral_superior / a;
                 iteraciones_sin_mejora = 0;                
             }
@@ -52,16 +52,16 @@ void MinMax::iterar(){
     }
     
     // Actualiza las feromonas.
-    for (auto &par : mejor_solucion.arcosVisitados)
+    for (auto &par : mejor_solucion.arcos_visitados_tour)
     {
         Arco *a = par.first;
         int pasadas = par.second;        
         if (!usarMatrizSalida){
-                feromonas.at(a).cantidad += (tau / (rho * pow(mejor_solucion.longitud_camino,1) * pasadas)); 
+                feromonas.at(a).cantidad += (tau / (rho * pow(mejor_solucion.longitud_camino_tour,1) * pasadas)); 
                 if (feromonas.at(a).cantidad > umbral_superior)
                     feromonas.at(a).cantidad = umbral_superior;
             } else {
-                feromonas_salida.at(a).cantidad += (tau / (rho * pow(mejor_solucion.longitud_camino,2) * pasadas));                
+                feromonas_salida.at(a).cantidad += (tau / (rho * pow(mejor_solucion.longitud_camino_tour,2) * pasadas));                
             }
         
     }

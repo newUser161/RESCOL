@@ -9,6 +9,7 @@
 using namespace std;
 
 struct Nodo;
+struct Subnodo;
 struct Arco;
 
 struct Metadatos
@@ -18,15 +19,32 @@ struct Metadatos
     std::vector<Nodo> nodos_termino;
 };
 
+struct Subnodo
+{
+    int id = 0;                 // Identificador del nodo
+    int id_secundario = 0;                 // Identificador del nodo
+    int tipo = 0;                 // tipo de nodo, 1:entrante, 2:saliente
+    std::vector<Arco> saliente; // Aristas que salen del nodo
+    std::vector<Arco> entrante; // Aristas que entran al nodo
+    Subnodo *nodo_reciproco = nullptr; // subnodo reciproco
+
+    
+};
+
 // Estructura para representar un nodo
 struct Nodo
 {
     int id = 0;                 // Identificador del nodo
     double x = 0.0, y = 0.0;    // Coordenadas del nodo
-    int grado = 0;              // Grado del nodo
+    int grado = 0;              // Grado del nodo    
     std::vector<Arco> saliente; // Aristas que salen del nodo
     std::vector<Arco> entrante; // Aristas que entran al nodo
+    std::vector<Subnodo> subnodos; // Nodos fantasma
+    
 };
+
+
+
 // Estructura para representar una arista
 struct Arco
 {
@@ -36,8 +54,12 @@ struct Arco
     int veces_recorrida = 0;   // Veces que se recorre la arista
     bool obligatoria = 0;      // Indica si la arista es obligatoria
     bool bidireccional = 0;    // Indica si la arista es bidireccional
+    int id_bidireccional = 0;    // Indica si la arista es bidireccional
+    Arco * arco_reciproco = nullptr;    // Indica si la arista es bidireccional
     Nodo *origen = nullptr;    // Nodo de origen
     Nodo *destino = nullptr;   // Nodo de destino
+    Subnodo *origen_interno = nullptr;    // Nodo de origen
+    Subnodo *destino_interno = nullptr;   // Nodo de destino
 };
 
 // Estructura para representar un grafo

@@ -4,7 +4,8 @@ import seaborn as sns
 from sys import argv
 
 # Lee el archivo, asumiendo que el formato es exactamente 'Epoca: %d, Evaluacion: %d, Mejor costo: %d'
-df = pd.read_csv(argv[1], sep=", ", engine='python', header=None, names=['Epoca', 'Evaluacion', 'Mejor costo'])
+arg = 'CasoRealChiquito.txt Output/RencaChiquito-AntSystem-20231019000605/20231019000605.txt True'
+df = pd.read_csv(arg, sep=", ", engine='python', header=None, names=['Epoca', 'Evaluacion', 'Mejor costo'])
 
 # Convierte las columnas al tipo de datos correcto y extrae los números de las cadenas
 df['Epoca'] = df['Epoca'].str.extract('(\d+)').astype(int)

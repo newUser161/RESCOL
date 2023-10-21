@@ -26,6 +26,7 @@ struct Hormiga
     std::vector<Arco> camino_final;                               // Camino recorrido
     std::unordered_map<Arco *, int> arcos_visitados_tour;         // Aristas visitadas
     std::unordered_map<Arco *, int> arcos_visitados_salida;         // Aristas visitadas
+    std::unordered_map<Arco *, int> arcos_visitados_final;         // Aristas visitadas
     double longitud_camino_tour = 0.0;    
     double longitud_camino_salida = 0.0;    
     double longitud_camino_final = 0.0;    
@@ -81,7 +82,8 @@ public:
     float rho_secundario;    // Parámetro rho, asociado a la evaporacion de feromonas
     float rho_salida;    // Parámetro rho de salida, asociado a la evaporacion de feromonas de la matriz de salida, deberia se un valor muy pequeño
     int iteraciones;            // Cantidad de iteraciones, asociada a la funcion resolver y al criterio de parada
-    int iteraciones_max;    // Cantidad de iteraciones maximas
+    int iteraciones_max;    // Cantidad de iteraciones maximas 
+    // int iteraciones_max = numevaluaciones / hormigas;    // Cantidad de iteraciones maximas 
     bool debug;                       // Flag que muestra o no informacion de debug como los caminos de las hormigas
     double umbral_inferior; // Umbral inferior para las feromonas
     int num_hormigas;          // Numero de hormigas

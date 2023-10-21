@@ -28,6 +28,7 @@ AntSystem::AntSystem(Graph* instancia, ASArgs parametros) : ACO(instancia, param
 */
 void AntSystem::resolver() 
 {
+    
     while (iteraciones < iteraciones_max)
         {
             iterar();
@@ -41,7 +42,15 @@ void AntSystem::iterar(){
     // evaporar feromonas
     for (auto i = feromonas.begin(); i != feromonas.end(); i++)
     {
-        i->second.cantidad *= (1 - rho);
+        if (i->second.cantidad < umbral_inferior)
+        {
+            i->second.cantidad = umbral_inferior;
+        }
+        else
+        {
+            i->second.cantidad *= (1 - rho);
+        }
+        // aca poner el rho de salida con la evaporacion de feromonas en la salida
     }
 
     // Actualiza las feromonas.
@@ -51,7 +60,10 @@ void AntSystem::iterar(){
         {
             Arco *a = par.first;
             int pasadas = par.second;
-            feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_tour,2) * pasadas));
+            if (a->obligatoria){
+                if (pasadas != 0)
+                    feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_tour,2) * pasadas)); //hormiga.longitud_camino_final, aca juntar antes 
+            }
         }        
         if (usarMatrizSecundaria){ 
             for (auto &par : hormiga.arcos_visitados_salida)
@@ -59,7 +71,7 @@ void AntSystem::iterar(){
                 Arco *a = par.first;
                 int pasadas = par.second;     
                 if (pasadas != 0)           
-                    feromonas_salida.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_tour,2) * pasadas));
+                    feromonas_salida.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_salida,2) * pasadas));
             }
         }
         

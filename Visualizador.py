@@ -86,16 +86,22 @@ def construir_grafo(arcos):
 
         if destino not in grafo.nodos:
             grafo.nodos[destino] = Nodo(destino)
-
-        arco = Arco(IdArco, costo_recorrido, costo_recoleccion, True, grafo.nodos[origen], grafo.nodos[destino], bi_or_uni == "bi")
-
-        grafo.arcos[IdArco] = arco
-
-        grafo.nodos[origen].saliente.append(arco)
-        grafo.nodos[destino].entrante.append(arco)
-
-        IdArco += 1
-
+        if (bi_or_uni == "bi"):
+            arcoIda = Arco(IdArco, costo_recorrido, costo_recoleccion, True, grafo.nodos[origen], grafo.nodos[destino], bi_or_uni == "bi")
+            grafo.arcos[IdArco] = arcoIda
+            grafo.nodos[origen].saliente.append(arcoIda)
+            grafo.nodos[destino].entrante.append(arcoIda)
+            IdArco += 1
+            arcoVuelta = Arco(IdArco, costo_recorrido, costo_recoleccion, True, grafo.nodos[destino], grafo.nodos[origen], bi_or_uni == "bi")
+            grafo.arcos[IdArco] = arcoVuelta
+            grafo.nodos[destino].saliente.append(arcoVuelta)
+            grafo.nodos[origen].entrante.append(arcoVuelta)
+        else:
+            arco = Arco(IdArco, costo_recorrido, costo_recoleccion, True, grafo.nodos[origen], grafo.nodos[destino], bi_or_uni == "bi")
+            grafo.arcos[IdArco] = arco
+            IdArco += 1
+            grafo.nodos[origen].saliente.append(arco)
+            grafo.nodos[destino].entrante.append(arco)
     return grafo
 
 def construir_mapa_adyacencia(grafo, mapa_resultados):
@@ -152,13 +158,17 @@ def construir_mapa_adyacencia(grafo, mapa_resultados):
     return mapa_adyacencia
 
 ARISTAS_REQ = leer_aristas_req(argv[1])
-#ARISTAS_REQ = leer_aristas_req("Formato5x5.txt")
+#ARISTAS_REQ = leer_aristas_req("CasoRealChiquito.txt")
 camino = leer_ruta()
 grafo = construir_grafo(ARISTAS_REQ)
 mapa_resultados = leer_resultados()
 mapa_adyacencia = construir_mapa_adyacencia(grafo, mapa_resultados)
 
 nombre_archivo = argv[2][:-4]
+#rutaAsd = "Output/RencaChiquito-AntSystem-20231019004014/20231019004014.txt"
+#nombre_archivo = rutaAsd[:-4]
+nombre_archivo = nombre_archivo[:-4]
 show_grafico = argv[3]
+#show_grafico = True
 visualizar_grafo(mapa_adyacencia, camino, nombre_archivo, show_grafico) # type: ignore
 

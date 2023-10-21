@@ -24,7 +24,10 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     Graph g;
     std::unordered_map<std::string, std::string> encabezado;
     std::string lineaDato;
+    std::set<std::pair<int, int>> arcosCreados;
     int IdArco = 0;
+    int id_subnodo = 1;
+    int id_secundario = 1;
 
     // Intentar abrir el archivo
     std::string ruta_archivo = "Instancias/" + nombre_archivo;
@@ -62,10 +65,11 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     // Leer aristas obligatorias
     for (int i = 0; i < std::stoi(encabezado["ARISTAS_REQ"]); i++)
     {
+        id_subnodo = 1;
+        id_secundario = 1;
         std::getline(infile, lineaDato);
         std::istringstream arcStream(lineaDato);
         std::string bi_or_uni;
-        std::set<std::pair<int, int>> arcosCreados;
         double id, origen, destino, costo_recorrido, costo_recoleccion;
         if (!(arcStream >> bi_or_uni >> origen >> destino >> costo_recorrido >> costo_recoleccion))
         {
@@ -89,7 +93,8 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
         }
 
         // Crear el arco
-        if (bi_or_uni == "uni"){
+        if (bi_or_uni == "uni" )
+        {
             Arco *arco = new Arco;
             arco->id = IdArco;
             arco->costo_recorrido = costo_recorrido;
@@ -97,23 +102,44 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             arco->obligatoria = true;
             arco->origen = &g.nodos[origen];
             arco->destino = &g.nodos[destino];
-            arco->bidireccional = (bi_or_uni == "bi");
+            arco->bidireccional = false;
             g.arcos[IdArco] = arco;
 
             // Conectar el arco a sus nodos
             g.nodos[origen].saliente.push_back(*arco);
             g.nodos[destino].entrante.push_back(*arco);
 
+            // nodos fantasma nodo origen
+            Subnodo *subnodo_saliente_origen = new Subnodo;
+
+            subnodo_saliente_origen->id = id_subnodo;
+            id_subnodo++;
+
+            subnodo_saliente_origen->tipo = 2; // 2: saliente
+
+            g.nodos[origen].subnodos.push_back(*subnodo_saliente_origen);
+
+            // nodos fantasma nodo destino
+            Subnodo *subnodo_entrante_destino = new Subnodo;
+
+            subnodo_entrante_destino->id = id_subnodo;
+            id_subnodo++;
+
+            subnodo_entrante_destino->tipo = 1; // 1: entrante
+
+            g.nodos[destino].subnodos.push_back(*subnodo_entrante_destino);
+
             // Actualizar la información heurística
-            double costo = arco->costo_recorrido ;
+            double costo = arco->costo_recorrido;
             g.informacion_heuristica[origen][arco] = 1.0 / costo;
 
             IdArco++;
-            arcosCreados.insert(std::make_pair(origen, destino));
-        } else 
+        }
+        else // arco bidireccional
         {
             if (arcosCreados.find(std::make_pair(origen, destino)) == arcosCreados.end() &&
-            arcosCreados.find(std::make_pair(destino, origen)) == arcosCreados.end()) {
+                arcosCreados.find(std::make_pair(destino, origen)) == arcosCreados.end())
+            {
 
                 Arco *arcoIda = new Arco;
                 Arco *arcoVuelta = new Arco;
@@ -140,9 +166,12 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
 
                 arcoVuelta->origen = &g.nodos[destino];
                 arcoVuelta->destino = &g.nodos[origen];
-                
+
                 arcoIda->bidireccional = true;
                 arcoVuelta->bidireccional = true;
+
+                arcoIda->arco_reciproco = arcoVuelta;
+                arcoVuelta->arco_reciproco = arcoIda;
 
                 // Conectar el arco a sus nodos
                 g.nodos[origen].saliente.push_back(*arcoIda);
@@ -151,11 +180,53 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
                 g.nodos[origen].entrante.push_back(*arcoVuelta);
                 g.nodos[destino].saliente.push_back(*arcoVuelta);
 
+                // nodos fantasma nodo origen
+                Subnodo *subnodo_entrante_origen = new Subnodo;
+                Subnodo *subnodo_saliente_origen = new Subnodo;
+
+                subnodo_entrante_origen->id = id_subnodo;
+                subnodo_entrante_origen->id_secundario = id_secundario;
+                id_subnodo++;
+                subnodo_saliente_origen->id = id_subnodo;
+                subnodo_saliente_origen->id_secundario = id_secundario;
+                id_subnodo++;
+                id_secundario++;
+
+                subnodo_entrante_origen->tipo = 1; // 1: entrante
+                subnodo_saliente_origen->tipo = 2; // 2: saliente
+
+                subnodo_entrante_origen->nodo_reciproco = subnodo_saliente_origen;
+                subnodo_saliente_origen->nodo_reciproco = subnodo_entrante_origen;
+
+                g.nodos[origen].subnodos.push_back(*subnodo_entrante_origen);
+                g.nodos[origen].subnodos.push_back(*subnodo_saliente_origen);
+
+                // nodos fantasma nodo destino
+                Subnodo *subnodo_entrante_destino = new Subnodo;
+                Subnodo *subnodo_saliente_destino = new Subnodo;
+
+                subnodo_entrante_destino->id = id_subnodo;
+                subnodo_entrante_destino->id_secundario = id_secundario;
+                id_subnodo++;
+                subnodo_saliente_destino->id = id_subnodo;
+                subnodo_saliente_destino->id_secundario = id_secundario;
+                id_subnodo++;
+                id_secundario++;
+
+                subnodo_entrante_destino->tipo = 1; // 1: entrante
+                subnodo_saliente_destino->tipo = 2; // 2: saliente
+
+                subnodo_entrante_destino->nodo_reciproco = subnodo_saliente_destino;
+                subnodo_saliente_destino->nodo_reciproco = subnodo_entrante_destino;
+
+                g.nodos[destino].subnodos.push_back(*subnodo_entrante_destino);
+                g.nodos[destino].subnodos.push_back(*subnodo_saliente_destino);
+
                 // Actualizar la información heurística
-                double costo = arcoIda->costo_recorrido ;
+                double costo = arcoIda->costo_recorrido;
                 g.informacion_heuristica[origen][arcoIda] = 1.0 / costo;
 
-                costo = arcoVuelta->costo_recorrido ;
+                costo = arcoVuelta->costo_recorrido;
                 g.informacion_heuristica[destino][arcoVuelta] = 1.0 / costo;
 
                 arcosCreados.insert(std::make_pair(origen, destino));
@@ -163,6 +234,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             }
         }
     }
+
     // Saltarse header aristas opcionales
     std::getline(infile, lineaDato);
 
@@ -206,10 +278,8 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             g.nodos[origen].saliente.push_back(*arco);
             g.nodos[destino].entrante.push_back(*arco);
 
-            // Actualizar la información heurística            
-            //g.informacion_heuristica[origen][destino] = 0;
+            // Actualizar la información heurística
             g.informacion_heuristica[origen][arco] = 0;
-
 
             IdArco++;
         }
@@ -221,7 +291,8 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     // Leer coordenadas
     // TODO: Formato coordenadas
     // Datos dummy ⚠️
-    if (leer_coordenadas){
+    if (leer_coordenadas)
+    {
         for (int i = 0; i < std::stoi(encabezado["VERTICES"]); i++)
         {
             std::getline(infile, lineaDato);
@@ -235,7 +306,9 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
                 return Graph();
             }
         }
-    } else {
+    }
+    else
+    {
         for (int i = 0; i < std::stoi(encabezado["VERTICES"]); i++)
             std::getline(infile, lineaDato);
     }
@@ -316,14 +389,46 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             g.metadatos.nodos_termino.push_back(g.nodos[i + 1]);
         }
     }
+
+    // Cerrar el archivo
+    infile.close();
+
     // Crear vector de arcos
     for (const auto &par : g.arcos)
     {
         g.vector_arcos.push_back(par.second);
     }
 
-    // Cerrar el archivo
-    infile.close();
+    // Crear subnodos por cada nodo
+
+    for (auto &par : g.nodos)
+    {
+        for (auto &par2 : par.second.subnodos)
+        {
+            if (par2.tipo == 1) // 1:entrante
+            {
+                for (auto &par3 : par.second.subnodos)
+                {
+                    if ((par3.tipo == 2) && (par3.id_secundario != par2.id_secundario)) // 2:saliente
+                    {
+                        Arco *arco = new Arco;
+                        arco->id = IdArco;
+                        arco->obligatoria = false;
+                        IdArco++;
+
+                        //arco->origen = &g.nodos[par.second.id];
+                        arco->origen_interno = &par2;                        
+                        arco->destino_interno = &par3;
+
+                        par2.saliente.push_back(*arco);
+                        par3.entrante.push_back(*arco);
+                    }
+                }
+            }
+        }
+        
+        
+    }
 
     return g;
 }

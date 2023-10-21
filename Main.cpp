@@ -45,6 +45,10 @@ using namespace std;
 */
 int main(int argc, char *argv[])
 {
+    for (int i = 0; i < 100; ++i) {
+        double numero = generar_numero_aleatorio(0.0, 1.0);
+        std::cout << numero << std::endl;
+    }
     ConfigPrograma config;
     Graph grafo = Graph();
     ACO *aco;
@@ -136,30 +140,33 @@ int main(int argc, char *argv[])
     aco->cerrar_file();
 
     aco->mostrar_solucion(config.show_solucion);
-    aco->exportar_solucion(duration);
-    aco->exportar_mapa_resultados();
-    std::string archivo_salida = aco->get_filename();
-    std::stringstream ss;
+    bool silence = true;
+    if (!silence){
+        aco->exportar_solucion(duration);
+        aco->exportar_mapa_resultados();
+        std::string archivo_salida = aco->get_filename();
+        std::stringstream ss;
 
-    std::string mostrar_grafico = "False";
-    
-    ss << "python Grafico.py " << archivo_salida << " " << mostrar_grafico;
-    std::string comando = ss.str();
+        std::string mostrar_grafico = "True";
+        
+        ss << "python Grafico.py " << archivo_salida << " " << mostrar_grafico;
+        std::string comando = ss.str();
 
-    std::stringstream ss2;
-    ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida << " " << mostrar_grafico;
-    std::string comando2 = ss2.str();
+        std::stringstream ss2;
+        ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida << " " << mostrar_grafico;
+        std::string comando2 = ss2.str();
+        cout << "Programa finalizado correctamente" << endl;
+        for (int i = 0; i < parametros_base.num_hormigas; i++)
+            cout << "🐜 ";
+        cout << endl;
+        cout << endl;
+        
+
+        std::system(comando.c_str());    
+        std::system(comando2.c_str());     
+    }
 
 
-    cout << "Programa finalizado correctamente" << endl;
-    for (int i = 0; i < parametros_base.num_hormigas; i++)
-        cout << "🐜 ";
-    cout << endl;
-    cout << endl;
-    
-
-    std::system(comando.c_str());    
-    std::system(comando2.c_str());     
     delete aco;
     return 0;
 }
