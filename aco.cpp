@@ -36,8 +36,6 @@ using namespace std;
 ACO::ACO(Graph *instancia, ACOArgs parametros_base)
 {
     set_parametros(parametros_base);
-    std::mt19937 generador(161);
-    std::uniform_real_distribution<> distribucion(0.0, 1.0);
     auto now = std::chrono::system_clock::now();
     std::time_t now_c = std::chrono::system_clock::to_time_t(now);
     std::tm *now_tm = std::localtime(&now_c);
@@ -95,9 +93,6 @@ void ACO::iterar()
         saltos_salida_iteracion += hormiga.saltos_hormiga;
     }
 
-    // borrar despues, solo debug
-    cout << "iteracion" << iteraciones << endl;
-    cout << "saltos salida iteracion: " << saltos_salida_iteracion << endl;
 }
 
 /*
@@ -126,7 +121,11 @@ void ACO::construirSolucion(Hormiga &hormiga)
     }
     hormiga.saltosSalida = hormiga.longitud_camino_tour - hormiga.saltosTour;
     file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
-    // cout << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
+    
+    hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_tour.begin(), hormiga.camino_tour.end());
+    hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_salida.begin(), hormiga.camino_salida.end());
+    hormiga.longitud_camino_final = hormiga.longitud_camino_tour + hormiga.longitud_camino_salida;
+
     evaluaciones++;
 }
 
@@ -157,8 +156,9 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
     {
         if (!hormiga.camino_tour.empty())
         {
+            // si no esta vacio, se empiezan a comprobar los casos
             if (i.first->bidireccional == true)
-            {
+            { // si es bidireccional, se comprueba que el siguiente arco no sea una vuelta en U o si es la unica opcion, en este ultimo caso, se agrega a las probabilidades de paso
                 if ((hormiga.camino_tour.back().id != i.first->arco_reciproco->id) || (grafo->informacion_heuristica[hormiga.nodo_actual->id].size() == 1))
                 {
 
@@ -180,30 +180,25 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                 }
             }
             else
-            {
-                if (grafo->informacion_heuristica[hormiga.nodo_actual->id].size() == 1)
+            {   // si no es bidireccional, se agrega a las probabilidades de paso
+                Arco *arco = nullptr;
+                arco = i.first;
+                cantidad = hormiga.feromonas_locales[arco].cantidad;
+                if (arco->obligatoria == true)
                 {
-                    Arco *arco = nullptr;
-                    arco = i.first;
-                    cantidad = hormiga.feromonas_locales[arco].cantidad;
-                    if (arco->obligatoria == true)
-                    {
-                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
-                    }
-                    else
-                    {
-                        tau_eta = 1;
-                    }
-                    probabilidad[arco] = tau_eta;
-                    total += tau_eta;
-                    if (debug)
-                        cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
+                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                 }
+                else
+                {
+                    tau_eta = 1;
+                }
+                probabilidad[arco] = tau_eta;
+                total += tau_eta;
             }
         }
         else
         {
-
+            // si el camino esta vacio, simplemente se agrega el primero que encuentre sin comprobaciones extra
             Arco *arco = nullptr;
             arco = i.first;
             cantidad = hormiga.feromonas_locales[arco].cantidad;
@@ -446,9 +441,7 @@ bool ACO::enNodoTerminal(Hormiga &hormiga)
 */
 void ACO::mostrar_solucion(bool show_solucion)
 {
-    mejor_solucion.camino_final.insert(mejor_solucion.camino_final.end(), mejor_solucion.camino_tour.begin(), mejor_solucion.camino_tour.end());
-    mejor_solucion.camino_final.insert(mejor_solucion.camino_final.end(), mejor_solucion.camino_salida.begin(), mejor_solucion.camino_salida.end());
-    mejor_solucion.longitud_camino_final = mejor_solucion.longitud_camino_tour + mejor_solucion.longitud_camino_salida;
+    
     for (int i = 0; i < 161; i++)
         cout << "-";
     cout << endl;
@@ -578,7 +571,7 @@ Hormiga ACO::guardar_mejor_solucion_iteracion()
         if (hormiga.costo_camino < mejor_costo && (hormiga.longitud_camino_tour + hormiga.longitud_camino_salida) < mejor_longitud)
         {
             mejor_costo = hormiga.costo_camino;
-            mejor_longitud = (hormiga.longitud_camino_tour + hormiga.longitud_camino_salida);
+            mejor_longitud = hormiga.longitud_camino_final;
             mejor_hormiga = hormiga;
         }
     }
@@ -600,6 +593,7 @@ void ACO::limpiar()
 
         hormiga.camino_tour.clear();
         hormiga.camino_salida.clear();
+        hormiga.camino_final.clear();
         usarMatrizSalida = false;
         for (auto &par : grafo->arcos)
         {
@@ -662,15 +656,15 @@ void ACO::set_parametros(const ACOArgs parametros_base)
     rho_secundario = parametros_base.rho_secundario;
     rho_salida = parametros_base.rho_salida;
     tau = parametros_base.tau;
-    iteraciones = parametros_base.iteraciones;
-    // calcular numero de evaluaciones en base a la cantidad de iteraciones
-    iteraciones_max = parametros_base.iteraciones_max;
-    debug = parametros_base.debug;
+    evaluaciones_maximas = parametros_base.evaluaciones_maximas;
     umbral_inferior = parametros_base.umbral_inferior;
     num_hormigas = parametros_base.num_hormigas;
     epocas = parametros_base.epocas;
     usarMatrizSecundaria = parametros_base.usaMatrizSecundaria;
     epoca_actual = 0;
+    // calcular numero de evaluaciones en base a la cantidad de iteraciones
+    //iteraciones_max = parametros_base.iteraciones_max;
+    iteraciones_max = evaluaciones_maximas / num_hormigas;
 }
 
 Hormiga ACO::get_mejor_solucion()

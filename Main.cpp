@@ -45,15 +45,11 @@ using namespace std;
 */
 int main(int argc, char *argv[])
 {
-    for (int i = 0; i < 100; ++i) {
-        double numero = generar_numero_aleatorio(0.0, 1.0);
-        std::cout << numero << std::endl;
-    }
     ConfigPrograma config;
     Graph grafo = Graph();
     ACO *aco;
     ACOArgs parametros_base = argparse::parse<ACOArgs>(argc, argv);
-    grafo = leerInstancia(parametros_base.nombre_instancia, config.leer_restricciones, config.leer_coordenadas);
+    grafo = leerInstancia(parametros_base.nombre_instancia, config.leer_restricciones, config.leer_coordenadas, config.irace);
     if (config.debug)
     {
         cout << endl;
@@ -140,7 +136,7 @@ int main(int argc, char *argv[])
     aco->cerrar_file();
 
     aco->mostrar_solucion(config.show_solucion);
-    bool silence = true;
+    bool silence = false;
     if (!silence){
         aco->exportar_solucion(duration);
         aco->exportar_mapa_resultados();

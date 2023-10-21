@@ -62,7 +62,7 @@ void AntSystem::iterar(){
             int pasadas = par.second;
             if (a->obligatoria){
                 if (pasadas != 0)
-                    feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_tour,2) * pasadas)); //hormiga.longitud_camino_final, aca juntar antes 
+                    feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_final,2) * pasadas));
             }
         }        
         if (usarMatrizSecundaria){ 

@@ -18,19 +18,25 @@ using namespace std;
     - nombre_archivo: Nombre del archivo que contiene la instancia
     - leer_restricciones: Indica si se leerán las restricciones del archivo
 */
-Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, bool leer_coordenadas)
+Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, bool leer_coordenadas, bool irace)
 {
     // Inicializar el grafo
     Graph g;
     std::unordered_map<std::string, std::string> encabezado;
     std::string lineaDato;
+    std::string ruta_archivo;
     std::set<std::pair<int, int>> arcosCreados;
     int IdArco = 0;
     int id_subnodo = 1;
     int id_secundario = 1;
 
     // Intentar abrir el archivo
-    std::string ruta_archivo = "Instancias/" + nombre_archivo;
+    if (irace){
+        ruta_archivo = nombre_archivo;
+
+    } else {
+        ruta_archivo = "Instancias/" + nombre_archivo;
+    }    
     std::ifstream infile(ruta_archivo);
     if (!infile)
     {
