@@ -9,7 +9,7 @@ class AntSystem : public ACO
 protected:
 
 public:
-    AntSystem(Graph *instancia, ASArgs parametros);
+    AntSystem(Graph *instancia, ACOArgs parametros);
     void resolver() override;
     void iterar() override;
     void inicializar_feromonas() override;

@@ -3,7 +3,7 @@
 #include <iostream>
 #include "helpers.h"
 
-AntColonySystem::AntColonySystem(Graph *instancia, ACSArgs parametros) : ACO(instancia, parametros)
+AntColonySystem::AntColonySystem(Graph *instancia, ACOArgs parametros) : ACO(instancia, parametros)
 {
     set_parametrosACS(parametros);
     inicializar_feromonas();
@@ -75,7 +75,7 @@ void AntColonySystem::inicializar_feromonas()
     }
 }
 
-void AntColonySystem::set_parametrosACS(ACSArgs parametros)
+void AntColonySystem::set_parametrosACS(ACOArgs parametros)
 {
     q_0 = parametros.q_0;
     csi = parametros.csi;

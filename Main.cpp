@@ -101,21 +101,18 @@ int main(int argc, char *argv[])
         cout << endl;
     }
     cout << endl;
-    ASArgs parametrosAS = argparse::parse<ASArgs>(argc, argv);
-    MMArgs parametrosMM = argparse::parse<MMArgs>(argc, argv);
-    ACSArgs parametrosACS = argparse::parse<ACSArgs>(argc, argv);
     switch (parametros_base.metodo)
     {
     case ANT_SYSTEM:
-        aco = new AntSystem(&grafo, parametrosAS);
+        aco = new AntSystem(&grafo, parametros_base);
         break;
     case MIN_MAX:
-        aco = new MinMax(&grafo, parametrosMM);
+        aco = new MinMax(&grafo, parametros_base);
         break;
     case ELITIST:
         break;
     case ACS:
-        aco = new AntColonySystem(&grafo, parametrosACS);
+        aco = new AntColonySystem(&grafo, parametros_base);
         break;
     case TEST:
         bfs(grafo.metadatos.nodos_iniciales[0].id, grafo.informacion_heuristica);

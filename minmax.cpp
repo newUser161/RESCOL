@@ -2,7 +2,7 @@
 #include "aco.h"
 #include <iostream>
 
-MinMax::MinMax(Graph *instancia, MMArgs parametros) : ACO(instancia, parametros)
+MinMax::MinMax(Graph *instancia, ACOArgs parametros) : ACO(instancia, parametros)
 {
     set_parametros(parametros);
     inicializar_feromonas();
@@ -117,7 +117,7 @@ void MinMax::inicializar_feromonas()
     }
 }
 
-void MinMax::set_parametros(MMArgs parametros)
+void MinMax::set_parametros(ACOArgs parametros)
 {
     umbral_superior = parametros.umbral_superior;
     umbral_superior_inicial = parametros.umbral_superior;

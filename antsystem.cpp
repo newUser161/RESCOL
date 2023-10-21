@@ -2,7 +2,7 @@
 #include "aco.h"
 #include <chrono>
 
-AntSystem::AntSystem(Graph *instancia, ASArgs parametros) : ACO(instancia, parametros)
+AntSystem::AntSystem(Graph *instancia, ACOArgs parametros) : ACO(instancia, parametros)
 {
     inicializar_feromonas();
 }

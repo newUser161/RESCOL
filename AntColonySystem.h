@@ -12,7 +12,7 @@ protected:
         bool visitado;
         int vecesVisitado;
     };
-    ACSArgs parametros;    
+    ACOArgs parametros;    
     double q_0; // umbral de probabilidad ACS
     double q;
     double csi;
@@ -20,13 +20,13 @@ protected:
 
 
 public:
-    AntColonySystem(Graph *instancia, ACSArgs parametros);
+    AntColonySystem(Graph *instancia, ACOArgs parametros);
     void resolver() override;
     void iterar() override;
     Nodo *eligeSiguiente(Hormiga &hormiga) override;
     void visitar(Hormiga &hormiga, Nodo *nodo) override;
     void inicializar_feromonas() override;
-    void set_parametrosACS(ACSArgs parametros);
+    void set_parametrosACS(ACOArgs parametros);
 private:
     void precomputarListaInformacionHeuristica();
     void recalcularListaInformacionHeuristica();
