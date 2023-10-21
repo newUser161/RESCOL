@@ -1,21 +1,10 @@
 #include "antsystem.h"
 #include "aco.h"
-#include <chrono> 
+#include <chrono>
 
-AntSystem::AntSystem(Graph* instancia, ASArgs parametros) : ACO(instancia, parametros) {
-    // Inicializa las feromonas.
-    
-    auto start = std::chrono::high_resolution_clock::now();
-
-    inicializar_feromonas(); 
-
-    // Detiene la medición del tiempo
-    auto stop = std::chrono::high_resolution_clock::now();
-
-    // Calcula la duración
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-
-    std::cout << "Tiempo de inicializacion: " << duration.count() << " microsegundos" << std::endl;
+AntSystem::AntSystem(Graph *instancia, ASArgs parametros) : ACO(instancia, parametros)
+{
+    inicializar_feromonas();
 }
 
 /* Resuelve el problema
@@ -26,18 +15,19 @@ AntSystem::AntSystem(Graph* instancia, ASArgs parametros) : ACO(instancia, param
     - Establecer un criterio de parada basado en la cantidad de iteraciones sin mejora, de manera local, global y/o por hormiga.
     + Mas opciones en aco-book.
 */
-void AntSystem::resolver() 
+void AntSystem::resolver()
 {
-    
+
     while (iteraciones < iteraciones_max)
-        {
-            iterar();
-            mejor_solucion = guardar_mejor_solucion_iteracion();
-            limpiar();
-            iteraciones++;
-        }
+    {
+        iterar();
+        mejor_solucion = guardar_mejor_solucion_iteracion();
+        limpiar();
+        iteraciones++;
+    }
 }
-void AntSystem::iterar(){
+void AntSystem::iterar()
+{
     ACO::iterar();
     // evaporar feromonas
     for (auto i = feromonas.begin(); i != feromonas.end(); i++)
@@ -49,8 +39,20 @@ void AntSystem::iterar(){
         else
         {
             i->second.cantidad *= (1 - rho);
+        }        
+    }
+    if (usarMatrizSecundaria){
+        for (auto i = feromonas_salida.begin(); i != feromonas_salida.end(); i++)
+        {
+            if (i->second.cantidad < umbral_inferior)
+            {
+                i->second.cantidad = umbral_inferior;
+            }
+            else
+            {
+                i->second.cantidad *= (1 - rho_salida);
+            }        
         }
-        // aca poner el rho de salida con la evaporacion de feromonas en la salida
     }
 
     // Actualiza las feromonas.
@@ -60,21 +62,22 @@ void AntSystem::iterar(){
         {
             Arco *a = par.first;
             int pasadas = par.second;
-            if (a->obligatoria){
+            if (a->obligatoria)
+            {
                 if (pasadas != 0)
-                    feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_final,2) * pasadas));
+                    feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_final, 2) * pasadas));
             }
-        }        
-        if (usarMatrizSecundaria){ 
+        }
+        if (usarMatrizSecundaria)
+        {
             for (auto &par : hormiga.arcos_visitados_salida)
             {
                 Arco *a = par.first;
-                int pasadas = par.second;     
-                if (pasadas != 0)           
-                    feromonas_salida.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_salida,2) * pasadas));
+                int pasadas = par.second;
+                if (pasadas != 0)
+                    feromonas_salida.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_salida, 2) * pasadas));
             }
         }
-        
     }
 }
 
@@ -82,14 +85,15 @@ void AntSystem::iterar(){
     Guarda la mejor solución de la iteración
     Este método guarda la mejor solución de la iteración, para luego ser utilizada en la actualización de feromonas.
 */
-void AntSystem::inicializar_feromonas(){
+void AntSystem::inicializar_feromonas()
+{
     for (auto &par : grafo->arcos)
-        {
-            Arco *arco = par.second;
-            Feromona feromona_inicial = {arco->origen, arco->destino, tau};
-            feromonas[arco] = feromona_inicial;
-            feromonas_salida[arco] = feromona_inicial;
-            for (auto &hormiga : hormigas)
-                hormiga.feromonas_locales[arco] = feromona_inicial;
-        }
+    {
+        Arco *arco = par.second;
+        Feromona feromona_inicial = {arco->origen, arco->destino, tau};
+        feromonas[arco] = feromona_inicial;
+        feromonas_salida[arco] = feromona_inicial;
+        for (auto &hormiga : hormigas)
+            hormiga.feromonas_locales[arco] = feromona_inicial;
+    }
 }

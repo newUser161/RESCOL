@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.user('Agg')
+matplotlib.use('Agg')
 from sys import argv
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -44,7 +44,7 @@ def visualizar_grafo(mapa_adyacencia, camino, nombre_archivo, show_grafico):
     nx.draw_networkx_edges(G, pos, edge_color='gray')
 
     # Calcular los colores para los arcos del camino
-    cmap = cm.get_cmap('cool')  # Puedes cambiar a cualquier otro mapa de colores
+    cmap = matplotlib.colormaps['cool']  # Puedes cambiar a cualquier otro mapa de colores
     colores = [cmap(i) for i in np.linspace(0, 1, len(camino)-1)]
     edge_labels = {(camino[i], camino[i+1]): str(i+1) for i in range(len(camino)-1)}
     

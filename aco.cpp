@@ -450,21 +450,22 @@ void ACO::mostrar_solucion(bool show_solucion)
     cout << "Mejor hormiga: " << mejor_solucion.id << " 🐜🥇" << endl;
     cout << "Mejor costo: " << mejor_solucion.costo_camino << " ⏩" << endl;
     cout << "Mejor longitud: " << mejor_solucion.longitud_camino_final << " ⚡" << endl;
-    cout << "La solución es: " << endl;
 
-    if (show_solucion)
-    {
-        for (auto &arco : mejor_solucion.camino_final)
+    if (show_solucion){
+        cout << "La solución es: " << endl;
         {
-            cout << arco.origen->id << " -> ";
+            for (auto &arco : mejor_solucion.camino_final)
+            {
+                cout << arco.origen->id << " -> ";
+            }
+            cout << mejor_solucion.camino_final.back().destino->id;
+            cout << " -> 🏁 ";
+            cout << endl;
+            for (int i = 0; i < 161; i++)
+                cout << "-";
+            cout << endl;
+            cout << endl;
         }
-        cout << mejor_solucion.camino_final.back().destino->id;
-        cout << " -> 🏁 ";
-        cout << endl;
-        for (int i = 0; i < 161; i++)
-            cout << "-";
-        cout << endl;
-        cout << endl;
     }
 }
 
@@ -586,10 +587,6 @@ void ACO::limpiar()
 {
     for (auto &hormiga : hormigas)
     {
-        for (auto &arco : hormiga.camino_tour)
-            arco.veces_recorrida = 0;
-        for (auto &arco : hormiga.camino_salida)
-            arco.veces_recorrida = 0;
 
         hormiga.camino_tour.clear();
         hormiga.camino_salida.clear();
@@ -602,6 +599,7 @@ void ACO::limpiar()
         }
         hormiga.longitud_camino_tour = 0;
         hormiga.longitud_camino_salida = 0;
+        hormiga.longitud_camino_final = 0;
         hormiga.saltosSalida = 0;
         hormiga.saltosTour = 0;
         hormiga.costo_camino = 0;

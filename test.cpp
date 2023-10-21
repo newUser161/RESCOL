@@ -33,6 +33,7 @@ void bfs(int nodoInicial, std::unordered_map<int, std::unordered_map<Arco *, dou
             }
         }
     }
+    /*
     int contador = 0;
     for (auto &par : adyacencia) {
         if (visitado[par.first] == false){
@@ -49,6 +50,7 @@ void bfs(int nodoInicial, std::unordered_map<int, std::unordered_map<Arco *, dou
         }
     }
     cout << "cantidad de nodos visitados: " << contador << endl;
+    */
 }
 
 
