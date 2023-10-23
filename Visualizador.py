@@ -40,7 +40,7 @@ def visualizar_grafo(mapa_adyacencia, camino, nombre_archivo, show_grafico):
     nx.draw(G, pos, with_labels=True)
 
     # Dibujar todos los nodos y arcos
-    nx.draw_networkx_nodes(G, pos, node_color='blue')
+    nx.draw_networkx_nodes(G, pos, node_color='yellow')
     nx.draw_networkx_edges(G, pos, edge_color='gray')
 
     # Calcular los colores para los arcos del camino

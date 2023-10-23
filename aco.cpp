@@ -309,7 +309,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
             cantidad = feromonas_salida[arco].cantidad;
             if (arco->obligatoria == true)
             {
-                tau_eta = pow(cantidad, alfa * 3) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
             }
             else
             {
@@ -317,8 +317,6 @@ void ACO::buscarSalida(Hormiga &hormiga)
             }
             probabilidad[arco] = tau_eta;
             total += tau_eta;
-            if (debug)
-                cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
         }
         for (auto &p : probabilidad)
         {
@@ -329,7 +327,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
                 break;
             }
         }
-
+        
         Arco *arco = nullptr;
 
         for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
@@ -340,7 +338,6 @@ void ACO::buscarSalida(Hormiga &hormiga)
                 break;
             }
         }
-        // cout << "arco:" << arco->origen->id << " " << arco->destino->id << endl; //lista los saltos hacia la salida
 
         arco->veces_recorrida += 1;
         hormiga.arcos_visitados_salida[arco] += 1;
@@ -349,8 +346,6 @@ void ACO::buscarSalida(Hormiga &hormiga)
         hormiga.longitud_camino_salida += 1;
         hormiga.costo_camino += arco->costo_recorrido;
 
-        // borrar despues, solo debug
-        hormiga.saltos_hormiga += 1;
     }
 
     return;
