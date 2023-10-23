@@ -219,6 +219,10 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
 
     for (auto &p : probabilidad)
     {
+        if (total == 0) // solucion parche
+        {
+            total = 1;
+        }
         acumulado += p.second / total;
         if (r <= acumulado)
         {
@@ -316,10 +320,14 @@ void ACO::buscarSalida(Hormiga &hormiga)
                 tau_eta = 1;
             }
             probabilidad[arco] = tau_eta;
-            total += tau_eta;
+            total += tau_eta;            
         }
         for (auto &p : probabilidad)
         {
+            if (total == 0)  // solucion parche
+            {
+                total = 1;
+            }
             acumulado += p.second / total;
             if (r <= acumulado)
             {
