@@ -58,24 +58,26 @@ void AntSystem::iterar()
     // Actualiza las feromonas.
     for (Hormiga &hormiga : hormigas)
     {
-        for (auto &par : hormiga.arcos_visitados_tour)
-        {
-            Arco *a = par.first;
-            int pasadas = par.second;
-            if (a->obligatoria)
-            {
-                if (pasadas != 0)
-                    feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_final, 2) * pasadas));
-            }
-        }
-        if (usarMatrizSecundaria)
-        {
-            for (auto &par : hormiga.arcos_visitados_salida)
+        if (hormiga.solucion_valida){
+            for (auto &par : hormiga.arcos_visitados_tour)
             {
                 Arco *a = par.first;
                 int pasadas = par.second;
-                if (pasadas != 0)
-                    feromonas_salida.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_salida, 2) * pasadas));
+                if (a->obligatoria)
+                {
+                    if (pasadas != 0)
+                        feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_final, 2) * pasadas));
+                }
+            }
+            if (usarMatrizSecundaria)
+            {
+                for (auto &par : hormiga.arcos_visitados_salida)
+                {
+                    Arco *a = par.first;
+                    int pasadas = par.second;
+                    if (pasadas != 0)
+                        feromonas_salida.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_salida, 2) * pasadas));
+                }
             }
         }
     }

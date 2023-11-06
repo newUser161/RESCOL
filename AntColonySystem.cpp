@@ -33,18 +33,44 @@ void AntColonySystem::iterar()
 
     for (auto &hormiga : hormigas)
     {
+        acumulador_tiempo = 0;
         Nodo *actual = nullptr;
         while (!ACO::solucionCompleta(hormiga))
         {
+            auto start = std::chrono::high_resolution_clock::now();
+            timeout_flag = false;
             actual = hormiga.nodo_actual;
             if (debug)
                 cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
             Nodo *siguiente = eligeSiguiente(hormiga);
             visitar(hormiga, siguiente);
+            auto stop = std::chrono::high_resolution_clock::now();        
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+            acumulador_tiempo += duration.count();
+            if (acumulador_tiempo > timeout)
+            {
+                cout << "Timeout en hormiga " << hormiga.id << endl;
+                timeout_flag = true;
+                timeout_flag_global = true;
+                hormiga.solucion_valida = false;
+                break;
+            }
         }
-        file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
-        // cout << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
-        evaluaciones++;
+        if (!timeout_flag){
+
+            if (usarMatrizSecundaria)
+            {
+                buscarSalida(hormiga);
+            }
+            hormiga.saltosSalida = hormiga.longitud_camino_tour - hormiga.saltosTour;
+            file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
+
+            hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_tour.begin(), hormiga.camino_tour.end());
+            hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_salida.begin(), hormiga.camino_salida.end());
+            hormiga.longitud_camino_final = hormiga.longitud_camino_tour + hormiga.longitud_camino_salida;
+            
+            evaluaciones++;
+        }
     }
     mejor_solucion = guardar_mejor_solucion_iteracion();
 
@@ -52,8 +78,7 @@ void AntColonySystem::iterar()
     for (auto &par : mejor_solucion.arcos_visitados_tour)
     {
 
-        feromonas.at(par.first).cantidad += (((1 - rho) * feromonas.at(par.first).cantidad) + (rho * (par.first->veces_recorrida / mejor_solucion.costo_camino)));
-        cout << "cantidad: " << feromonas.at(par.first).cantidad << endl;
+        feromonas.at(par.first).cantidad += (((1 - rho) * feromonas.at(par.first).cantidad) + (rho * (par.first->veces_recorrida / mejor_solucion.costo_camino)));        
     }
     recalcularListaInformacionHeuristica();
 }
@@ -69,6 +94,7 @@ void AntColonySystem::inicializar_feromonas()
     {
         Arco *arco = par.second;
         Feromona feromona_inicial = {arco->origen, arco->destino, tau};
+        feromonas_salida[arco] = feromona_inicial;
         feromonas[arco] = feromona_inicial;
         for (auto &hormiga : hormigas)
             hormiga.feromonas_locales[arco] = feromona_inicial;

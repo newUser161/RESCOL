@@ -32,6 +32,7 @@ struct Hormiga
     int saltosTour = 0;                                     // Cantidad de saltos que toma terminar un tour completamente
     int saltosSalida = 0;                                   // Cantidad de saltos desde el termino del tour hasta la salida                       // Longitud del camino, cuantas aristas se ha recorrido
     double costo_camino = 0.0;                              // Costo del camino, costo asociado a la recolección y recorrido
+    bool solucion_valida = true;                              // Costo del camino, costo asociado a la recolección y recorrido
     int id = 0;                                             // Identificador de la hormiga
     std::unordered_map<Arco *, Feromona> feromonas_locales; // Feromonas locales de la hormiga
 
@@ -65,6 +66,10 @@ protected:
     std::string nombre_archivo_salida;
     std::filesystem::path directorio_salida;
     void set_parametros(ACOArgs parametros_base);
+    float timeout = 600000 ;
+    
+    bool timeout_flag = false;
+    bool timeout_flag_global = false;
 
     bool usarMatrizSalida = false; // Flag que indica si se usa la matriz de salida, es una estructura de control
 
@@ -86,6 +91,7 @@ public:
     int epocas;                // Numero de epocas
     int epoca_actual = 0;      // Numero de epocas
     bool usarMatrizSecundaria; // Flag que controla el uso general de la matriz de salida, se pasa por parametros
+    float acumulador_tiempo = 0;
 
     // borrar despues, solo debug
     int saltos_salida_iteracion = 0;
