@@ -10,6 +10,7 @@
 #include <numeric>
 #include <string>
 #include <vector>
+#include <climits>
 
 #include "aco.h"
 #include "graph.h"
