@@ -22,9 +22,7 @@ void MinMax::resolver()
 {
     int iteraciones_sin_mejora = 0;
     while (iteraciones < iteraciones_max)
-    {
-        auto start = std::chrono::high_resolution_clock::now(); 
-        
+    {        
         iterar();
         Hormiga mejor_solucion_anterior = mejor_solucion;
         mejor_solucion = guardar_mejor_solucion_iteracion();
@@ -45,10 +43,7 @@ void MinMax::resolver()
             iteraciones_sin_mejora = 0;
         }
         limpiar();
-        //cout << "iteracion: " << iteraciones << " iteraciones sin mejora: "<< iteraciones_sin_mejora<< endl;
         iteraciones++;
-        auto stop = std::chrono::high_resolution_clock::now(); 
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     }
 };
 

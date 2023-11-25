@@ -28,8 +28,6 @@ public:
     void inicializar_feromonas() override;
     void set_parametrosACS(ACOArgs parametros);
 private:
-    void precomputarListaInformacionHeuristica();
-    void recalcularListaInformacionHeuristica();
 };
 
 #endif

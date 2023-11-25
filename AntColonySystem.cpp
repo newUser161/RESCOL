@@ -7,7 +7,6 @@ AntColonySystem::AntColonySystem(Graph *instancia, ACOArgs parametros) : ACO(ins
 {
     set_parametrosACS(parametros);
     inicializar_feromonas();
-    precomputarListaInformacionHeuristica();
 }
 
 /* Resuelve el problema
@@ -22,6 +21,7 @@ void AntColonySystem::resolver()
 {
     while (iteraciones < iteraciones_max)
     {
+        cout << "Iteracion: " << iteraciones << endl;
         iterar();
         limpiar();
         iteraciones++;
@@ -63,7 +63,6 @@ void AntColonySystem::iterar()
             {
                 buscarSalida(hormiga);
             }
-            hormiga.saltosSalida = hormiga.longitud_camino_tour - hormiga.saltosTour;
             file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
 
             hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_tour.begin(), hormiga.camino_tour.end());
@@ -74,7 +73,7 @@ void AntColonySystem::iterar()
         }
     }
     mejor_solucion = guardar_mejor_solucion_iteracion();
-
+    
     // Actualiza las feromonas.
     for (auto &par : mejor_solucion.arcos_visitados_tour)
     {
@@ -85,7 +84,8 @@ void AntColonySystem::iterar()
             feromonas.at(par.first).cantidad = umbral_inferior;
         }
     }
-    recalcularListaInformacionHeuristica();
+    for (auto &arco : grafo->arcos)
+        arco.second->veces_recorrida = 0;
 }
 
 /*
@@ -134,18 +134,24 @@ Nodo *AntColonySystem::eligeSiguiente(Hormiga &hormiga)
     double q = generar_numero_aleatorio(0, 1.00);
     double acumulado = 0.0;
     double cantidad = 0.0;
+    double cantidad2 = 0.0;
     double tau_eta = 0.0;
 
     Nodo *nodo = nullptr;
     std::unordered_map<Arco *, double> probabilidad;
     if (q < q_0)
     {
-        // seleccionar primera entrada de la lista ordenada por calidad, esta lista se crea y ordena en el constructor de la hormiga para ACS
-        auto &contenedor = mapaACS[hormiga.nodo_actual->id];
-        for (auto it = contenedor.begin(); it != contenedor.end(); ++it)
-        {
-            Arco *arco = it->first;
-            nodo = contenedor.begin().base()->first->destino;
+        double cantidad_max = 0;
+        // Seleccionar el arco con mas feromonas 
+        for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id]){
+            cantidad = i.second;
+            cantidad2 = feromonas[i.first].cantidad;
+            double calculo = cantidad2 * pow(cantidad,beta);
+
+            if (cantidad2 > cantidad_max){
+                cantidad_max = cantidad;
+                nodo = i.first->destino;
+            }
         }
     }
     else
@@ -279,7 +285,8 @@ void AntColonySystem::visitar(Hormiga &hormiga, Nodo *nodo)
     hormiga.longitud_camino_tour += 1;
 
     if (arco->veces_recorrida == 1)
-    {
+    {/*
+        */
         if (hormiga.feromonas_locales[arco].cantidad < umbral_inferior)
         {
             hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
@@ -288,10 +295,13 @@ void AntColonySystem::visitar(Hormiga &hormiga, Nodo *nodo)
         {
             hormiga.feromonas_locales[arco].cantidad *= (1 - rho);
         }
+        //feromonas[arco].cantidad = ((1-csi)*feromonas[arco].cantidad)+ (csi*tau) ;
         hormiga.costo_camino += arco->costo_recorrido + arco->costo_recoleccion;
     }
     else
     {
+        /*
+        */
         if (hormiga.feromonas_locales[arco].cantidad < umbral_inferior)
         {
             hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
@@ -300,50 +310,10 @@ void AntColonySystem::visitar(Hormiga &hormiga, Nodo *nodo)
         {
             hormiga.feromonas_locales[arco].cantidad *= (1 - rho_secundario);
         }
+        //feromonas[arco].cantidad = ((1-csi)*feromonas[arco].cantidad)+ (csi*tau) ;
         hormiga.costo_camino += arco->costo_recorrido;
     }
     
 
     return;
-}
-
-void AntColonySystem::precomputarListaInformacionHeuristica()
-{
-    // Cambiamos el tipo a un vector de pares
-    std::unordered_map<int, std::vector<std::pair<Arco *, ArcoInfo>>> mapaACStemp;
-
-    for (auto &par : grafo->informacion_heuristica)
-    {
-        int id_nodo = par.first;
-
-        // Inicializamos el vector para este nodo
-        std::vector<std::pair<Arco *, ArcoInfo>> vec;
-
-        // Llenamos el vector
-        for (auto &par2 : grafo->informacion_heuristica[id_nodo])
-        {
-            ArcoInfo info = {par2.second, false, 0};
-            vec.push_back({par2.first, info});
-        }
-
-        // Ordenamos el vector según los valores de calidad
-        std::sort(vec.begin(), vec.end(), [](const auto &a, const auto &b)
-                  { return a.second.calidad > b.second.calidad; });
-
-        // Asignamos el vector ordenado al nodo correspondiente
-        mapaACStemp[id_nodo] = vec;
-    }
-    mapaACS = mapaACStemp;
-}
-
-void AntColonySystem::recalcularListaInformacionHeuristica()
-{
-    for (auto &par : mapaACS)
-    {
-        int id_nodo = par.first;
-        std::vector<std::pair<Arco *, ArcoInfo>> vec;
-        vec = mapaACS[id_nodo];
-        std::sort(vec.begin(), vec.end(), [](const auto &a, const auto &b)
-                  { return a.second.calidad > b.second.calidad; });
-    }
 }

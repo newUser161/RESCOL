@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include "config.h"
 #include <fstream>
+#include "oscilador.h"
 
 // Representación de las Feromonas
 struct Feromona
@@ -36,13 +37,13 @@ struct Hormiga
     int id = 0;                                             // Identificador de la hormiga
     std::unordered_map<Arco *, Feromona> feromonas_locales; // Feromonas locales de la hormiga
 
-    // borrar despues, solo debug
-    int saltos_hormiga = 0;
 };
 
 class ACO
 {
 protected:
+    Oscilador oscilador;
+
     virtual void iterar();                                 // Itera el algoritmo
     virtual void inicializar_feromonas() = 0;              // Itera el algoritmo
     Hormiga guardar_mejor_solucion_iteracion();            // Guarda la mejor solución
@@ -53,7 +54,9 @@ protected:
     void limpiar_rastro();                                 // Limpia la memoria y datos del algoritmo
     std::unordered_map<Arco *, Feromona> feromonas;        // Feromonas
     std::unordered_map<Arco *, Feromona> feromonas_salida; // Feromonas
-    std::vector<Hormiga> hormigas;                         // Hormigas
+    std::vector<Hormiga> hormigas;     
+    std::string nombre_metodo;
+    std::string nombre_instancia_salida;
     void construirSolucion(Hormiga &hormiga);              // Construye la solución para una hormiga    
     int evaluaciones = 0;                                  // Evaluaciones de la funcion objetivo
     virtual Nodo *eligeSiguiente(Hormiga &hormiga);        // Elige el siguiente nodo
@@ -71,13 +74,20 @@ protected:
     bool timeout_flag = false;
     bool timeout_flag_global = false;
 
-    bool usarMatrizSalida = false; // Flag que indica si se usa la matriz de salida, es una estructura de control
+    int usar_oscilador = 0;
+    int valor_limitador = 999999;
+    bool usar_bd = false;
+    bool usar_iteraciones = false;
+    bool usar_evaluaciones = false;
 
 public:
     std::string nombre_instancia; // Nombre de la instancia
+    std::string ruta_archivo_salida_csv;
+    std::string ruta_archivo_config_salida_csv;
     float alfa;                   // Parámetro alfa
     int metodo;                   // Método (0: antsystem, 1: minmax, 3: ACS)
     float beta;                   // Parámetro beta
+    float beta_salida;                   // Parámetro beta
     float rho;                    // Parámetro rho, asociado a la evaporacion de feromonas
     float tau;                    // Parámetro rho, asociado a la evaporacion de feromonas
     float rho_secundario;         // Parámetro rho, asociado a la evaporacion de feromonas
@@ -93,8 +103,7 @@ public:
     bool usarMatrizSecundaria; // Flag que controla el uso general de la matriz de salida, se pasa por parametros
     float acumulador_tiempo = 0;
 
-    // borrar despues, solo debug
-    int saltos_salida_iteracion = 0;
+    
 
     ACO(Graph *instancia, ACOArgs parametros_base); // Constructor;
     // ACO(Graph *instancia, ParametrosACOBase parametros_base); // Constructor;
@@ -109,7 +118,7 @@ public:
     std::string get_filename();
     void set_filename(std::string filename);
     Hormiga get_mejor_solucion();
-    void exportar_solucion(std::chrono::microseconds duration);
+    void exportar_solucion(std::chrono::microseconds duration, ACOArgs parametros_base);
     void exportar_mapa_resultados();
 
 private:

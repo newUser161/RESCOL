@@ -22,6 +22,7 @@
 #include "helpers.h"
 #include "enums.h"
 #include "test.h"
+//#include "DatabaseManager.h"
 
 using namespace std;
 
@@ -39,7 +40,7 @@ using namespace std;
 // Funcion principal
 /* Parámetros:
     - nombre_archivo: Nombre del archivo que contiene la instancia
-    - iteraciones: Número de iteraciones que realizará el algoritmo
+    - iteraciones: Número de itecout << "Iteracion: " << iteraciones << endl;raciones que realizará el algoritmo
     - hormigas: Número de hormigas que se utilizarán
     - leer_restricciones: Indica si se leerán las restricciones del archivo
     - debug: Indica si se mostrarán mensajes de debug
@@ -50,8 +51,12 @@ int main(int argc, char *argv[])
     Graph grafo = Graph();
     ACO *aco;
     ACOArgs parametros_base = argparse::parse<ACOArgs>(argc, argv);
-    inicializar_generador(parametros_base.semilla);  
-    grafo = leerInstancia(parametros_base.nombre_instancia, config.leer_restricciones, config.leer_coordenadas, config.irace);
+    if (parametros_base.full_aleatorio){
+        inicializar_generador(std::random_device{}());  
+    } else {
+        inicializar_generador(parametros_base.semilla);  
+    }
+    grafo = leerInstancia(parametros_base.nombre_instancia, config.leer_restricciones, config.leer_coordenadas, parametros_base.irace);
     if (config.debug)
     {
         cout << endl;
@@ -135,18 +140,19 @@ int main(int argc, char *argv[])
     aco->cerrar_file();
 
     aco->mostrar_solucion(config.show_solucion);
-    if (!config.silence){
-        aco->exportar_solucion(duration);
+    if (!parametros_base.silence){
+        aco->exportar_solucion(duration,parametros_base);
         aco->exportar_mapa_resultados();
         std::string archivo_salida = aco->get_filename();
-        std::stringstream ss;
 
+        std::stringstream ss;
         ss << "python Grafico.py " << archivo_salida << " " << config.show_grafico;
         std::string comando = ss.str();
 
         std::stringstream ss2;
         ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida << " " << config.show_grafico;
         std::string comando2 = ss2.str();
+        
         cout << "Programa finalizado correctamente" << endl;
         for (int i = 0; i < parametros_base.num_hormigas; i++)
             cout << "🐜 ";
