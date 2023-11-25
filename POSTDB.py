@@ -1,12 +1,26 @@
 from sys import argv
 import mysql.connector
+import configparser
 
-def abrir_conexion():    
+
+
+
+
+
+def abrir_conexion(): 
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    host = config['database']['host']
+    user = config['database']['user']
+    password = config['database']['password']
+    database = config['database']['database']  
+
     conn = mysql.connector.connect(
-        host="185.209.230.86",
-        user="ACORESCOLADMIN",
-        password="passwordmuysegura123",
-        database="ACO"
+        host=host,
+        user=user,
+        password=password,
+        database=database
     )    
     return conn
 

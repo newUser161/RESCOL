@@ -140,8 +140,8 @@ int main(int argc, char *argv[])
     aco->cerrar_file();
 
     aco->mostrar_solucion(config.show_solucion);
+    aco->exportar_solucion(duration,parametros_base);
     if (!parametros_base.silence){
-        aco->exportar_solucion(duration,parametros_base);
         aco->exportar_mapa_resultados();
         std::string archivo_salida = aco->get_filename();
 
