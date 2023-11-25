@@ -619,7 +619,7 @@ void ACO::exportar_solucion(std::chrono::microseconds duration, ACOArgs parametr
     archivo_config_salida_csv << parametros_base.full_aleatorio << endl;
     archivo_config_salida_csv.close();
     
-    if (!parametros_base.irace){
+    if (parametros_base.irace || parametros_base.silence ){
         if (usar_bd){
             std::stringstream ss;
             ss << "python POSTDB.py " << ruta_archivo_salida_csv << " " << ruta_archivo_config_salida_csv;
