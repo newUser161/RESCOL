@@ -43,6 +43,26 @@ struct ACOArgs : public argparse::Args
     bool &irace = flag("irace", "usa el formato de llamada e instancias de irace");
     bool &silence = flag("silence", "output minimo");
     bool &full_aleatorio = flag("random-seed", "semilla aleatoria");
+
+
+    // Parametros del oscilador
+    float &inc_alfa = kwarg("inc-alfa", "Incremento de alfa").set_default(0.1);
+    float &min_alfa = kwarg("min-alfa", "Valor minimo de alfa").set_default(1);
+    float &max_alfa = kwarg("max-alfa", "Valor maximo de alfa").set_default(5);
+    float &inc_beta = kwarg("inc-beta", "Incremento de beta").set_default(0.1);
+    float &min_beta = kwarg("min-beta", "Valor minimo de beta").set_default(1);
+    float &max_beta = kwarg("max-beta", "Valor maximo de beta").set_default(0.5);
+    float &inc_rho = kwarg("inc-rho", "Incremento de rho").set_default(0.1);
+    float &min_rho = kwarg("min-rho", "Valor minimo de rho").set_default(0.1);
+    float &max_rho = kwarg("max-rho", "Valor maximo de rho").set_default(0.5);
+    float &inc_rho_secundario = kwarg("inc-rho-sec", "Incremento de rho secundario").set_default(0.1);
+    float &min_rho_secundario = kwarg("min-rho-sec", "Valor minimo de rho secundario").set_default(0.1);
+    float &max_rho_secundario = kwarg("max-rho-sec", "Valor maximo de rho secundario").set_default(0.5);
+    //float &inc_rho_salida = kwarg("inc-rho-salida", "Incremento de rho salida").set_default(0.1); No usar oscilador en mecanismos de salida
+    //float &min_rho_salida = kwarg("min-rho-salida", "Valor minimo de rho salida").set_default(0.1);
+    //float &max_rho_salida = kwarg("max-rho-salida", "Valor maximo de rho salida").set_default(0.5);
+
+
     
 };
 

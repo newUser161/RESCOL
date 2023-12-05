@@ -792,17 +792,33 @@ void ACO::set_parametros(const ACOArgs parametros_base)
 {
     nombre_instancia = parametros_base.nombre_instancia;
     metodo = parametros_base.metodo;
+
     alfa = parametros_base.alfa;
-    oscilador.agregarParametro(alfa,0.01,1,5);
+    float alfa_inc = parametros_base.inc_alfa;
+    float alfa_min = parametros_base.min_alfa;
+    float alfa_max = parametros_base.max_alfa;
+    oscilador.agregarParametro(alfa,alfa_inc,alfa_min,alfa_max);
+
     
     beta_salida = parametros_base.beta_salida;
     //oscilador.agregarParametro(beta_salida,0.01,1,5); // el oscilador rompe la matriz de salida, no tocar
+
+
     rho = parametros_base.rho;
-    oscilador.agregarParametro(rho,0.01,0.1,0.5);
+    float rho_inc = parametros_base.inc_rho;
+    float rho_min = parametros_base.min_rho;
+    float rho_max = parametros_base.max_rho;
+    oscilador.agregarParametro(rho,rho_inc,rho_min,rho_max);
+
     rho_secundario = parametros_base.rho_secundario;
-    oscilador.agregarParametro(rho_secundario,0.01,0.1,0.5); 
+    float rho_secundario_inc = parametros_base.inc_rho_secundario;
+    float rho_secundario_min = parametros_base.min_rho_secundario;
+    float rho_secundario_max = parametros_base.max_rho_secundario;
+    oscilador.agregarParametro(rho_secundario,rho_secundario_inc,rho_secundario_min,rho_secundario_max); 
+
     rho_salida = parametros_base.rho_salida;
     //oscilador.agregarParametro(rho_salida,0.01,0.1,0.5); // el oscilador rompe la matriz de salida, no tocar
+
     tau = parametros_base.tau;
     //oscilador.agregarParametro(tau,0.01,1,5);
     umbral_inferior = parametros_base.umbral_inferior;
@@ -838,7 +854,10 @@ void ACO::set_parametros(const ACOArgs parametros_base)
     if (beta0) {
         beta = 0;     
     } else {
-        oscilador.agregarParametro(beta,0.01,1,5); 
+        float beta_inc = parametros_base.inc_beta;
+        float beta_min = parametros_base.min_beta;
+        float beta_max = parametros_base.max_beta;
+        oscilador.agregarParametro(beta,beta_inc,beta_min,beta_max); 
     }
     bool usar_limitador = parametros_base.limitador;
     if (usar_limitador){
