@@ -363,7 +363,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
     int contador = 0;
     while (!enNodoTerminal(hormiga)) //
     {
-        std::cout <<"Hormiga" << hormiga.id<< "Iteracion: " << contador << endl;
+        std::cout <<"Hormiga " << hormiga.id<< "Iteracion: " << contador << endl;
         Nodo *nodo = nullptr;
         std::unordered_map<Arco *, double> probabilidad;
         double total = 0.0;
