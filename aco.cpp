@@ -314,7 +314,6 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
 void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
 {
     Arco *arco = nullptr;
-    std::cout << "Hormiga: " << hormiga.id << " Nodo: " << nodo->id << endl;
     for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
     {
         if (i.first->destino->id == nodo->id)
@@ -359,15 +358,14 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
 
 void ACO::buscarSalida(Hormiga &hormiga)
 {
-    std::cout << "Inicio buscar salida" << endl;
     int contador = 0;
     while (!enNodoTerminal(hormiga)) //
     {
-        std::cout <<"Hormiga " << hormiga.id<< "Iteracion: " << contador << endl;
         Nodo *nodo = nullptr;
         std::unordered_map<Arco *, double> probabilidad;
         double total = 0.0;
         double r = generar_numero_aleatorio(0, 1.00);
+        std::cout << "r: " << r << endl;
         double acumulado = 0.0;
         double cantidad = 0.0;
         double tau_eta = 0.0;
@@ -398,7 +396,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
                 break;
             }
         }
-
+        std::cout << "nodo elegido: " << nodo->id << endl;
         Arco *arco = nullptr;
 
         for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
@@ -418,7 +416,6 @@ void ACO::buscarSalida(Hormiga &hormiga)
         hormiga.costo_camino += arco->costo_recorrido;
         contador++;
     }
-    std::cout << "Fin buscar salida" << endl;
     return;
 }
 
