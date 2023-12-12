@@ -120,7 +120,7 @@ void ACO::construirSolucion(Hormiga &hormiga)
         actual = hormiga.nodo_actual;
         if (debug)
         {
-            cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
+            std::cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
         }
         siguiente = eligeSiguiente(hormiga);
         visitar(hormiga, siguiente);
@@ -130,15 +130,15 @@ void ACO::construirSolucion(Hormiga &hormiga)
         } else if (usar_oscilador == 2){
             oscilador.oscilar_caotico();
         } 
-        //cout << "alfa: " << ACO::alfa << " beta: " << ACO::beta << " rho: " << ACO::rho << " tau: " << ACO::tau << endl;
+        //std::cout << "alfa: " << ACO::alfa << " beta: " << ACO::beta << " rho: " << ACO::rho << " tau: " << ACO::tau << endl;
         auto stop = std::chrono::high_resolution_clock::now();        
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         acumulador_tiempo += duration.count();
-        //cout <<"Iteracion: "<< iteraciones << " hormiga: "<< hormiga.id << " nodo: " << hormiga.nodo_actual->id << endl;
+        //std::cout <<"Iteracion: "<< iteraciones << " hormiga: "<< hormiga.id << " nodo: " << hormiga.nodo_actual->id << endl;
         /*
         if (acumulador_tiempo > timeout)
         {
-            cout << "Timeout en hormiga " << hormiga.id << endl;
+            std::cout << "Timeout en hormiga " << hormiga.id << endl;
             timeout_flag = true;
             timeout_flag_global = true;
             hormiga.solucion_valida = false;
@@ -206,7 +206,7 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                         probabilidad[arco] = tau_eta;
                         total += tau_eta;
                         if (debug)
-                            cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
+                            std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
                             
                     }else {
                         continue;
@@ -241,7 +241,7 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
             probabilidad[arco] = tau_eta;
             total += tau_eta;
             if (debug)
-                cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
+                std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
         }
     }
     
@@ -260,7 +260,7 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                     probabilidad[arco] = tau_eta;
                     total += tau_eta;
                     if (debug)
-                        cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
+                        std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
 
                     
                 }
@@ -293,12 +293,12 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
     }
 
     if (debug)
-        cout << "r: " << r << endl;
+        std::cout << "r: " << r << endl;
     if (debug)
-        cout << "nodo elegido: " << nodo->id << endl;
+        std::cout << "nodo elegido: " << nodo->id << endl;
     if (nodo == nullptr){
-        cout << "Nodo actual sin salida: " << hormiga.nodo_actual->id<< endl; // usar exepciones o algo try catch
-        cout << "nodo nulo" << endl; // usar exepciones o algo try catch
+        std::cout << "Nodo actual sin salida: " << hormiga.nodo_actual->id<< endl; // usar exepciones o algo try catch
+        std::cout << "nodo nulo" << endl; // usar exepciones o algo try catch
     }    
     return nodo;
 }
@@ -314,7 +314,7 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
 void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
 {
     Arco *arco = nullptr;
-    cout << "Hormiga: " << hormiga.id << " Nodo: " << nodo->id << endl;
+    std::cout << "Hormiga: " << hormiga.id << " Nodo: " << nodo->id << endl;
     for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
     {
         if (i.first->destino->id == nodo->id)
@@ -359,11 +359,11 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
 
 void ACO::buscarSalida(Hormiga &hormiga)
 {
-    cout << "Inicio buscar salida" << endl;
+    std::cout << "Inicio buscar salida" << endl;
     int contador = 0;
     while (!enNodoTerminal(hormiga)) //
     {
-        cout <<"Hormiga" << hormiga.id<< "Iteracion: " << contador << endl;
+        std::cout <<"Hormiga" << hormiga.id<< "Iteracion: " << contador << endl;
         Nodo *nodo = nullptr;
         std::unordered_map<Arco *, double> probabilidad;
         double total = 0.0;
@@ -416,8 +416,9 @@ void ACO::buscarSalida(Hormiga &hormiga)
         hormiga.nodo_actual = nodo;
         hormiga.longitud_camino_salida += 1;
         hormiga.costo_camino += arco->costo_recorrido;
+        contador++;
     }
-    cout << "Inicio buscar salida" << endl;
+    std::cout << "Fin buscar salida" << endl;
     return;
 }
 
@@ -508,34 +509,34 @@ void ACO::mostrar_solucion(bool show_solucion)
 {
 
     for (int i = 0; i < 161; i++)
-        cout << "-";
-    cout << endl;
-    cout << "✨🏆 Mejor resultado 🏆✨" << endl;
-    cout << endl;
-    cout << "Mejor hormiga: " << mejor_solucion.id << " 🐜🥇" << endl;
+        std::cout << "-";
+    std::cout << endl;
+    std::cout << "✨🏆 Mejor resultado 🏆✨" << endl;
+    std::cout << endl;
+    std::cout << "Mejor hormiga: " << mejor_solucion.id << " 🐜🥇" << endl;
     if (timeout_flag_global)
     {
-        cout << "Mejor costo: " << "inf" << " ⏩" << endl;
+        std::cout << "Mejor costo: " << "inf" << " ⏩" << endl;
     } else {
-        cout << "Mejor costo: " << mejor_solucion.costo_camino << " ⏩" << endl;
+        std::cout << "Mejor costo: " << mejor_solucion.costo_camino << " ⏩" << endl;
     }
-    cout << "Mejor longitud: " << mejor_solucion.longitud_camino_final << " ⚡" << endl;
+    std::cout << "Mejor longitud: " << mejor_solucion.longitud_camino_final << " ⚡" << endl;
 
     if (show_solucion)
     {
-        cout << "La solución es: " << endl;
+        std::cout << "La solución es: " << endl;
         {
             for (auto &arco : mejor_solucion.camino_final)
             {
-                cout << arco.origen->id << " -> ";
+                std::cout << arco.origen->id << " -> ";
             }
-            cout << mejor_solucion.camino_final.back().destino->id;
-            cout << " -> 🏁 ";
-            cout << endl;
+            std::cout << mejor_solucion.camino_final.back().destino->id;
+            std::cout << " -> 🏁 ";
+            std::cout << endl;
             for (int i = 0; i < 161; i++)
-                cout << "-";
-            cout << endl;
-            cout << endl;
+                std::cout << "-";
+            std::cout << endl;
+            std::cout << endl;
         }
     }
 }
@@ -658,7 +659,7 @@ void ACO::exportar_solucion(std::chrono::microseconds duration, ACOArgs parametr
     archivo_salida << mejor_solucion.camino_final.back().destino->id << endl;
     archivo_salida.close();
 
-    cout << "La solución es: " << endl;
+    std::cout << "La solución es: " << endl;
     // Abre el archivo para escribir
     std::ofstream archivo("Temp/camino.txt");
     // Escribe cada arco y la cantidad de veces que se pasó por él
@@ -831,7 +832,7 @@ void ACO::set_parametros(const ACOArgs parametros_base)
     usar_iteraciones = parametros_base.usar_iteraciones;
     usar_evaluaciones = parametros_base.usar_evaluaciones;
     if (usar_evaluaciones && usar_iteraciones){
-        cout << "No se puede usar ambos criterios de parada" << endl;
+        std::cout << "No se puede usar ambos criterios de parada" << endl;
         exit(1);
     } else{
         if (usar_iteraciones){
@@ -840,10 +841,10 @@ void ACO::set_parametros(const ACOArgs parametros_base)
             evaluaciones_maximas = parametros_base.evaluaciones_maximas;
             iteraciones_max = evaluaciones_maximas / num_hormigas;
         } else{
-            cout << "No se ha especificado un criterio de parada" << endl;
+            std::cout << "No se ha especificado un criterio de parada" << endl;
             //exit(1);
             //Para debug
-            cout << "Usando iteraciones" << endl;
+            std::cout << "Usando iteraciones" << endl;
             iteraciones_max = parametros_base.iteraciones_max;        
             //
 
