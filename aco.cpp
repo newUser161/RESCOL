@@ -396,7 +396,6 @@ void ACO::buscarSalida(Hormiga &hormiga)
                 break;
             }
         }
-        std::cout << "nodo elegido: " << nodo->id << endl;
         Arco *arco = nullptr;
 
         for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
