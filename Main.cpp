@@ -138,9 +138,10 @@ int main(int argc, char *argv[])
     auto stop = std::chrono::high_resolution_clock::now(); 
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     aco->cerrar_file();
-
     aco->mostrar_solucion(config.show_solucion);
-    aco->exportar_solucion(duration,parametros_base);
+    if (!parametros_base.crear_directorios_solucion){
+        aco->exportar_solucion(duration,parametros_base);
+    }
     if (!parametros_base.silence){
         aco->exportar_mapa_resultados();
         std::string archivo_salida = aco->get_filename();

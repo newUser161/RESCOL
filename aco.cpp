@@ -575,6 +575,7 @@ void ACO::exportar_solucion(std::chrono::microseconds duration, ACOArgs parametr
     archivo_salida_csv << grafo->arcos.size() << ",";
     archivo_salida_csv << suma_recoleccion << ",";
     archivo_salida_csv << suma_recorrer << endl;
+    archivo_salida_csv.close();
 
 
     std::string config_csv = "config_csv.txt";
