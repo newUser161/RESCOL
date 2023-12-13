@@ -43,6 +43,7 @@ struct ACOArgs : public argparse::Args
     bool &irace = flag("irace", "usa el formato de llamada e instancias de irace");
     bool &silence = flag("silence", "output minimo");
     bool &full_aleatorio = flag("random-seed", "semilla aleatoria");
+    bool &crear_directorios_solucion = flag("crear-directorios-solucion", "permite crear directorios para las soluciones");
 
 
     // Parametros del oscilador
