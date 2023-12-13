@@ -92,10 +92,10 @@ void ACO::iterar()
     {
         construirSolucion(hormiga);
         limpiar_rastro();
-        
+
         /*
         if (timeout_flag){
-            continue;        
+            continue;
         }*/
     }
 }
@@ -127,14 +127,16 @@ void ACO::construirSolucion(Hormiga &hormiga)
         if (usar_oscilador == 1)
         {
             oscilador.oscilar();
-        } else if (usar_oscilador == 2){
+        }
+        else if (usar_oscilador == 2)
+        {
             oscilador.oscilar_caotico();
-        } 
-        //std::cout << "alfa: " << ACO::alfa << " beta: " << ACO::beta << " rho: " << ACO::rho << " tau: " << ACO::tau << endl;
-        auto stop = std::chrono::high_resolution_clock::now();        
+        }
+        // std::cout << "alfa: " << ACO::alfa << " beta: " << ACO::beta << " rho: " << ACO::rho << " tau: " << ACO::tau << endl;
+        auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         acumulador_tiempo += duration.count();
-        //std::cout <<"Iteracion: "<< iteraciones << " hormiga: "<< hormiga.id << " nodo: " << hormiga.nodo_actual->id << endl;
+        // std::cout <<"Iteracion: "<< iteraciones << " hormiga: "<< hormiga.id << " nodo: " << hormiga.nodo_actual->id << endl;
         /*
         if (acumulador_tiempo > timeout)
         {
@@ -145,13 +147,13 @@ void ACO::construirSolucion(Hormiga &hormiga)
             break;
         }*/
     }
-    //if (!timeout_flag)
+    // if (!timeout_flag)
     {
         if (usarMatrizSecundaria)
         {
             buscarSalida(hormiga);
         }
-        
+
         file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
 
         hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_tour.begin(), hormiga.camino_tour.end());
@@ -207,12 +209,11 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                         total += tau_eta;
                         if (debug)
                             std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
-                            
-                    }else {
+                    }
+                    else
+                    {
                         continue;
                     }
-
-                    
                 }
             }
             else
@@ -226,7 +227,9 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                     tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                     total += tau_eta;
                     probabilidad[arco] = tau_eta;
-                } else {
+                }
+                else
+                {
                     continue;
                 }
             }
@@ -244,9 +247,11 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                 std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
         }
     }
-    
-    if (total == 0){ // si nos quedamos sin pasadas se elige cualquiera segun el metodo normal
-        for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id]){
+
+    if (total == 0)
+    { // si nos quedamos sin pasadas se elige cualquiera segun el metodo normal
+        for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
+        {
             // si no esta vacio, se empiezan a comprobar los casos
             if (i.first->bidireccional == true)
             { // si es bidireccional, se comprueba que el siguiente arco no sea una vuelta en U o si es la unica opcion, en este ultimo caso, se agrega a las probabilidades de paso
@@ -261,8 +266,6 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                     total += tau_eta;
                     if (debug)
                         std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
-
-                    
                 }
             }
             else
@@ -274,16 +277,13 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                 tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                 total += tau_eta;
                 probabilidad[arco] = tau_eta;
-                
             }
         }
     }
-    
-
 
     for (auto &p : probabilidad)
     {
-        
+
         acumulado += p.second / total;
         if (r <= acumulado)
         {
@@ -296,10 +296,11 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
         std::cout << "r: " << r << endl;
     if (debug)
         std::cout << "nodo elegido: " << nodo->id << endl;
-    if (nodo == nullptr){
-        std::cout << "Nodo actual sin salida: " << hormiga.nodo_actual->id<< endl; // usar exepciones o algo try catch
-        std::cout << "nodo nulo" << endl; // usar exepciones o algo try catch
-    }    
+    if (nodo == nullptr)
+    {
+        std::cout << "Nodo actual sin salida: " << hormiga.nodo_actual->id << endl; // usar exepciones o algo try catch
+        std::cout << "nodo nulo" << endl;                                           // usar exepciones o algo try catch
+    }
     return nodo;
 }
 
@@ -360,7 +361,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
 {
     int contador = 0;
     std::cout << "Hormiga: " << hormiga.id << " buscando salida" << endl;
-    while (!enNodoTerminal(hormiga)) 
+    while (!enNodoTerminal(hormiga))
     {
         Nodo *nodo = nullptr;
         std::unordered_map<Arco *, double> probabilidad;
@@ -372,16 +373,45 @@ void ACO::buscarSalida(Hormiga &hormiga)
 
         for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
         {
-            Arco *arco = nullptr;
-            arco = i.first;
-            cantidad = feromonas_salida[arco].cantidad;
-            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
-            probabilidad[arco] = tau_eta;
-            total += tau_eta;
+            if (!hormiga.camino_salida.empty())
+            {
+                // si no esta vacio, se empiezan a comprobar los casos
+                if (i.first->bidireccional == true)
+                { // si es bidireccional, se comprueba que el siguiente arco no sea una vuelta en U o si es la unica opcion, en este ultimo caso, se agrega a las probabilidades de paso
+                    if ((hormiga.camino_salida.back().id != i.first->arco_reciproco->id) || (grafo->informacion_heuristica[hormiga.nodo_actual->id].size() == 1))
+                    {
+                        Arco *arco = nullptr;
+                        arco = i.first;
+                        cantidad = feromonas_salida[arco].cantidad;
+                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
+                        probabilidad[arco] = tau_eta;
+                        total += tau_eta;
+                    }
+                }
+                else
+                { // si no es bidireccional, se agrega a las probabilidades de paso
+                    Arco *arco = nullptr;
+                    arco = i.first;
+                    cantidad = feromonas_salida[arco].cantidad;
+                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
+                    total += tau_eta;
+                    probabilidad[arco] = tau_eta;
+                }
+            }
+            else
+            {
+                // si el camino esta vacio, simplemente se agrega el primero que encuentre sin comprobaciones extra
+                Arco *arco = nullptr;
+                arco = i.first;
+                cantidad = feromonas_salida[arco].cantidad;
+                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
+                probabilidad[arco] = tau_eta;
+                total += tau_eta;
+            }
         }
         for (auto &p : probabilidad)
         {
-            
+
             acumulado += p.second / total;
             if (r <= acumulado)
             {
@@ -481,7 +511,7 @@ bool ACO::enNodoTerminal(Hormiga &hormiga)
     bool termino = false;
     for (auto &nodo_final : grafo->metadatos.nodos_termino)
     {
-        std::cout <<"hormiga en: "<< hormiga.nodo_actual->id <<"nodo final: " << nodo_final.id << endl;
+        std::cout << "hormiga en: " << hormiga.nodo_actual->id << "nodo final: " << nodo_final.id << endl;
         if (hormiga.nodo_actual->id == nodo_final.id)
         {
             termino = true;
@@ -507,8 +537,12 @@ void ACO::mostrar_solucion(bool show_solucion)
     std::cout << "Mejor hormiga: " << mejor_solucion.id << " 🐜🥇" << endl;
     if (timeout_flag_global)
     {
-        std::cout << "Mejor costo: " << "inf" << " ⏩" << endl;
-    } else {
+        std::cout << "Mejor costo: "
+                  << "inf"
+                  << " ⏩" << endl;
+    }
+    else
+    {
         std::cout << "Mejor costo: " << mejor_solucion.costo_camino << " ⏩" << endl;
     }
     std::cout << "Mejor longitud: " << mejor_solucion.longitud_camino_final << " ⚡" << endl;
@@ -548,14 +582,12 @@ void ACO::exportar_solucion(std::chrono::microseconds duration, ACOArgs parametr
     }
     costo_pesos_pasada = suma_recorrer - suma_recoleccion;
 
-
-
     std::string resultados_csv = "resultados_csv.txt";
     ruta_archivo_salida_csv = directorio_salida.string() + "/" + resultados_csv;
     std::ofstream archivo_salida_csv(ruta_archivo_salida_csv);
     archivo_salida_csv << nombre_instancia_salida << ",";
     archivo_salida_csv << nombre_metodo << ",";
-    //archivo_salida_csv << costo_pesos_pasada << ",";
+    // archivo_salida_csv << costo_pesos_pasada << ",";
     archivo_salida_csv << mejor_solucion.costo_camino << ",";
     archivo_salida_csv << mejor_solucion.longitud_camino_final << ",";
     archivo_salida_csv << mejor_solucion.camino_tour.front().origen->id << ",";
@@ -564,12 +596,11 @@ void ACO::exportar_solucion(std::chrono::microseconds duration, ACOArgs parametr
     else
         archivo_salida_csv << mejor_solucion.camino_salida.back().destino->id << ",";
     archivo_salida_csv << duration.count() << ",";
-    archivo_salida_csv << mejor_solucion.longitud_camino_tour << ",";     //
-    archivo_salida_csv << mejor_solucion.saltosSalida << ","; //
+    archivo_salida_csv << mejor_solucion.longitud_camino_tour << ","; //
+    archivo_salida_csv << mejor_solucion.saltosSalida << ",";         //
     archivo_salida_csv << grafo->arcos.size() << ",";
     archivo_salida_csv << suma_recoleccion << ",";
     archivo_salida_csv << suma_recorrer << endl;
-
 
     std::string config_csv = "config_csv.txt";
     ruta_archivo_config_salida_csv = directorio_salida.string() + "/" + config_csv;
@@ -586,19 +617,28 @@ void ACO::exportar_solucion(std::chrono::microseconds duration, ACOArgs parametr
     archivo_config_salida_csv << rho_secundario << ",";
     archivo_config_salida_csv << rho_salida << ",";
     archivo_config_salida_csv << tau << ",";
-    if (usar_iteraciones){
+    if (usar_iteraciones)
+    {
         archivo_config_salida_csv << parametros_base.iteraciones_max << ",";
-        archivo_config_salida_csv << "-1" << ",";
-    } else {
-        archivo_config_salida_csv << "-1" << ",";
+        archivo_config_salida_csv << "-1"
+                                  << ",";
+    }
+    else
+    {
+        archivo_config_salida_csv << "-1"
+                                  << ",";
         archivo_config_salida_csv << parametros_base.evaluaciones_maximas << ",";
     }
     archivo_config_salida_csv << parametros_base.umbral_inferior << ",";
     archivo_config_salida_csv << parametros_base.num_hormigas << ",";
     archivo_config_salida_csv << parametros_base.epocas << ",";
-    if (parametros_base.full_aleatorio){
-        archivo_config_salida_csv << "-1" << ",";
-    } else {
+    if (parametros_base.full_aleatorio)
+    {
+        archivo_config_salida_csv << "-1"
+                                  << ",";
+    }
+    else
+    {
         archivo_config_salida_csv << parametros_base.semilla << ",";
     }
     archivo_config_salida_csv << parametros_base.umbral_superior << ",";
@@ -612,22 +652,22 @@ void ACO::exportar_solucion(std::chrono::microseconds duration, ACOArgs parametr
     archivo_config_salida_csv << parametros_base.silence << ",";
     archivo_config_salida_csv << parametros_base.full_aleatorio << endl;
     archivo_config_salida_csv.close();
-    
-    if (parametros_base.irace || parametros_base.silence ){
-        if (usar_bd){
+
+    if (parametros_base.irace || parametros_base.silence)
+    {
+        if (usar_bd)
+        {
             std::stringstream ss;
             ss << "python POSTDB.py " << ruta_archivo_salida_csv << " " << ruta_archivo_config_salida_csv;
             std::string comando3 = ss.str();
-            std::system(comando3.c_str()); 
+            std::system(comando3.c_str());
         }
     }
-
-
 
     std::string resultados = "resultados.txt";
     std::string ruta_archivo_salida = directorio_salida.string() + "/" + resultados;
     std::ofstream archivo_salida(ruta_archivo_salida);
-    //archivo_salida << "Mejor hormiga: " << mejor_solucion.id << endl;
+    // archivo_salida << "Mejor hormiga: " << mejor_solucion.id << endl;
     archivo_salida << "Mejor longitud: " << mejor_solucion.longitud_camino_final << endl;
     archivo_salida << "Longitud tour: " << mejor_solucion.saltosTour << endl;     //
     archivo_salida << "Longitud salida: " << mejor_solucion.saltosSalida << endl; //
@@ -705,14 +745,17 @@ Hormiga ACO::guardar_mejor_solucion_iteracion()
 
     for (auto &hormiga : hormigas)
     {
-        if (hormiga.solucion_valida){
+        if (hormiga.solucion_valida)
+        {
             if (hormiga.costo_camino < mejor_costo && (hormiga.longitud_camino_tour + hormiga.longitud_camino_salida) < mejor_longitud)
             {
                 mejor_costo = hormiga.costo_camino;
                 mejor_longitud = hormiga.longitud_camino_final;
                 mejor_hormiga = hormiga;
             }
-        } else {
+        }
+        else
+        {
             continue;
         }
     }
@@ -745,7 +788,6 @@ void ACO::limpiar()
         hormiga.costo_camino = 0;
         hormiga.feromonas_locales = feromonas;
         hormiga.nodo_actual = &grafo->metadatos.nodos_iniciales[int((generar_numero_aleatorio(0, grafo->metadatos.nodos_iniciales.size() - 1)))];
-
     }
 }
 void ACO::limpiar_rastro()
@@ -791,30 +833,28 @@ void ACO::set_parametros(const ACOArgs parametros_base)
     float alfa_inc = parametros_base.inc_alfa;
     float alfa_min = parametros_base.min_alfa;
     float alfa_max = parametros_base.max_alfa;
-    oscilador.agregarParametro(alfa,alfa_inc,alfa_min,alfa_max);
+    oscilador.agregarParametro(alfa, alfa_inc, alfa_min, alfa_max);
 
-    
     beta_salida = parametros_base.beta_salida;
-    //oscilador.agregarParametro(beta_salida,0.01,1,5); // el oscilador rompe la matriz de salida, no tocar
-
+    // oscilador.agregarParametro(beta_salida,0.01,1,5); // el oscilador rompe la matriz de salida, no tocar
 
     rho = parametros_base.rho;
     float rho_inc = parametros_base.inc_rho;
     float rho_min = parametros_base.min_rho;
     float rho_max = parametros_base.max_rho;
-    oscilador.agregarParametro(rho,rho_inc,rho_min,rho_max);
+    oscilador.agregarParametro(rho, rho_inc, rho_min, rho_max);
 
     rho_secundario = parametros_base.rho_secundario;
     float rho_secundario_inc = parametros_base.inc_rho_secundario;
     float rho_secundario_min = parametros_base.min_rho_secundario;
     float rho_secundario_max = parametros_base.max_rho_secundario;
-    oscilador.agregarParametro(rho_secundario,rho_secundario_inc,rho_secundario_min,rho_secundario_max); 
+    oscilador.agregarParametro(rho_secundario, rho_secundario_inc, rho_secundario_min, rho_secundario_max);
 
     rho_salida = parametros_base.rho_salida;
-    //oscilador.agregarParametro(rho_salida,0.01,0.1,0.5); // el oscilador rompe la matriz de salida, no tocar
+    // oscilador.agregarParametro(rho_salida,0.01,0.1,0.5); // el oscilador rompe la matriz de salida, no tocar
 
     tau = parametros_base.tau;
-    //oscilador.agregarParametro(tau,0.01,1,5);
+    // oscilador.agregarParametro(tau,0.01,1,5);
     umbral_inferior = parametros_base.umbral_inferior;
     num_hormigas = parametros_base.num_hormigas;
     epocas = parametros_base.epocas;
@@ -822,46 +862,56 @@ void ACO::set_parametros(const ACOArgs parametros_base)
     epoca_actual = 0;
     usar_iteraciones = parametros_base.usar_iteraciones;
     usar_evaluaciones = parametros_base.usar_evaluaciones;
-    if (usar_evaluaciones && usar_iteraciones){
+    if (usar_evaluaciones && usar_iteraciones)
+    {
         std::cout << "No se puede usar ambos criterios de parada" << endl;
         exit(1);
-    } else{
-        if (usar_iteraciones){
-            iteraciones_max = parametros_base.iteraciones_max;        
-        } else if (usar_evaluaciones){
+    }
+    else
+    {
+        if (usar_iteraciones)
+        {
+            iteraciones_max = parametros_base.iteraciones_max;
+        }
+        else if (usar_evaluaciones)
+        {
             evaluaciones_maximas = parametros_base.evaluaciones_maximas;
             iteraciones_max = evaluaciones_maximas / num_hormigas;
-        } else{
-            std::cout << "No se ha especificado un criterio de parada" << endl;
-            //exit(1);
-            //Para debug
-            std::cout << "Usando iteraciones" << endl;
-            iteraciones_max = parametros_base.iteraciones_max;        
-            //
-
         }
-    } 
+        else
+        {
+            std::cout << "No se ha especificado un criterio de parada" << endl;
+            // exit(1);
+            // Para debug
+            std::cout << "Usando iteraciones" << endl;
+            iteraciones_max = parametros_base.iteraciones_max;
+            //
+        }
+    }
     usar_oscilador = parametros_base.oscilador;
     usar_bd = parametros_base.conectar_bd;
     beta = parametros_base.beta;
     bool beta0 = parametros_base.beta_0;
-    if (beta0) {
-        beta = 0;     
-    } else {
+    if (beta0)
+    {
+        beta = 0;
+    }
+    else
+    {
         float beta_inc = parametros_base.inc_beta;
         float beta_min = parametros_base.min_beta;
         float beta_max = parametros_base.max_beta;
-        oscilador.agregarParametro(beta,beta_inc,beta_min,beta_max); 
+        oscilador.agregarParametro(beta, beta_inc, beta_min, beta_max);
     }
     bool usar_limitador = parametros_base.limitador;
-    if (usar_limitador){
-        valor_limitador = parametros_base.valor_limitador;        
-    } else {
+    if (usar_limitador)
+    {
+        valor_limitador = parametros_base.valor_limitador;
+    }
+    else
+    {
         valor_limitador = INT_MAX;
     }
-
-
-    
 }
 
 Hormiga ACO::get_mejor_solucion()
