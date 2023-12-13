@@ -21,7 +21,6 @@ void AntColonySystem::resolver()
 {
     while (iteraciones < iteraciones_max)
     {
-        cout << "Iteracion: " << iteraciones << endl;
         iterar();
         limpiar();
         iteraciones++;
@@ -30,41 +29,44 @@ void AntColonySystem::resolver()
 
 void AntColonySystem::iterar()
 {
+    Nodo *actual = nullptr;
+    Nodo *siguiente = nullptr;
 
     for (auto &hormiga : hormigas)
     {
-        Nodo *actual = nullptr;
         while (!ACO::solucionCompleta(hormiga))
         {
             actual = hormiga.nodo_actual;
-            if (debug)
-                cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
-            Nodo *siguiente = eligeSiguiente(hormiga);
+            siguiente = eligeSiguiente(hormiga);
             visitar(hormiga, siguiente);
+            if (usar_oscilador == 1)
+            {
+                oscilador.oscilar();
+            }
+            else if (usar_oscilador == 2)
+            {
+                oscilador.oscilar_caotico();
+            }
         }
         if (usarMatrizSecundaria)
-        {
             buscarSalida(hormiga);
-        }
         file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
 
         hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_tour.begin(), hormiga.camino_tour.end());
         hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_salida.begin(), hormiga.camino_salida.end());
         hormiga.longitud_camino_final = hormiga.longitud_camino_tour + hormiga.longitud_camino_salida;
-
+        hormiga.saltosSalida = hormiga.longitud_camino_final - hormiga.longitud_camino_tour;
         evaluaciones++;
     }
     mejor_solucion = guardar_mejor_solucion_iteracion();
-    
+
     // Actualiza las feromonas.
     for (auto &par : mejor_solucion.arcos_visitados_tour)
     {
 
         feromonas.at(par.first).cantidad += (((1 - rho) * feromonas.at(par.first).cantidad) + (rho * (par.first->veces_recorrida / mejor_solucion.costo_camino)));
         if (feromonas.at(par.first).cantidad < umbral_inferior)
-        {
             feromonas.at(par.first).cantidad = umbral_inferior;
-        }
     }
     for (auto &arco : grafo->arcos)
         arco.second->veces_recorrida = 0;
@@ -124,13 +126,15 @@ Nodo *AntColonySystem::eligeSiguiente(Hormiga &hormiga)
     if (q < q_0)
     {
         double cantidad_max = 0;
-        // Seleccionar el arco con mas feromonas 
-        for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id]){
+        // Seleccionar el arco con mas feromonas
+        for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
+        {
             cantidad = i.second;
             cantidad2 = feromonas[i.first].cantidad;
-            double calculo = cantidad2 * pow(cantidad,beta);
+            double calculo = cantidad2 * pow(cantidad, beta);
 
-            if (cantidad2 > cantidad_max){
+            if (cantidad2 > cantidad_max)
+            {
                 cantidad_max = cantidad;
                 nodo = i.first->destino;
             }
@@ -150,52 +154,36 @@ Nodo *AntColonySystem::eligeSiguiente(Hormiga &hormiga)
 
                         Arco *arco = nullptr;
                         arco = i.first;
-                        // if (arco->veces_recorrida <= 4)
+                        if (arco->veces_recorrida <= valor_limitador)
                         {
 
                             cantidad = hormiga.feromonas_locales[arco].cantidad;
-                            if (arco->obligatoria == true)
-                            {
-                                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
-                            }
-                            else
-                            {
-                                tau_eta = 1;
-                            }
+                            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                             probabilidad[arco] = tau_eta;
                             total += tau_eta;
-                            if (debug)
-                                cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
                         }
-                        /*else
+                        else
                         {
-                            probabilidad[arco] = 0;
-                        }*/
+                            continue;
+                        }
                     }
                 }
                 else
                 { // si no es bidireccional, se agrega a las probabilidades de paso
                     Arco *arco = nullptr;
                     arco = i.first;
-                    // if (arco->veces_recorrida <= 4)
+                    if (arco->veces_recorrida <= valor_limitador)
                     {
 
                         cantidad = hormiga.feromonas_locales[arco].cantidad;
-                        if (arco->obligatoria == true)
-                        {
-                            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
-                        }
-                        else
-                        {
-                            tau_eta = 1;
-                        }
+                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                         total += tau_eta;
                         probabilidad[arco] = tau_eta;
                     }
-                    /*else
+                    else
                     {
-                        probabilidad[arco] = 0;
-                    }*/
+                        continue;
+                    }
                 }
             }
             else
@@ -204,18 +192,39 @@ Nodo *AntColonySystem::eligeSiguiente(Hormiga &hormiga)
                 Arco *arco = nullptr;
                 arco = i.first;
                 cantidad = hormiga.feromonas_locales[arco].cantidad;
-                if (arco->obligatoria == true)
-                {
-                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
-                }
-                else
-                {
-                    tau_eta = 1;
-                }
+                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                 probabilidad[arco] = tau_eta;
                 total += tau_eta;
-                if (debug)
-                    cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
+            }
+        }
+        if (total == 0)
+        { // si nos quedamos sin pasadas se elige cualquiera segun el metodo normal
+            for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
+            {
+                // si no esta vacio, se empiezan a comprobar los casos
+                if (i.first->bidireccional == true)
+                { // si es bidireccional, se comprueba que el siguiente arco no sea una vuelta en U o si es la unica opcion, en este ultimo caso, se agrega a las probabilidades de paso
+                    if ((hormiga.camino_tour.back().id != i.first->arco_reciproco->id) || (grafo->informacion_heuristica[hormiga.nodo_actual->id].size() == 1))
+                    {
+
+                        Arco *arco = nullptr;
+                        arco = i.first;
+                        cantidad = hormiga.feromonas_locales[arco].cantidad;
+                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                        probabilidad[arco] = tau_eta;
+                        total += tau_eta;
+                    }
+                }
+                else
+                { // si no es bidireccional, se agrega a las probabilidades de paso
+                    Arco *arco = nullptr;
+                    arco = i.first;
+
+                    cantidad = hormiga.feromonas_locales[arco].cantidad;
+                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                    total += tau_eta;
+                    probabilidad[arco] = tau_eta;
+                }
             }
         }
         for (auto &p : probabilidad)
@@ -227,14 +236,11 @@ Nodo *AntColonySystem::eligeSiguiente(Hormiga &hormiga)
                 break;
             }
         }
-        if (debug)
-            cout << "r: " << r << endl;
-        if (debug)
-            cout << "nodo elegido: " << nodo->id << endl;
     }
     if (nodo == nullptr)
     {
-        cout << "No hay nodos disponibles" << endl;
+        std::cout << "Nodo actual sin salida: " << hormiga.nodo_actual->id << endl; // usar exepciones o algo try catch
+        std::cout << "nodo nulo" << endl; 
     }
     return nodo;
 }
@@ -267,8 +273,8 @@ void AntColonySystem::visitar(Hormiga &hormiga, Nodo *nodo)
     hormiga.longitud_camino_tour += 1;
 
     if (arco->veces_recorrida == 1)
-    {/*
-        */
+    { 
+       
         if (hormiga.feromonas_locales[arco].cantidad < umbral_inferior)
         {
             hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
@@ -277,13 +283,11 @@ void AntColonySystem::visitar(Hormiga &hormiga, Nodo *nodo)
         {
             hormiga.feromonas_locales[arco].cantidad *= (1 - rho);
         }
-        //feromonas[arco].cantidad = ((1-csi)*feromonas[arco].cantidad)+ (csi*tau) ;
+        // feromonas[arco].cantidad = ((1-csi)*feromonas[arco].cantidad)+ (csi*tau) ;
         hormiga.costo_camino += arco->costo_recorrido + arco->costo_recoleccion;
     }
     else
     {
-        /*
-        */
         if (hormiga.feromonas_locales[arco].cantidad < umbral_inferior)
         {
             hormiga.feromonas_locales[arco].cantidad = umbral_inferior;
@@ -292,10 +296,9 @@ void AntColonySystem::visitar(Hormiga &hormiga, Nodo *nodo)
         {
             hormiga.feromonas_locales[arco].cantidad *= (1 - rho_secundario);
         }
-        //feromonas[arco].cantidad = ((1-csi)*feromonas[arco].cantidad)+ (csi*tau) ;
+        // feromonas[arco].cantidad = ((1-csi)*feromonas[arco].cantidad)+ (csi*tau) ;
         hormiga.costo_camino += arco->costo_recorrido;
     }
-    
 
     return;
 }

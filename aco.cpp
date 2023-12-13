@@ -111,17 +111,10 @@ void ACO::construirSolucion(Hormiga &hormiga)
 {
     Nodo *actual = nullptr;
     Nodo *siguiente = nullptr;
-    acumulador_tiempo = 0;
 
     while (!solucionCompleta(hormiga))
     {
-        auto start = std::chrono::high_resolution_clock::now();
-        timeout_flag = false;
         actual = hormiga.nodo_actual;
-        if (debug)
-        {
-            std::cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
-        }
         siguiente = eligeSiguiente(hormiga);
         visitar(hormiga, siguiente);
         if (usar_oscilador == 1)
@@ -131,29 +124,9 @@ void ACO::construirSolucion(Hormiga &hormiga)
         else if (usar_oscilador == 2)
         {
             oscilador.oscilar_caotico();
-        }
-        // std::cout << "alfa: " << ACO::alfa << " beta: " << ACO::beta << " rho: " << ACO::rho << " tau: " << ACO::tau << endl;
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-        acumulador_tiempo += duration.count();
-        // std::cout <<"Iteracion: "<< iteraciones << " hormiga: "<< hormiga.id << " nodo: " << hormiga.nodo_actual->id << endl;
-        /*
-        if (acumulador_tiempo > timeout)
-        {
-            std::cout << "Timeout en hormiga " << hormiga.id << endl;
-            timeout_flag = true;
-            timeout_flag_global = true;
-            hormiga.solucion_valida = false;
-            break;
-        }*/
-    }
-    // if (!timeout_flag)
-    {
+        }   
         if (usarMatrizSecundaria)
-        {
             buscarSalida(hormiga);
-        }
-
         file << "Epoca: " << epoca_actual << ", Evaluacion: " << evaluaciones << ", Mejor costo: " << mejor_costo << endl;
 
         hormiga.camino_final.insert(hormiga.camino_final.end(), hormiga.camino_tour.begin(), hormiga.camino_tour.end());
@@ -207,8 +180,6 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                         tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                         probabilidad[arco] = tau_eta;
                         total += tau_eta;
-                        if (debug)
-                            std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
                     }
                     else
                     {
@@ -243,8 +214,6 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
             tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
             probabilidad[arco] = tau_eta;
             total += tau_eta;
-            if (debug)
-                std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
         }
     }
 
@@ -264,8 +233,6 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                     tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                     probabilidad[arco] = tau_eta;
                     total += tau_eta;
-                    if (debug)
-                        std::cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
                 }
             }
             else
