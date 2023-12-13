@@ -259,10 +259,6 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
         }
     }
 
-    if (debug)
-        std::cout << "r: " << r << endl;
-    if (debug)
-        std::cout << "nodo elegido: " << nodo->id << endl;
     if (nodo == nullptr)
     {
         std::cout << "Nodo actual sin salida: " << hormiga.nodo_actual->id << endl; // usar exepciones o algo try catch
