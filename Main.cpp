@@ -54,6 +54,7 @@ int main(int argc, char *argv[])
     if (parametros_base.full_aleatorio){
         inicializar_generador(std::random_device{}());  
     } else {
+        cout<<"Semilla: "<<parametros_base.semilla<<endl;
         inicializar_generador(parametros_base.semilla);  
     }
     grafo = leerInstancia(parametros_base.nombre_instancia, config.leer_restricciones, config.leer_coordenadas, parametros_base.irace);
