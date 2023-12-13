@@ -336,41 +336,12 @@ void ACO::buscarSalida(Hormiga &hormiga)
 
         for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
         {
-            if (!hormiga.camino_salida.empty())
-            {
-                // si no esta vacio, se empiezan a comprobar los casos
-                if (i.first->bidireccional == true)
-                { // si es bidireccional, se comprueba que el siguiente arco no sea una vuelta en U o si es la unica opcion, en este ultimo caso, se agrega a las probabilidades de paso
-                    if ((hormiga.camino_salida.back().id != i.first->arco_reciproco->id) || (grafo->informacion_heuristica[hormiga.nodo_actual->id].size() == 1))
-                    {
-                        Arco *arco = nullptr;
-                        arco = i.first;
-                        cantidad = feromonas_salida[arco].cantidad;
-                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
-                        probabilidad[arco] = tau_eta;
-                        total += tau_eta;
-                    }
-                }
-                else
-                { // si no es bidireccional, se agrega a las probabilidades de paso
-                    Arco *arco = nullptr;
-                    arco = i.first;
-                    cantidad = feromonas_salida[arco].cantidad;
-                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
-                    total += tau_eta;
-                    probabilidad[arco] = tau_eta;
-                }
-            }
-            else
-            {
-                // si el camino esta vacio, simplemente se agrega el primero que encuentre sin comprobaciones extra
-                Arco *arco = nullptr;
-                arco = i.first;
-                cantidad = feromonas_salida[arco].cantidad;
-                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
-                probabilidad[arco] = tau_eta;
-                total += tau_eta;
-            }
+            Arco *arco = nullptr;
+            arco = i.first;
+            cantidad = feromonas_salida[arco].cantidad;
+            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
+            probabilidad[arco] = tau_eta;
+            total += tau_eta;
         }
         for (auto &p : probabilidad)
         {
