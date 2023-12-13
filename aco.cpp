@@ -359,12 +359,13 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
 void ACO::buscarSalida(Hormiga &hormiga)
 {
     int contador = 0;
-    std::unordered_map<Arco *, double> probabilidad;
     while (!enNodoTerminal(hormiga)) 
     {
         Nodo *nodo = nullptr;
+        std::unordered_map<Arco *, double> probabilidad;
         double total = 0.0;
         double r = generar_numero_aleatorio(0, 1.00);
+        std::cout << "r: " << r << endl;
         double acumulado = 0.0;
         double cantidad = 0.0;
         double tau_eta = 0.0;
@@ -395,6 +396,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
                 break;
             }
         }
+        std::cout << "nodo elegido: " << nodo->id << endl;
         Arco *arco = nullptr;
 
         for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
