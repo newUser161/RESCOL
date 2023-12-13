@@ -404,7 +404,6 @@ void ACO::buscarSalida(Hormiga &hormiga)
                 break;
             }
         }
-        cout << "arco: " << arco->origen->id << " " << arco->destino->id << endl;
 
         arco->veces_recorrida += 1;
         hormiga.arcos_visitados_salida[arco] += 1;
@@ -485,6 +484,7 @@ bool ACO::enNodoTerminal(Hormiga &hormiga)
     bool termino = false;
     for (auto &nodo_final : grafo->metadatos.nodos_termino)
     {
+        std::cout <<"hormiga en: "<< hormiga.nodo_actual->id <<"nodo final: " << nodo_final.id << endl;
         if (hormiga.nodo_actual->id == nodo_final.id)
         {
             termino = true;
