@@ -358,6 +358,8 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
 
 void ACO::buscarSalida(Hormiga &hormiga)
 {
+    int contador = 0;
+    std::cout << "Hormiga: " << hormiga.id << " buscando salida" << endl;
     while (!enNodoTerminal(hormiga)) 
     {
         Nodo *nodo = nullptr;
@@ -384,6 +386,8 @@ void ACO::buscarSalida(Hormiga &hormiga)
             if (r <= acumulado)
             {
                 nodo = p.first->destino;
+                contador += 1;
+                std::cout << "contador: " << contador << endl;
                 break;
             }
         }
