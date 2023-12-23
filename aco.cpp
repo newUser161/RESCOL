@@ -375,14 +375,7 @@ void ACO::buscarSalida(Hormiga &hormiga)
             Arco *arco = nullptr;
             arco = i.first;
             cantidad = feromonas_salida[arco].cantidad;
-            if (arco->obligatoria == true)
-            {
-                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
-            }
-            else
-            {
-                tau_eta = 1;
-            }
+            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta_salida);
             probabilidad[arco] = tau_eta;
             total += tau_eta;
         }
@@ -435,7 +428,7 @@ bool ACO::solucionCompleta(Hormiga &hormiga)
     bool completo = false;
     for (auto &par : hormiga.arcos_visitados_tour)
     {
-        if (par.second == 0 && par.first->obligatoria == true)
+        if (par.second == 0)
         {
             if (par.first->bidireccional == true)
             {
@@ -454,10 +447,6 @@ bool ACO::solucionCompleta(Hormiga &hormiga)
                 completo = false;
                 break;
             }
-        }
-        else if (par.first->obligatoria == false)
-        {
-            continue;
         }
         else
         {

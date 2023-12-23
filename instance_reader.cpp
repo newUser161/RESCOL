@@ -105,7 +105,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             arco->id = IdArco;
             arco->costo_recorrido = costo_recorrido;
             arco->costo_recoleccion = costo_recoleccion;
-            arco->obligatoria = true;
             arco->origen = &g.nodos[origen];
             arco->destino = &g.nodos[destino];
             arco->bidireccional = false;
@@ -118,7 +117,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             // nodos fantasma nodo origen
             Subnodo *subnodo_saliente_origen = new Subnodo;
 
-            subnodo_saliente_origen->id = id_subnodo;
             id_subnodo++;
 
             subnodo_saliente_origen->tipo = 2; // 2: saliente
@@ -128,7 +126,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             // nodos fantasma nodo destino
             Subnodo *subnodo_entrante_destino = new Subnodo;
 
-            subnodo_entrante_destino->id = id_subnodo;
             id_subnodo++;
 
             subnodo_entrante_destino->tipo = 1; // 1: entrante
@@ -164,9 +161,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
                 arcoVuelta->costo_recorrido = costo_recorrido;
                 arcoVuelta->costo_recoleccion = costo_recoleccion;
 
-                arcoIda->obligatoria = true;
-                arcoVuelta->obligatoria = true;
-
                 arcoIda->origen = &g.nodos[origen];
                 arcoIda->destino = &g.nodos[destino];
 
@@ -190,10 +184,8 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
                 Subnodo *subnodo_entrante_origen = new Subnodo;
                 Subnodo *subnodo_saliente_origen = new Subnodo;
 
-                subnodo_entrante_origen->id = id_subnodo;
                 subnodo_entrante_origen->id_secundario = id_secundario;
                 id_subnodo++;
-                subnodo_saliente_origen->id = id_subnodo;
                 subnodo_saliente_origen->id_secundario = id_secundario;
                 id_subnodo++;
                 id_secundario++;
@@ -211,10 +203,8 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
                 Subnodo *subnodo_entrante_destino = new Subnodo;
                 Subnodo *subnodo_saliente_destino = new Subnodo;
 
-                subnodo_entrante_destino->id = id_subnodo;
                 subnodo_entrante_destino->id_secundario = id_secundario;
                 id_subnodo++;
-                subnodo_saliente_destino->id = id_subnodo;
                 subnodo_saliente_destino->id_secundario = id_secundario;
                 id_subnodo++;
                 id_secundario++;
@@ -247,48 +237,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     // Leer aristas opcionales
     if (encabezado["ARISTAS_NOREQ"] != "0")
     {
-        for (int i = 0; i < std::stoi(encabezado["ARISTAS_NOREQ"]); i++)
-        {
-            std::getline(infile, lineaDato);
-            std::istringstream arcStream(lineaDato);
-            int origen, destino;
-            if (!(arcStream >> origen >> destino))
-            {
-                // Error de formato
-                std::cerr << "Error en el formato del archivo" << std::endl;
-                return Graph();
-            }
-            // Crear los nodos si no existen
-            if (g.nodos.count(origen) == 0)
-            {
-                Nodo nodo_origen;
-                nodo_origen.id = origen;
-                g.nodos[origen] = nodo_origen;
-            }
-            if (g.nodos.count(destino) == 0)
-            {
-                Nodo nodo_destino;
-                nodo_destino.id = destino;
-                g.nodos[destino] = nodo_destino;
-            }
-
-            // Crear el arco opcional
-            Arco *arco = new Arco;
-            arco->id = IdArco;
-            arco->obligatoria = false;
-            arco->origen = &g.nodos[origen];
-            arco->destino = &g.nodos[destino];
-            g.arcos[IdArco] = arco;
-
-            // Conectar el arco a sus nodos
-            g.nodos[origen].saliente.push_back(*arco);
-            g.nodos[destino].entrante.push_back(*arco);
-
-            // Actualizar la información heurística
-            g.informacion_heuristica[origen][arco] = 0;
-
-            IdArco++;
-        }
+        // innecesario
     }
 
     // Saltarse header Coordenadas
@@ -419,12 +368,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
                     {
                         Arco *arco = new Arco;
                         arco->id = IdArco;
-                        arco->obligatoria = false;
                         IdArco++;
-
-                        //arco->origen = &g.nodos[par.second.id];
-                        arco->origen_interno = &par2;                        
-                        arco->destino_interno = &par3;
 
                         par2.saliente.push_back(*arco);
                         par3.entrante.push_back(*arco);

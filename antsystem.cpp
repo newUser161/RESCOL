@@ -63,11 +63,8 @@ void AntSystem::iterar()
             {
                 Arco *a = par.first;
                 int pasadas = par.second;
-                if (a->obligatoria)
-                {
-                    if (pasadas != 0)
-                        feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_final, 2) * pasadas));
-                }
+                if (pasadas != 0)
+                    feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_final, 2) * pasadas));
             }
             if (usarMatrizSecundaria)
             {

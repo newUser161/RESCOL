@@ -78,12 +78,10 @@ void MinMax::iterar()
     {
         Arco *a = par.first;
         int pasadas = par.second;
-        if (a->obligatoria){
-            if (pasadas != 0)
-                feromonas.at(a).cantidad += (tau / (rho * mejor_solucion.longitud_camino_final * pasadas));
-            if (feromonas.at(a).cantidad > umbral_superior)
-                feromonas.at(a).cantidad = umbral_superior;
-        }
+        if (pasadas != 0)
+            feromonas.at(a).cantidad += (tau / (rho * mejor_solucion.longitud_camino_final * pasadas));
+        if (feromonas.at(a).cantidad > umbral_superior)
+            feromonas.at(a).cantidad = umbral_superior;
     }
     if (usarMatrizSecundaria)
     {   

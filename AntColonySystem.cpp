@@ -172,23 +172,12 @@ Nodo *AntColonySystem::eligeSiguiente(Hormiga &hormiga)
                         {
 
                             cantidad = hormiga.feromonas_locales[arco].cantidad;
-                            if (arco->obligatoria == true)
-                            {
-                                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
-                            }
-                            else
-                            {
-                                tau_eta = 1;
-                            }
+                            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                             probabilidad[arco] = tau_eta;
                             total += tau_eta;
                             if (debug)
                                 cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
                         }
-                        /*else
-                        {
-                            probabilidad[arco] = 0;
-                        }*/
                     }
                 }
                 else
@@ -199,21 +188,10 @@ Nodo *AntColonySystem::eligeSiguiente(Hormiga &hormiga)
                     {
 
                         cantidad = hormiga.feromonas_locales[arco].cantidad;
-                        if (arco->obligatoria == true)
-                        {
-                            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
-                        }
-                        else
-                        {
-                            tau_eta = 1;
-                        }
+                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                         total += tau_eta;
                         probabilidad[arco] = tau_eta;
                     }
-                    /*else
-                    {
-                        probabilidad[arco] = 0;
-                    }*/
                 }
             }
             else
@@ -222,14 +200,7 @@ Nodo *AntColonySystem::eligeSiguiente(Hormiga &hormiga)
                 Arco *arco = nullptr;
                 arco = i.first;
                 cantidad = hormiga.feromonas_locales[arco].cantidad;
-                if (arco->obligatoria == true)
-                {
-                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
-                }
-                else
-                {
-                    tau_eta = 1;
-                }
+                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                 probabilidad[arco] = tau_eta;
                 total += tau_eta;
                 if (debug)
