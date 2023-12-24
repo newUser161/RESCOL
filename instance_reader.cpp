@@ -17,6 +17,8 @@ using namespace std;
 /* Parámetros:
     - nombre_archivo: Nombre del archivo que contiene la instancia
     - leer_restricciones: Indica si se leerán las restricciones del archivo
+    - leer_coordenadas: Indica si se leerán las coordenadas del archivo
+    - irace: Indica si se está ejecutando el programa desde irace
 */
 Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, bool leer_coordenadas, bool irace)
 {
@@ -27,7 +29,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     std::string ruta_archivo;
     std::set<std::pair<int, int>> arcosCreados;
     int IdArco = 0;
-    int id_subnodo = 1;
     int id_secundario = 1;
 
     // Intentar abrir el archivo
@@ -45,7 +46,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     }
 
     // Leer la información general del archivo
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 8; i++)
     {
         std::string linea;
         std::getline(infile, linea);
@@ -53,16 +54,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
         std::string clave = eliminarEspacios(linea.substr(0, pos));
         std::string valor = eliminarEspacios(linea.substr(pos + 1));
         encabezado[clave] = valor;
-    }
-    for (int i = 0; i < 6; i++)
-    {
-        std::string linea;
-        std::getline(infile, linea);
-        size_t pos = linea.find(':');
-        std::string clave = eliminarEspacios(linea.substr(0, pos));
-        std::string valor = eliminarEspacios(linea.substr(pos + 1));
-        encabezado[clave] = valor;
-    }
+    }    
     g.metadatos.encabezado = encabezado;
 
     // Saltarse header aristas obligatorias
@@ -71,7 +63,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     // Leer aristas obligatorias
     for (int i = 0; i < std::stoi(encabezado["ARISTAS_REQ"]); i++)
     {
-        id_subnodo = 1;
         id_secundario = 1;
         std::getline(infile, lineaDato);
         std::istringstream arcStream(lineaDato);
@@ -117,8 +108,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             // nodos fantasma nodo origen
             Subnodo *subnodo_saliente_origen = new Subnodo;
 
-            id_subnodo++;
-
             subnodo_saliente_origen->tipo = 2; // 2: saliente
 
             g.nodos[origen].subnodos.push_back(*subnodo_saliente_origen);
@@ -126,7 +115,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
             // nodos fantasma nodo destino
             Subnodo *subnodo_entrante_destino = new Subnodo;
 
-            id_subnodo++;
 
             subnodo_entrante_destino->tipo = 1; // 1: entrante
 
@@ -185,9 +173,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
                 Subnodo *subnodo_saliente_origen = new Subnodo;
 
                 subnodo_entrante_origen->id_secundario = id_secundario;
-                id_subnodo++;
                 subnodo_saliente_origen->id_secundario = id_secundario;
-                id_subnodo++;
                 id_secundario++;
 
                 subnodo_entrante_origen->tipo = 1; // 1: entrante
@@ -204,9 +190,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
                 Subnodo *subnodo_saliente_destino = new Subnodo;
 
                 subnodo_entrante_destino->id_secundario = id_secundario;
-                id_subnodo++;
                 subnodo_saliente_destino->id_secundario = id_secundario;
-                id_subnodo++;
                 id_secundario++;
 
                 subnodo_entrante_destino->tipo = 1; // 1: entrante
@@ -347,12 +331,6 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
 
     // Cerrar el archivo
     infile.close();
-
-    // Crear vector de arcos
-    for (const auto &par : g.arcos)
-    {
-        g.vector_arcos.push_back(par.second);
-    }
 
     // Crear subnodos por cada nodo
 
