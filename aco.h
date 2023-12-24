@@ -36,7 +36,7 @@ struct Hormiga
     bool solucion_valida = true;                              // Costo del camino, costo asociado a la recolección y recorrido
     int id = 0;                                             // Identificador de la hormiga
     std::unordered_map<Arco *, Feromona> feromonas_locales; // Feromonas locales de la hormiga
-
+    std::unordered_map<Arco*, int> arcos_no_visitados;        // Aristas no visitadas
 };
 
 class ACO

@@ -73,6 +73,8 @@ ACO::ACO(Graph *instancia, ACOArgs parametros_base)
             hormiga.arcos_visitados_salida[par.second] = 0;
         }
 
+        hormiga.arcos_no_visitados = hormiga.arcos_visitados_tour;
+
         // Añade la hormiga a la lista de hormigas
         hormigas.push_back(hormiga);
     }
@@ -326,6 +328,12 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
     arco->veces_recorrida += 1;
     hormiga.arcos_visitados_tour[arco] += 1;
     hormiga.camino_tour.push_back(*arco);
+
+    hormiga.arcos_no_visitados.erase(arco);
+    if (arco->bidireccional) {
+        hormiga.arcos_no_visitados.erase(arco->arco_reciproco);
+    }
+
     hormiga.nodo_actual = nodo;
     hormiga.longitud_camino_tour += 1;
 
@@ -424,7 +432,9 @@ void ACO::buscarSalida(Hormiga &hormiga)
 */
 bool ACO::solucionCompleta(Hormiga &hormiga)
 {
+    
     // Los arcos se han visitado al menos una vez
+    /*
     bool completo = false;
     for (auto &par : hormiga.arcos_visitados_tour)
     {
@@ -453,6 +463,8 @@ bool ACO::solucionCompleta(Hormiga &hormiga)
             completo = true;
         }
     }
+    */
+    bool completo = hormiga.arcos_no_visitados.empty();
     if (!usarMatrizSecundaria)
     {
         bool terminado = enNodoTerminal(hormiga);
@@ -733,6 +745,7 @@ void ACO::limpiar()
             hormiga.arcos_visitados_tour[par.second] = 0;
             hormiga.arcos_visitados_salida[par.second] = 0;
         }
+        hormiga.arcos_no_visitados = hormiga.arcos_visitados_tour;
         hormiga.longitud_camino_tour = 0;
         hormiga.longitud_camino_salida = 0;
         hormiga.longitud_camino_final = 0;
