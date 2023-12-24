@@ -88,13 +88,6 @@ int main(int argc, char *argv[])
             cout << nodo.id << " ";
         }
         cout << endl;
-        cout << "Arcos:" << endl;
-        cout << "nodo_origen nodo_destino costo_recorrido costo_recoleccion obligatorio(1|0) bidireccional(1|0)" << endl;
-        for (auto &arco : grafo.vector_arcos)
-        {
-            cout << arco->origen->id << " " << arco->destino->id << " " << arco->costo_recorrido << " " << arco->costo_recoleccion << " " << arco->bidireccional << endl;
-        }
-        cout << endl;
         for (int i = 0; i < 161; i++)
             cout << "-";
         cout << endl;
