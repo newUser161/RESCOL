@@ -93,7 +93,7 @@ void ACO::iterar()
     for (auto &hormiga : hormigas)
     {
         construirSolucion(hormiga);
-        limpiar_rastro();
+        limpiar_rastro();        
         
         /*
         if (timeout_flag){
@@ -120,9 +120,10 @@ void ACO::construirSolucion(Hormiga &hormiga)
         auto start = std::chrono::high_resolution_clock::now();
         timeout_flag = false;
         actual = hormiga.nodo_actual;
+        
         if (debug)
         {
-            cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
+        cout << "Hormiga numero " << hormiga.id << " en el nodo " << actual->id << endl;
         }
         siguiente = eligeSiguiente(hormiga);
         visitar(hormiga, siguiente);
@@ -202,9 +203,15 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                     arco = i.first;
                     if (arco->veces_recorrida <= valor_limitador)
                     {
+                    
 
                         cantidad = hormiga.feromonas_locales[arco].cantidad;
-                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                        if (arco->obligatoria == true){
+                            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                        }
+                        else {
+                            tau_eta = 1;
+                        }
                         probabilidad[arco] = tau_eta;
                         total += tau_eta;
                         if (debug)
@@ -225,7 +232,12 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                 {
 
                     cantidad = hormiga.feromonas_locales[arco].cantidad;
-                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                    if (arco->obligatoria == true){
+                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                    }
+                    else {
+                        tau_eta = 1;
+                    }
                     total += tau_eta;
                     probabilidad[arco] = tau_eta;
                 } else {
@@ -239,7 +251,12 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
             Arco *arco = nullptr;
             arco = i.first;
             cantidad = hormiga.feromonas_locales[arco].cantidad;
-            tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+            if (arco->obligatoria == true){
+                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+            }
+            else {
+                tau_eta = 1;
+            }
             probabilidad[arco] = tau_eta;
             total += tau_eta;
             if (debug)
@@ -258,7 +275,12 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                     Arco *arco = nullptr;
                     arco = i.first;
                     cantidad = hormiga.feromonas_locales[arco].cantidad;
-                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                    if (arco->obligatoria == true){
+                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                    } 
+                    else {
+                        tau_eta = 1;
+                    }
                     probabilidad[arco] = tau_eta;
                     total += tau_eta;
                     if (debug)
@@ -273,6 +295,12 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
                 arco = i.first;
 
                 cantidad = hormiga.feromonas_locales[arco].cantidad;
+                if (arco->obligatoria == true){
+                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                }
+                else {
+                    tau_eta = 1;
+                }
                 tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
                 total += tau_eta;
                 probabilidad[arco] = tau_eta;
@@ -293,6 +321,8 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
             break;
         }
     }
+
+    //cout << "Arcos faltantes: " << hormiga.arcos_no_visitados.size() << endl;
 
     if (debug)
         cout << "r: " << r << endl;
@@ -329,10 +359,21 @@ void ACO::visitar(Hormiga &hormiga, Nodo *nodo)
     hormiga.arcos_visitados_tour[arco] += 1;
     hormiga.camino_tour.push_back(*arco);
 
+    //cout << "El arco visitado es " << arco->origen->id << "-" << arco->destino->id<< " id: " << arco->id << endl;
     hormiga.arcos_no_visitados.erase(arco);
     if (arco->bidireccional) {
         hormiga.arcos_no_visitados.erase(arco->arco_reciproco);
     }
+    //cout << "Arcos faltantes: " << hormiga.arcos_no_visitados.size() << endl;
+/*
+    cout << "Los arcos que faltan son:" << endl;
+    
+    for (auto &par : hormiga.arcos_no_visitados)
+    {
+        cout << par.first->origen->id << " " << par.first->destino->id << endl;
+    }
+    cout << endl;
+    */
 
     hormiga.nodo_actual = nodo;
     hormiga.longitud_camino_tour += 1;
@@ -621,7 +662,8 @@ void ACO::exportar_solucion(std::chrono::microseconds duration, ACOArgs parametr
     archivo_config_salida_csv << parametros_base.full_aleatorio << endl;
     archivo_config_salida_csv.close();
     
-    if (parametros_base.irace || parametros_base.silence ){
+    //if (parametros_base.irace || parametros_base.silence )
+    {
         if (usar_bd){
             std::stringstream ss;
             ss << "python POSTDB.py " << ruta_archivo_salida_csv << " " << ruta_archivo_config_salida_csv;

@@ -28,6 +28,7 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     std::string lineaDato;
     std::string ruta_archivo;
     std::set<std::pair<int, int>> arcosCreados;
+    std::set<std::pair<int, int>> arcosCreadosOpcionales;
     int IdArco = 0;
     int id_secundario = 1;
 
@@ -221,7 +222,133 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     // Leer aristas opcionales
     if (encabezado["ARISTAS_NOREQ"] != "0")
     {
-        // innecesario
+        for (int i = 0; i < std::stoi(encabezado["ARISTAS_NOREQ"]); i++)
+        {
+            std::getline(infile, lineaDato);
+            std::istringstream arcStream(lineaDato);
+            std::string bi_or_uni;
+            int origen, destino;
+            if (!(arcStream >> bi_or_uni >>origen >> destino))
+            {
+                // Error de formato
+                std::cerr << "Error en el formato del archivo" << std::endl;
+                return Graph();
+            }
+            // Crear los nodos si no existen
+            if (g.nodos.count(origen) == 0)
+            {
+                Nodo nodo_origen;
+                nodo_origen.id = origen;
+                g.nodos[origen] = nodo_origen;
+            }
+            if (g.nodos.count(destino) == 0)
+            {
+                Nodo nodo_destino;
+                nodo_destino.id = destino;
+                g.nodos[destino] = nodo_destino;
+            }
+
+            // Crear el arco opcional
+            if (bi_or_uni == "uni" )
+            {
+                Arco *arco = new Arco;
+                arco->id = IdArco;
+                arco->obligatoria = false;
+                arco->bidireccional = false;
+                arco->origen = &g.nodos[origen];
+                arco->destino = &g.nodos[destino];
+                g.arcos[IdArco] = arco;
+
+                // Conectar el arco a sus nodos
+                g.nodos[origen].saliente.push_back(*arco);
+                g.nodos[destino].entrante.push_back(*arco);
+
+                // Actualizar la información heurística
+                g.informacion_heuristica[origen][arco] = 0;
+
+                IdArco++;
+            }
+            else
+            {
+                if (arcosCreadosOpcionales.find(std::make_pair(origen, destino)) == arcosCreadosOpcionales.end() &&
+                    arcosCreadosOpcionales.find(std::make_pair(destino, origen)) == arcosCreadosOpcionales.end())
+                {
+                    Arco *arcoIda = new Arco;
+                    Arco *arcoVuelta = new Arco;
+
+                    arcoIda->id = IdArco;
+                    g.arcos[IdArco] = arcoIda;
+                    IdArco++;
+
+                    arcoVuelta->id = IdArco;
+                    g.arcos[IdArco] = arcoVuelta;
+                    IdArco++;
+
+                    arcoIda->origen = &g.nodos[origen];
+                    arcoIda->destino = &g.nodos[destino];
+
+                    arcoVuelta->origen = &g.nodos[destino];
+                    arcoVuelta->destino = &g.nodos[origen];
+
+                    arcoIda->obligatoria = false;
+                    arcoVuelta->obligatoria = false;
+
+                    arcoIda->bidireccional = true;
+                    arcoVuelta->bidireccional = true;
+
+                    arcoIda->arco_reciproco = arcoVuelta;
+                    arcoVuelta->arco_reciproco = arcoIda;
+
+                    // Conectar el arco a sus nodos
+                    g.nodos[origen].saliente.push_back(*arcoIda);
+                    g.nodos[destino].entrante.push_back(*arcoIda);
+
+                    g.nodos[origen].entrante.push_back(*arcoVuelta);
+                    g.nodos[destino].saliente.push_back(*arcoVuelta);
+
+                    // nodos fantasma nodo origen
+                    Subnodo *subnodo_entrante_origen = new Subnodo;
+                    Subnodo *subnodo_saliente_origen = new Subnodo;
+
+                    subnodo_entrante_origen->id_secundario = id_secundario;
+                    subnodo_saliente_origen->id_secundario = id_secundario;
+                    id_secundario++;
+
+                    subnodo_entrante_origen->tipo = 1; // 1: entrante
+                    subnodo_saliente_origen->tipo = 2; // 2: saliente
+
+                    subnodo_entrante_origen->nodo_reciproco = subnodo_saliente_origen;
+                    subnodo_saliente_origen->nodo_reciproco = subnodo_entrante_origen;
+
+                    g.nodos[origen].subnodos.push_back(*subnodo_entrante_origen);
+                    g.nodos[origen].subnodos.push_back(*subnodo_saliente_origen);
+
+                    // nodos fantasma nodo destino
+                    Subnodo *subnodo_entrante_destino = new Subnodo;
+                    Subnodo *subnodo_saliente_destino = new Subnodo;
+
+                    subnodo_entrante_destino->id_secundario = id_secundario;
+                    subnodo_saliente_destino->id_secundario = id_secundario;
+                    id_secundario++;
+
+                    subnodo_entrante_destino->tipo = 1; // 1: entrante
+                    subnodo_saliente_destino->tipo = 2; // 2: saliente
+
+                    subnodo_entrante_destino->nodo_reciproco = subnodo_saliente_destino;
+                    subnodo_saliente_destino->nodo_reciproco = subnodo_entrante_destino;
+
+                    g.nodos[destino].subnodos.push_back(*subnodo_entrante_destino);
+                    g.nodos[destino].subnodos.push_back(*subnodo_saliente_destino);
+
+                    // Actualizar la información heurística
+                    g.informacion_heuristica[origen][arcoIda] = 0;
+                    g.informacion_heuristica[origen][arcoVuelta] = 0;
+
+                    arcosCreadosOpcionales.insert(std::make_pair(origen, destino));
+                    arcosCreadosOpcionales.insert(std::make_pair(destino, origen));
+                }
+            }
+        }
     }
 
     // Saltarse header Coordenadas
@@ -248,8 +375,11 @@ Graph leerInstancia(const std::string &nombre_archivo, bool leer_restricciones, 
     }
     else
     {
+        /*
+        Se elimina en siguientes versiones
         for (int i = 0; i < std::stoi(encabezado["VERTICES"]); i++)
             std::getline(infile, lineaDato);
+        */          
     }
 
     // Saltarse header Restricciones

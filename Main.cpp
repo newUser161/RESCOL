@@ -22,7 +22,15 @@
 #include "helpers.h"
 #include "enums.h"
 #include "test.h"
-//#include "DatabaseManager.h"
+
+
+#include "rapidjson/reader.h"
+#include "rapidjson/filereadstream.h"
+#include <cstdio>
+#include <iostream>
+#include <string>
+#include "handlerJSON.cpp"
+using namespace rapidjson;
 
 using namespace std;
 
@@ -47,6 +55,26 @@ using namespace std;
 */
 int main(int argc, char *argv[])
 {
+
+
+FILE* fp = fopen("rutas_mas_cortas_chiquito.json", "rb"); 
+  
+    // Check if the file was opened successfully 
+    if (!fp) { 
+        std::cerr << "Error: unable to open file"
+                  << std::endl; 
+        return 1; 
+    }     char readBuffer[65536];
+    FileReadStream is(fp, readBuffer, sizeof(readBuffer));
+
+    MyHandler handler;
+    Reader reader;  
+    reader.Parse(is, handler);
+
+    fclose(fp);
+
+
+
     ConfigPrograma config;
     Graph grafo = Graph();
     ACO *aco;

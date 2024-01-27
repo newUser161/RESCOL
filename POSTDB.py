@@ -34,7 +34,7 @@ def insertar_datos(archivo, conn, id_config):
         for line in file:
             datos = line.strip().split(',')
             datos_experimento = [id_config] + datos  
-            query = '''INSERT INTO experimentos_ACO (configuracion_id, nombre_instancia, metodo, costo_ruta, 
+            query = '''INSERT INTO experimentos_ACO_final (configuracion_id, nombre_instancia, metodo, costo_ruta, 
                         longitud_ruta, nodo_inicio, nodo_termino, tiempo_res_us,longitud_tour,longitud_salida,cantidad_arcos,costo_recoleccion,costo_recorrer) 
                        VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
             cursor.execute(query, datos_experimento)
@@ -49,7 +49,7 @@ def insertar_config(archivo, conn):
             datos = line.strip().split(',')
 
             query_comprobar = '''SELECT * 
-                                 FROM configuraciones_ACO 
+                                 FROM configuraciones_ACO_final 
                                  WHERE usa_matriz_salida = %s AND usa_oscilador = %s AND limite_pasada = %s AND valor_limite_pasada = %s AND
                                  beta_cero = %s AND alfa = %s AND beta = %s AND beta_salida = %s AND rho = %s AND rho_secundario = %s AND 
                                  rho_salida = %s AND tau = %s AND iteraciones_max = %s AND evaluaciones_max = %s AND
@@ -61,7 +61,7 @@ def insertar_config(archivo, conn):
             if resultado:
                 id_config = resultado[0]
             else :                
-                query_insertar = '''INSERT INTO configuraciones_ACO (
+                query_insertar = '''INSERT INTO configuraciones_ACO_final (
                     usa_matriz_salida, usa_oscilador, limite_pasada, valor_limite_pasada, 
                     beta_cero, alfa, beta, beta_salida, rho, rho_secundario, 
                     rho_salida, tau, iteraciones_max, evaluaciones_max, 
