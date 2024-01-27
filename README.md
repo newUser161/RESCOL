@@ -1,3 +1,11 @@
+Instrucciones de uso: (en actualización)
+
+1.- Copiar repositorio
+2.- Compilar el programa
+3.- Llamar el programa ingresando el nombre de la instancia a resolver y los parametros. Ej. ./main Formato5x5.txt --metodo 0 --eval-max 3000 --num-hormigas 20 --epocas 1 --matriz-secundaria --beta0 --usar-evaluaciones --usar-limitador --valor-limitador 2 --silence --random-seed --crear-directorios-solucion
+
+  
+
 Formato instancia RESCOL
 
 El objetivo de este documento es mostrar la composición de una instancia válida para el algoritmo Ant Colony Optimization. Al final del documento se adjunta una de las instancias que fue utilizada a modo de prueba.
