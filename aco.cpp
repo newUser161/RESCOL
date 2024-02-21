@@ -189,6 +189,7 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
 
     Nodo *nodo = nullptr;
     std::unordered_map<Arco *, double> probabilidad;
+
     for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id])
     {
         if (!hormiga.camino_tour.empty())
@@ -196,7 +197,14 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
             // si no esta vacio, se empiezan a comprobar los casos
             if (i.first->bidireccional == true)
             { // si es bidireccional, se comprueba que el siguiente arco no sea una vuelta en U o si es la unica opcion, en este ultimo caso, se agrega a las probabilidades de paso
-                if ((hormiga.camino_tour.back().id != i.first->arco_reciproco->id) || (grafo->informacion_heuristica[hormiga.nodo_actual->id].size() == 1))
+            /*
+            std::cout << "nodo actual: " << hormiga.nodo_actual->id << endl;
+            if (hormiga.nodo_actual->id == 26)
+            {
+                std::cout << "ping" << endl;
+            }*/
+                // si el destino del reciproco no es el nodo actual, lo considero   
+                if (hormiga.camino_tour.back().id != i.first->arco_reciproco->id && i.first->destino->id != hormiga.nodo_actual->id)
                 {
 
                     Arco *arco = nullptr;
@@ -269,7 +277,51 @@ Nodo *ACO::eligeSiguiente(Hormiga &hormiga)
             // si no esta vacio, se empiezan a comprobar los casos
             if (i.first->bidireccional == true)
             { // si es bidireccional, se comprueba que el siguiente arco no sea una vuelta en U o si es la unica opcion, en este ultimo caso, se agrega a las probabilidades de paso
-                if ((hormiga.camino_tour.back().id != i.first->arco_reciproco->id) || (grafo->informacion_heuristica[hormiga.nodo_actual->id].size() == 1))
+                if (hormiga.camino_tour.back().id != i.first->arco_reciproco->id && i.first->destino->id != hormiga.nodo_actual->id)
+                {
+
+                    Arco *arco = nullptr;
+                    arco = i.first;
+                    cantidad = hormiga.feromonas_locales[arco].cantidad;
+                    if (arco->obligatoria == true){
+                        tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                    } 
+                    else {
+                        tau_eta = 1;
+                    }
+                    probabilidad[arco] = tau_eta;
+                    total += tau_eta;
+                    if (debug)
+                        cout << "arco:" << arco->origen->id << " " << arco->destino->id << " tau_eta: " << tau_eta << endl;
+
+                    
+                }
+            }
+            else
+            { // si no es bidireccional, se agrega a las probabilidades de paso
+                Arco *arco = nullptr;
+                arco = i.first;
+
+                cantidad = hormiga.feromonas_locales[arco].cantidad;
+                if (arco->obligatoria == true){
+                    tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                }
+                else {
+                    tau_eta = 1;
+                }
+                tau_eta = pow(cantidad, alfa) * pow(grafo->informacion_heuristica[hormiga.nodo_actual->id][i.first], beta);
+                total += tau_eta;
+                probabilidad[arco] = tau_eta;
+                
+            }
+        }
+    }
+    if (total == 0){ // si nos quedamos sin pasadas se elige cualquiera segun el metodo normal
+        for (auto i : grafo->informacion_heuristica[hormiga.nodo_actual->id]){
+            // si no esta vacio, se empiezan a comprobar los casos
+            if (i.first->bidireccional == true)
+            { // si es bidireccional, se comprueba que el siguiente arco no sea una vuelta en U o si es la unica opcion, en este ultimo caso, se agrega a las probabilidades de paso
+                
                 {
 
                     Arco *arco = nullptr;
