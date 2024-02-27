@@ -1,6 +1,6 @@
-aco.exe
-instance_reader.exe
-Viewer.exe
-aco.exe
 config.ini
-.vscode/tasks.json
+/Output
+/rapidjson
+/Temp
+llamada.txt
+analisis.py
