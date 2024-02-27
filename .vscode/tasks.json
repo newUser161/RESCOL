@@ -3,14 +3,15 @@
         {
             "type": "cppbuild",
             "label": "C/C++: g++.exe compilar archivo activo",
-            "command": "C:\\msys64\\mingw64\\bin\\g++.exe",
+            "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
                 "${fileDirname}/*.cpp",
                 "-g",                
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe",                
-                "-I${fileDirname}/argparse/"  
+                "${fileDirname}\\RESCOL.exe",                
+                "-I${fileDirname}/argparse/",
+                "-I${fileDirname}/rapidjson/"  
             ],
             "options": {
                 "cwd": "${fileDirname}"

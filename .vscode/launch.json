@@ -1,18 +1,40 @@
 {
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "C/C++: g++.exe Compilar y depurar el archivo activo",
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
-            "args": [],
+            "args": [
+                //"CasoRealRenca2-revisado.txt",
+                "Formato5x5_opcional.txt",
+                //"Formato5x5.txt",
+                //"CasoRealChiquito.txt",
+                "--metodo",
+                "0",
+                "--eval-max",
+                "3000",
+                "--num-hormigas",
+                "20",
+                "--epocas",
+                "1",
+                "--matriz-secundaria",
+                "--beta0",
+                "--usar-evaluaciones",
+                "--usar-limitador",
+                "--valor-limitador",
+                "2",
+                "--silence",
+                "--crear-directorios-solucion",
+            ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "C:\\msys64\\mingw64\\bin\\gdb.exe",
+            "miDebuggerPath": "C:\\msys64\\ucrt64\\bin\\gdb.exe",
             "setupCommands": [
                 {
                     "description": "Habilitar la impresión con sangría para gdb",
