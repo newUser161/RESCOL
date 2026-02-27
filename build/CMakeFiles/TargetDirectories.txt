@@ -1,0 +1,3 @@
+/home/enki/Documents/RESCOL/build/CMakeFiles/RESCOL.dir
+/home/enki/Documents/RESCOL/build/CMakeFiles/edit_cache.dir
+/home/enki/Documents/RESCOL/build/CMakeFiles/rebuild_cache.dir
