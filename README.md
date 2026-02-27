@@ -2,16 +2,32 @@ Los datos obtenidos en este proyecto se pueden encontrar en el siguiente link [V
 
 
 
-Instrucciones de uso: (en actualización)
+Instrucciones de uso:
 
+1.- Clonar este repositorio.
 
-1.- Copiar repositorio
+2.- Asegurarse de tener las dependencias necesarias (headers de C++). El proyecto utiliza `argparse` de morrisfranken y `rapidjson`.
+Puedes descargarlas de la siguiente forma desde la raíz del proyecto:
+```bash
+mkdir -p argparse && wget https://raw.githubusercontent.com/morrisfranken/argparse/master/include/argparse/argparse.hpp -O argparse/argparse.hpp
+git clone https://github.com/Tencent/rapidjson.git rapidjson_repo && mv rapidjson_repo/include/rapidjson rapidjson && rm -rf rapidjson_repo
+```
 
-2.- Compilar el programa
+3.- Compilar el programa usando CMake:
+```bash
+mkdir -p build
+cd build
+cmake ..
+make -j4
+cd ..
+```
 
-3.- Llamar el programa ingresando el nombre de la instancia a resolver y los parametros.
+4.- Llamar el programa ejecutable (`build/RESCOL`) ingresando el nombre de la instancia a resolver y sus parámetros. **Nota:** No incluyas la ruta `Instancias/` en el nombre del archivo, ya que el programa asume por defecto que las instancias están en esa carpeta.
 
-Ej. ./main Formato5x5.txt --metodo 0 --eval-max 3000 --num-hormigas 20 --epocas 1 --matriz-secundaria --beta0 --usar-evaluaciones --usar-limitador --valor-limitador 2 --silence --random-seed --crear-directorios-solucion
+Ejemplo de ejecución válida:
+```bash
+./build/RESCOL Formato5x5.txt --metodo 0 --eval-max 3000 --num-hormigas 20 --epocas 1 --usar-evaluaciones --usar-limitador --valor-limitador 2 --silence
+```
 
   
 
