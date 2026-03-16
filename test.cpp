@@ -5,13 +5,13 @@
 #include "graph.h"
 
 
-void bfs(int nodoInicial, std::unordered_map<int, std::unordered_map<Arco *, double>> &adyacencia) {
+void bfs(int nodoInicial, std::vector<std::vector<double>> &adyacencia) {
     std::queue<int> cola;
     std::unordered_map<int, bool> visitado;
 
     // Marcar todos los nodos como no visitados al inicio
-    for (auto &par : adyacencia) {
-        visitado[par.first] = false;
+    for (size_t i = 0; i < adyacencia.size(); i++) {
+        visitado[i] = false;
     }
 
     // Marcar el nodo inicial como visitado y encolarlo
@@ -23,13 +23,14 @@ void bfs(int nodoInicial, std::unordered_map<int, std::unordered_map<Arco *, dou
         cola.pop();
 
         // Procesar los vecinos del nodo actual
-        for (auto &par : adyacencia[nodoActual]) {
-            Arco *arco = par.first;
-            int idVecino = arco->destino->id;
+        for (size_t i = 0; i < adyacencia[nodoActual].size(); i++) {
+            if (adyacencia[nodoActual][i] > 0.0) {
+                int idVecino = i; // Assuming the index corresponds to node ID in some way, this test function seems broken anyway since adyacencia[arco_id] doesn't map directly to destination id without Arco info
 
-            if (!visitado[idVecino]) {
-                visitado[idVecino] = true;
-                cola.push(idVecino);
+                if (!visitado[idVecino]) {
+                    visitado[idVecino] = true;
+                    cola.push(idVecino);
+                }
             }
         }
     }

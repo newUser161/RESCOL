@@ -52,47 +52,45 @@ void MinMax::iterar()
     ACO::iterar();
 
     // evaporar feromonas
-    for (auto i = feromonas.begin(); i != feromonas.end(); i++)
+    for (size_t i = 0; i < feromonas.size(); i++)
     {
-        i->second.cantidad *= (1 - rho);
-        if (i->second.cantidad < umbral_inferior)
-            i->second.cantidad = umbral_inferior;
+        feromonas[i].cantidad *= (1 - rho);
+        if (feromonas[i].cantidad < umbral_inferior)
+            feromonas[i].cantidad = umbral_inferior;
     }
     if (usarMatrizSecundaria){
-        for (auto i = feromonas_salida.begin(); i != feromonas_salida.end(); i++)
+        for (size_t i = 0; i < feromonas_salida.size(); i++)
         {
-            if (i->second.cantidad < umbral_inferior)
+            if (feromonas_salida[i].cantidad < umbral_inferior)
             {
-                i->second.cantidad = umbral_inferior;
+                feromonas_salida[i].cantidad = umbral_inferior;
             }
             else
             {
-                i->second.cantidad *= (1 - rho_salida);
+                feromonas_salida[i].cantidad *= (1 - rho_salida);
             } 
             
         }
     }
 
     // Actualiza las feromonas.
-    for (auto &par : mejor_solucion.arcos_visitados_tour)
+    for (size_t i = 0; i < mejor_solucion.arcos_visitados_tour.size(); i++)
     {
-        Arco *a = par.first;
-        int pasadas = par.second;
+        int pasadas = mejor_solucion.arcos_visitados_tour[i];
         if (pasadas != 0)
-            feromonas.at(a).cantidad += (tau / (rho * mejor_solucion.longitud_camino_final * pasadas));
-        if (feromonas.at(a).cantidad > umbral_superior)
-            feromonas.at(a).cantidad = umbral_superior;
+            feromonas[i].cantidad += (tau / (rho * mejor_solucion.longitud_camino_final * pasadas));
+        if (feromonas[i].cantidad > umbral_superior)
+            feromonas[i].cantidad = umbral_superior;
     }
     if (usarMatrizSecundaria)
     {   
-        for (auto &par : mejor_solucion.arcos_visitados_salida)
+        for (size_t i = 0; i < mejor_solucion.arcos_visitados_salida.size(); i++)
         {
-            Arco *a = par.first;
-            int pasadas = par.second;
+            int pasadas = mejor_solucion.arcos_visitados_salida[i];
             if (pasadas != 0)
-                feromonas_salida.at(a).cantidad += (tau / (rho * mejor_solucion.longitud_camino_salida * pasadas));
-            if (feromonas_salida.at(a).cantidad > umbral_superior)
-                feromonas_salida.at(a).cantidad = umbral_superior;
+                feromonas_salida[i].cantidad += (tau / (rho * mejor_solucion.longitud_camino_salida * pasadas));
+            if (feromonas_salida[i].cantidad > umbral_superior)
+                feromonas_salida[i].cantidad = umbral_superior;
         }
     }
 }
@@ -105,15 +103,10 @@ void MinMax::inicializar_feromonas()
 {
     umbral_inferior = umbral_superior_inicial / a;
     umbral_superior = umbral_superior_inicial;
-    for (auto &par : grafo->arcos)
-    {
-        Arco *arco = par.second;
-        Feromona feromona_inicial = {arco->origen, arco->destino, umbral_superior_inicial};
-        feromonas[arco] = feromona_inicial;
-        feromonas_salida[arco] = feromona_inicial;
-        for (auto &hormiga : hormigas)
-            hormiga.feromonas_locales[arco] = feromona_inicial;
-    }
+    feromonas.assign(grafo->arcos.size(), {umbral_superior_inicial});
+    feromonas_salida.assign(grafo->arcos.size(), {umbral_superior_inicial});
+    for (auto &hormiga : hormigas)
+        hormiga.feromonas_locales.assign(grafo->arcos.size(), {umbral_superior_inicial});
 }
 
 void MinMax::set_parametros(ACOArgs parametros)

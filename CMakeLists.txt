@@ -5,6 +5,8 @@ project(RESCOL) # Nombre del proyecto
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -fsanitize=address -fno-omit-frame-pointer")
+
 # Añade los directorios de los headers
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/argparse)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/rapidjson)

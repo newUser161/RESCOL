@@ -12,8 +12,6 @@
 // Representación de las Feromonas
 struct Feromona
 {
-    Nodo *nodo_inicial = nullptr;  // Nodo inicial
-    Nodo *nodo_terminal = nullptr; // Nodo terminal
     double cantidad = 0.0;         // Cantidad de feromonas
 };
 
@@ -21,12 +19,12 @@ struct Feromona
 struct Hormiga
 {
     Nodo *nodo_actual = nullptr;                            // Nodo actual
-    std::vector<Arco> camino_tour;                          // Camino recorrido
-    std::vector<Arco> camino_salida;                        // Camino recorrido
-    std::vector<Arco> camino_final;                         // Camino recorrido
-    std::unordered_map<Arco *, int> arcos_visitados_tour;   // Aristas visitadas
-    std::unordered_map<Arco *, int> arcos_visitados_salida; // Aristas visitadas
-    std::unordered_map<Arco *, int> arcos_visitados_final;  // Aristas visitadas
+    std::vector<Arco*> camino_tour;                          // Camino recorrido
+    std::vector<Arco*> camino_salida;                        // Camino recorrido
+    std::vector<Arco*> camino_final;                         // Camino recorrido
+    std::vector<int> arcos_visitados_tour;   // Aristas visitadas
+    std::vector<int> arcos_visitados_salida; // Aristas visitadas
+    std::vector<int> arcos_visitados_final;  // Aristas visitadas
     double longitud_camino_tour = 0.0;
     double longitud_camino_salida = 0.0;
     double longitud_camino_final = 0.0;
@@ -35,8 +33,10 @@ struct Hormiga
     double costo_camino = 0.0;                              // Costo del camino, costo asociado a la recolección y recorrido
     bool solucion_valida = true;                              // Costo del camino, costo asociado a la recolección y recorrido
     int id = 0;                                             // Identificador de la hormiga
-    std::unordered_map<Arco *, Feromona> feromonas_locales; // Feromonas locales de la hormiga
-    std::unordered_map<Arco*, int> arcos_no_visitados;        // Aristas no visitadas
+    std::vector<Feromona> feromonas_locales; // Feromonas locales de la hormiga
+    
+    int arcos_no_visitados_count = 0;        // Cantidad de aristas no visitadas
+    std::vector<bool> arco_fue_visitado;     // Aristas no visitadas
 };
 
 class ACO
@@ -52,8 +52,8 @@ protected:
     Hormiga mejor_solucion;                                // Mejor solución
     void limpiar();                                        // Limpia la memoria y datos del algoritmo
     void limpiar_rastro();                                 // Limpia la memoria y datos del algoritmo
-    std::unordered_map<Arco *, Feromona> feromonas;        // Feromonas
-    std::unordered_map<Arco *, Feromona> feromonas_salida; // Feromonas
+    std::vector<Feromona> feromonas;        // Feromonas
+    std::vector<Feromona> feromonas_salida; // Feromonas
     std::vector<Hormiga> hormigas;     
     std::string nombre_metodo;
     std::string nombre_instancia_salida;
@@ -106,6 +106,7 @@ public:
     
 
     ACO(Graph *instancia, ACOArgs parametros_base); // Constructor;
+    virtual ~ACO() = default; // Added virtual destructor for polymorphic deletion
     // ACO(Graph *instancia, ParametrosACOBase parametros_base); // Constructor;
     void reset();
 

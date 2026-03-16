@@ -228,12 +228,6 @@ CMakeFiles/RESCOL.dir/aco.cpp.o: /home/enki/Documents/RESCOL/aco.cpp \
  /usr/include/x86_64-linux-gnu/bits/xopen_lim.h \
  /usr/include/x86_64-linux-gnu/bits/uio_lim.h \
  /home/enki/Documents/RESCOL/aco.h /home/enki/Documents/RESCOL/graph.h \
- /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
- /usr/include/c++/11/bits/stl_map.h \
- /usr/include/c++/11/bits/stl_multimap.h \
- /home/enki/Documents/RESCOL/config.h \
- /home/enki/Documents/RESCOL/argparse/argparse.hpp \
- /usr/include/c++/11/iterator /usr/include/c++/11/bits/stream_iterator.h \
  /usr/include/c++/11/memory \
  /usr/include/c++/11/bits/stl_raw_storage_iter.h \
  /usr/include/c++/11/bits/align.h \
@@ -241,7 +235,13 @@ CMakeFiles/RESCOL.dir/aco.cpp.o: /home/enki/Documents/RESCOL/aco.cpp \
  /usr/include/c++/11/bits/atomic_base.h \
  /usr/include/c++/11/bits/atomic_lockfree_defines.h \
  /usr/include/c++/11/backward/auto_ptr.h \
- /usr/include/c++/11/pstl/glue_memory_defs.h /usr/include/c++/11/optional \
+ /usr/include/c++/11/pstl/glue_memory_defs.h \
+ /home/enki/Documents/RESCOL/config.h \
+ /home/enki/Documents/RESCOL/argparse/argparse.hpp \
+ /usr/include/c++/11/iterator /usr/include/c++/11/bits/stream_iterator.h \
+ /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
+ /usr/include/c++/11/bits/stl_map.h \
+ /usr/include/c++/11/bits/stl_multimap.h /usr/include/c++/11/optional \
  /home/enki/Documents/RESCOL/enums.h \
  /home/enki/Documents/RESCOL/oscilador.h \
  /home/enki/Documents/RESCOL/helpers.h

@@ -84,15 +84,15 @@ int main(int argc, char *argv[])
         cout << endl;
         cout << "Datos: " << endl;
         cout << "Nodos iniciales: " << endl;
-        for (auto &nodo : grafo.metadatos.nodos_iniciales)
+        for (auto nodo : grafo.metadatos.nodos_iniciales)
         {
-            cout << nodo.id << " " << endl;
+            cout << nodo->id << " " << endl;
         }
         cout << endl;
         cout << "Nodos terminales: " << endl;
-        for (auto &nodo : grafo.metadatos.nodos_termino)
+        for (auto nodo : grafo.metadatos.nodos_termino)
         {
-            cout << nodo.id << " ";
+            cout << nodo->id << " ";
         }
         cout << endl;
         for (int i = 0; i < 161; i++)
@@ -114,12 +114,8 @@ int main(int argc, char *argv[])
         aco = new AntColonySystem(&grafo, parametros_base);
         break;
     case TEST:
-        bfs(grafo.metadatos.nodos_iniciales[0].id, grafo.informacion_heuristica);
+        bfs(grafo.metadatos.nodos_iniciales[0]->index, grafo.informacion_heuristica);
     }
-    ///////////////////////
-    bfs(grafo.metadatos.nodos_iniciales[0].id, grafo.informacion_heuristica);
-    //bfs(32308, grafo.informacion_heuristica);
-    //////////////////TEST
 
     aco->abrir_file();
     auto start = std::chrono::high_resolution_clock::now();
@@ -141,11 +137,11 @@ int main(int argc, char *argv[])
         std::string archivo_salida = aco->get_filename();
 
         std::stringstream ss;
-        ss << "python Grafico.py " << archivo_salida << " " << config.show_grafico;
+        ss << "python3 Grafico.py " << archivo_salida << " " << config.show_grafico;
         std::string comando = ss.str();
 
         std::stringstream ss2;
-        ss2 << "python Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida << " " << config.show_grafico;
+        ss2 << "python3 Visualizador.py " << parametros_base.nombre_instancia << " " << archivo_salida << " " << config.show_grafico;
         std::string comando2 = ss2.str();
         
         cout << "Programa finalizado correctamente" << endl;
@@ -155,8 +151,10 @@ int main(int argc, char *argv[])
         cout << endl;
         
 
+        /*
         std::system(comando.c_str());    
         std::system(comando2.c_str());     
+        */
     }
 
 

@@ -30,27 +30,27 @@ void AntSystem::iterar()
 {
     ACO::iterar();
     // evaporar feromonas
-    for (auto i = feromonas.begin(); i != feromonas.end(); i++)
+    for (size_t i = 0; i < feromonas.size(); i++)
     {
-        if (i->second.cantidad < umbral_inferior)
+        if (feromonas[i].cantidad < umbral_inferior)
         {
-            i->second.cantidad = umbral_inferior;
+            feromonas[i].cantidad = umbral_inferior;
         }
         else
         {
-            i->second.cantidad *= (1 - rho);
+            feromonas[i].cantidad *= (1 - rho);
         }        
     }
     if (usarMatrizSecundaria){
-        for (auto i = feromonas_salida.begin(); i != feromonas_salida.end(); i++)
+        for (size_t i = 0; i < feromonas_salida.size(); i++)
         {
-            if (i->second.cantidad < umbral_inferior)
+            if (feromonas_salida[i].cantidad < umbral_inferior)
             {
-                i->second.cantidad = umbral_inferior;
+                feromonas_salida[i].cantidad = umbral_inferior;
             }
             else
             {
-                i->second.cantidad *= (1 - rho_salida);
+                feromonas_salida[i].cantidad *= (1 - rho_salida);
             }        
         }
     }
@@ -59,21 +59,19 @@ void AntSystem::iterar()
     for (Hormiga &hormiga : hormigas)
     {
         if (hormiga.solucion_valida){
-            for (auto &par : hormiga.arcos_visitados_tour)
+            for (size_t i = 0; i < hormiga.arcos_visitados_tour.size(); i++)
             {
-                Arco *a = par.first;
-                int pasadas = par.second;
+                int pasadas = hormiga.arcos_visitados_tour[i];
                 if (pasadas != 0)
-                    feromonas.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_final, 2) * pasadas));
+                    feromonas[i].cantidad += (tau / (rho * pow(hormiga.longitud_camino_final, 2) * pasadas));
             }
             if (usarMatrizSecundaria)
             {
-                for (auto &par : hormiga.arcos_visitados_salida)
+                for (size_t i = 0; i < hormiga.arcos_visitados_salida.size(); i++)
                 {
-                    Arco *a = par.first;
-                    int pasadas = par.second;
+                    int pasadas = hormiga.arcos_visitados_salida[i];
                     if (pasadas != 0)
-                        feromonas_salida.at(a).cantidad += (tau / (rho * pow(hormiga.longitud_camino_salida, 2) * pasadas));
+                        feromonas_salida[i].cantidad += (tau / (rho * pow(hormiga.longitud_camino_salida, 2) * pasadas));
                 }
             }
         }
@@ -86,13 +84,8 @@ void AntSystem::iterar()
 */
 void AntSystem::inicializar_feromonas()
 {
-    for (auto &par : grafo->arcos)
-    {
-        Arco *arco = par.second;
-        Feromona feromona_inicial = {arco->origen, arco->destino, tau};
-        feromonas[arco] = feromona_inicial;
-        feromonas_salida[arco] = feromona_inicial;
-        for (auto &hormiga : hormigas)
-            hormiga.feromonas_locales[arco] = feromona_inicial;
-    }
+    feromonas.assign(grafo->arcos.size(), {tau});
+    feromonas_salida.assign(grafo->arcos.size(), {tau});
+    for (auto &hormiga : hormigas)
+        hormiga.feromonas_locales.assign(grafo->arcos.size(), {tau});
 }

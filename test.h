@@ -5,6 +5,6 @@ using namespace std;
 #include <vector>
 #include <queue>
 
-void bfs(int nodoInicial, std::unordered_map<int, std::unordered_map<Arco *, double>> &adyacencia);
+void bfs(int nodoInicial, std::vector<std::vector<double>> &adyacencia);
 
 #endif

@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/enki/Documents/RESCOL/argparse -I/home/enki/Documents/RESCOL/rapidjson
 
-CXX_FLAGS = -std=gnu++17
+CXX_FLAGS =  -g -fsanitize=address -fno-omit-frame-pointer -std=gnu++17
 
